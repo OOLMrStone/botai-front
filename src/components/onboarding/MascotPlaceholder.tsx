@@ -1,0 +1,26 @@
+import { Sparkles } from 'lucide-react';
+
+import { cn } from '@/lib/utils';
+
+interface MascotPlaceholderProps {
+  className?: string;
+  size?: 'md' | 'lg';
+}
+
+// Заглушка под будущего маскота. Финальный арт — отдельно, позже.
+export function MascotPlaceholder({ className, size = 'lg' }: MascotPlaceholderProps) {
+  const box = size === 'lg' ? 'size-32' : 'size-20';
+
+  return (
+    <div
+      className={cn(
+        'border-border bg-muted text-muted-foreground flex items-center justify-center rounded-3xl border-2 border-dashed',
+        box,
+        className,
+      )}
+      aria-hidden="true"
+    >
+      <Sparkles className="size-1/3" />
+    </div>
+  );
+}

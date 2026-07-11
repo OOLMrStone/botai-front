@@ -1,0 +1,52 @@
+'use client';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ScreenShell } from '@/components/onboarding/ScreenShell';
+import { COPY } from '@/config/onboarding-steps';
+import { useRegisterFlow } from '@/hooks/use-flow-navigation';
+import { AGE_LIMITS, isValidAge } from '@/lib/validation';
+import { useOnboardingStore } from '@/stores/onboarding-store';
+
+export default function AgePage() {
+  const { goNext } = useRegisterFlow();
+  const age = useOnboardingStore((s) => s.registration.age);
+  const updateRegistration = useOnboardingStore((s) => s.updateRegistration);
+
+  const valid = isValidAge(age);
+
+  return (
+    <ScreenShell
+      footer={
+        <Button
+          className="h-12 w-full text-base"
+          size="lg"
+          disabled={!valid}
+          onClick={() => goNext('age')}
+        >
+          {COPY.register.age.action}
+        </Button>
+      }
+    >
+      <div className="space-y-1.5">
+        <h1 className="text-2xl font-bold tracking-tight">{COPY.register.age.title}</h1>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="age">Возраст</Label>
+        <Input
+          id="age"
+          type="number"
+          inputMode="numeric"
+          min={AGE_LIMITS.min}
+          max={AGE_LIMITS.max}
+          autoFocus
+          value={age}
+          onChange={(e) => updateRegistration({ age: e.target.value })}
+          className="h-12 text-base"
+        />
+      </div>
+    </ScreenShell>
+  );
+}
