@@ -10,12 +10,12 @@ import { useOnboardingStore } from '@/stores/onboarding-store';
 
 // Экран-имитация запроса уведомлений. Реальный Notification API не трогаем.
 export default function NotificationsPage() {
-  const { goNext } = useOnboardingFlow();
+  const { goNext } = useOnboardingFlow('notifications');
   const setNotifications = useOnboardingStore((s) => s.setNotifications);
 
   const finish = (enabled: boolean) => {
     setNotifications(enabled);
-    goNext('notifications');
+    goNext();
   };
 
   return (
@@ -42,10 +42,12 @@ export default function NotificationsPage() {
       </div>
 
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight text-balance">
+        <h1 className="text-2xl font-bold tracking-tight text-balance whitespace-pre-line">
           {COPY.notifications.title}
         </h1>
-        <p className="text-muted-foreground text-balance">{COPY.notifications.subtitle}</p>
+        <p className="text-muted-foreground text-balance whitespace-pre-line">
+          {COPY.notifications.subtitle}
+        </p>
       </div>
     </ScreenShell>
   );

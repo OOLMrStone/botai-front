@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { useRouter } from 'next/navigation';
 
 import {
@@ -8,32 +10,37 @@ import {
   onboardingPath,
   registerPath,
   ROUTES,
+  type OnboardingSlug,
+  type RegisterSlug,
 } from '@/config/onboarding-steps';
 
 interface GoNextOptions {
   replace?: boolean;
 }
 
-// Экран знает только своё имя и просит «дальше»; порядок берётся из конфига.
-function useStepFlow<S extends string>(
-  next: (slug: S) => S | null,
-  toPath: (slug: S) => string,
-  exitRoute: string,
-) {
+// Экран называет себя один раз: хук префетчит следующий шаг (переход без паузы),
+// а goNext() уводит в уже прогретый роут. Порядок берётся из конфига.
+function useStepFlow(nextHref: string) {
   const router = useRouter();
 
-  const goNext = (current: S, { replace = false }: GoNextOptions = {}) => {
-    const upcoming = next(current);
-    const href = upcoming ? toPath(upcoming) : exitRoute;
+  useEffect(() => {
+    router.prefetch(nextHref);
+  }, [router, nextHref]);
 
-    if (replace) router.replace(href);
-    else router.push(href);
+  const goNext = ({ replace = false }: GoNextOptions = {}) => {
+    if (replace) router.replace(nextHref);
+    else router.push(nextHref);
   };
 
   return { goNext };
 }
 
-export const useOnboardingFlow = () =>
-  useStepFlow(nextOnboardingSlug, onboardingPath, ROUTES.lesson);
+export function useOnboardingFlow(current: OnboardingSlug) {
+  const next = nextOnboardingSlug(current);
+  return useStepFlow(next ? onboardingPath(next) : ROUTES.lesson);
+}
 
-export const useRegisterFlow = () => useStepFlow(nextRegisterSlug, registerPath, ROUTES.done);
+export function useRegisterFlow(current: RegisterSlug) {
+  const next = nextRegisterSlug(current);
+  return useStepFlow(next ? registerPath(next) : ROUTES.done);
+}

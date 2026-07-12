@@ -5,14 +5,14 @@ import { COPY } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
 
 export default function ReadyPage() {
-  const { goNext } = useOnboardingFlow();
+  const { goNext } = useOnboardingFlow('ready');
 
   return (
     <ResultScreen
       title={COPY.ready.title}
       subtitle={COPY.ready.subtitle}
       actionLabel={COPY.ready.action}
-      onAction={() => goNext('ready')}
+      onAction={() => goNext()}
     />
   );
 }

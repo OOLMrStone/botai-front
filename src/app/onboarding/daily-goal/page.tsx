@@ -6,7 +6,7 @@ import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 
 export default function DailyGoalPage() {
-  const { goNext } = useOnboardingFlow();
+  const { goNext } = useOnboardingFlow('daily-goal');
   const dailyGoalMinutes = useOnboardingStore((s) => s.dailyGoalMinutes);
   const setDailyGoal = useOnboardingStore((s) => s.setDailyGoal);
 
@@ -18,7 +18,7 @@ export default function DailyGoalPage() {
       value={dailyGoalMinutes === null ? null : String(dailyGoalMinutes)}
       onValueChange={(id) => setDailyGoal(Number(id))}
       actionLabel={COPY.dailyGoal.action}
-      onContinue={() => goNext('daily-goal')}
+      onContinue={() => goNext()}
     />
   );
 }

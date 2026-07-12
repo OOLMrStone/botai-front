@@ -12,7 +12,7 @@ const RESULT_BY_BAND = {
 } as const;
 
 export default function LevelResultPage() {
-  const { goNext } = useOnboardingFlow();
+  const { goNext } = useOnboardingFlow('level-result');
   const level = useOnboardingStore((s) => s.level);
 
   const copy = RESULT_BY_BAND[levelBand(level ?? 'middle')];
@@ -22,7 +22,7 @@ export default function LevelResultPage() {
       title={copy.title}
       subtitle={copy.subtitle}
       actionLabel={copy.action}
-      onAction={() => goNext('level-result')}
+      onAction={() => goNext()}
     />
   );
 }

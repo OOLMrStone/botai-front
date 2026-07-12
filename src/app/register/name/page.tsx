@@ -9,7 +9,7 @@ import { useRegisterFlow } from '@/hooks/use-flow-navigation';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 
 export default function NamePage() {
-  const { goNext } = useRegisterFlow();
+  const { goNext } = useRegisterFlow('name');
   const { firstName, lastName } = useOnboardingStore((s) => s.registration);
   const updateRegistration = useOnboardingStore((s) => s.updateRegistration);
 
@@ -22,7 +22,7 @@ export default function NamePage() {
           className="h-12 w-full text-base"
           size="lg"
           disabled={!valid}
-          onClick={() => goNext('name')}
+          onClick={() => goNext()}
         >
           {COPY.register.name.action}
         </Button>

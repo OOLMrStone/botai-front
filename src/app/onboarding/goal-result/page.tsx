@@ -1,17 +1,28 @@
 'use client';
 
-import { ResultScreen } from '@/components/onboarding/ResultScreen';
+import { Button } from '@/components/ui/button';
+import { GoalChart } from '@/components/onboarding/GoalChart';
+import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { COPY } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
 
 export default function GoalResultPage() {
-  const { goNext } = useOnboardingFlow();
+  const { goNext } = useOnboardingFlow('goal-result');
 
   return (
-    <ResultScreen
-      title={COPY.goalResult.title}
-      actionLabel={COPY.goalResult.action}
-      onAction={() => goNext('goal-result')}
-    />
+    <ScreenShell
+      center
+      footer={
+        <Button className="h-12 w-full text-base" size="lg" onClick={() => goNext()}>
+          {COPY.goalResult.action}
+        </Button>
+      }
+    >
+      <h1 className="text-3xl font-extrabold tracking-tight text-balance whitespace-pre-line">
+        {COPY.goalResult.title}
+      </h1>
+
+      <GoalChart />
+    </ScreenShell>
   );
 }

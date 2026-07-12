@@ -10,7 +10,7 @@ import { AGE_LIMITS, isValidAge } from '@/lib/validation';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 
 export default function AgePage() {
-  const { goNext } = useRegisterFlow();
+  const { goNext } = useRegisterFlow('age');
   const age = useOnboardingStore((s) => s.registration.age);
   const updateRegistration = useOnboardingStore((s) => s.updateRegistration);
 
@@ -23,7 +23,7 @@ export default function AgePage() {
           className="h-12 w-full text-base"
           size="lg"
           disabled={!valid}
-          onClick={() => goNext('age')}
+          onClick={() => goNext()}
         >
           {COPY.register.age.action}
         </Button>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Radio } from '@base-ui/react/radio';
-import type { LucideIcon } from 'lucide-react';
+import type { ComponentType } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -9,7 +9,7 @@ interface SelectableCardProps {
   value: string;
   label: string;
   description?: string;
-  icon?: LucideIcon;
+  icon?: ComponentType<{ className?: string }>;
   className?: string;
 }
 

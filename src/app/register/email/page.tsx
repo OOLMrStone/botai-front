@@ -10,7 +10,7 @@ import { isValidEmail } from '@/lib/validation';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 
 export default function EmailPage() {
-  const { goNext } = useRegisterFlow();
+  const { goNext } = useRegisterFlow('email');
   const email = useOnboardingStore((s) => s.registration.email);
   const updateRegistration = useOnboardingStore((s) => s.updateRegistration);
 
@@ -23,7 +23,7 @@ export default function EmailPage() {
           className="h-12 w-full text-base"
           size="lg"
           disabled={!valid}
-          onClick={() => goNext('email')}
+          onClick={() => goNext()}
         >
           {COPY.register.email.action}
         </Button>

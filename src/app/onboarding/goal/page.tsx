@@ -6,7 +6,7 @@ import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 
 export default function GoalPage() {
-  const { goNext } = useOnboardingFlow();
+  const { goNext } = useOnboardingFlow('goal');
   const goal = useOnboardingStore((s) => s.goal);
   const setGoal = useOnboardingStore((s) => s.setGoal);
 
@@ -18,7 +18,7 @@ export default function GoalPage() {
       value={goal}
       onValueChange={setGoal}
       actionLabel={COPY.goal.action}
-      onContinue={() => goNext('goal')}
+      onContinue={() => goNext()}
     />
   );
 }

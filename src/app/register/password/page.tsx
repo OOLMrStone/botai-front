@@ -13,7 +13,7 @@ import { isValidPassword, PASSWORD_MIN_LENGTH } from '@/lib/validation';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 
 export default function PasswordPage() {
-  const { goNext } = useRegisterFlow();
+  const { goNext } = useRegisterFlow('password');
   const registration = useOnboardingStore((s) => s.registration);
   const updateRegistration = useOnboardingStore((s) => s.updateRegistration);
   const [pending, setPending] = useState(false);
@@ -26,7 +26,7 @@ export default function PasswordPage() {
 
     await registerUser(registration);
 
-    goNext('password');
+    goNext();
   };
 
   return (

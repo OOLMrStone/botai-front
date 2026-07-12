@@ -9,7 +9,7 @@ import { buildCourse } from '@/lib/api/onboarding';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 
 export default function BuildingPage() {
-  const { goNext } = useOnboardingFlow();
+  const { goNext } = useOnboardingFlow('building');
   const { goal, level, dailyGoalMinutes, notificationsEnabled } = useOnboardingStore();
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function BuildingPage() {
     <BuildingLoader
       title={COPY.building.title}
       subtitle={COPY.building.subtitle}
-      onDone={() => goNext('building', { replace: true })}
+      onDone={() => goNext({ replace: true })}
     />
   );
 }

@@ -72,7 +72,7 @@ export default function StreakPage() {
           </div>
 
           <div className="border-border border-t pt-3">
-            <p className="text-muted-foreground text-center text-sm text-balance">
+            <p className="text-muted-foreground text-center text-sm text-balance whitespace-pre-line">
               {COPY.streak.hint}
             </p>
           </div>

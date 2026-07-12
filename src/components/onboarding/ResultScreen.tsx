@@ -13,7 +13,7 @@ interface ResultScreenProps {
 }
 
 // Экран-реакция: заголовок + подпись + кнопка. Опционально с маскотом.
-// В title поддерживается перенос строки через \n.
+// В тексте поддерживается ручной перенос строки через \n (whitespace-pre-line).
 export function ResultScreen({
   title,
   subtitle,
@@ -21,8 +21,6 @@ export function ResultScreen({
   onAction,
   showMascot = true,
 }: ResultScreenProps) {
-  const titleLines = title.split('\n').map((line) => line.trim());
-
   return (
     <ScreenShell
       center
@@ -35,14 +33,12 @@ export function ResultScreen({
       {showMascot ? <MascotPlaceholder /> : null}
 
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight text-balance">
-          {titleLines.map((line, i) => (
-            <span key={i} className="block">
-              {line}
-            </span>
-          ))}
+        <h1 className="text-2xl font-bold tracking-tight text-balance whitespace-pre-line">
+          {title}
         </h1>
-        {subtitle ? <p className="text-muted-foreground text-balance">{subtitle}</p> : null}
+        {subtitle ? (
+          <p className="text-muted-foreground text-balance whitespace-pre-line">{subtitle}</p>
+        ) : null}
       </div>
     </ScreenShell>
   );

@@ -30,8 +30,10 @@ export function BuildingLoader({
       <MascotPlaceholder />
 
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        {subtitle ? <p className="text-muted-foreground text-balance">{subtitle}</p> : null}
+        <h1 className="text-2xl font-bold tracking-tight whitespace-pre-line">{title}</h1>
+        {subtitle ? (
+          <p className="text-muted-foreground text-balance whitespace-pre-line">{subtitle}</p>
+        ) : null}
       </div>
 
       <Loader2 className="text-muted-foreground size-6 animate-spin" />

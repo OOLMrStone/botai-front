@@ -64,7 +64,7 @@ export default function LoginPage() {
       >
         <div className="space-y-1.5">
           <h1 className="text-2xl font-bold tracking-tight">{COPY.login.title}</h1>
-          <p className="text-muted-foreground">{COPY.login.subtitle}</p>
+          <p className="text-muted-foreground whitespace-pre-line">{COPY.login.subtitle}</p>
         </div>
 
         <div className="space-y-4">

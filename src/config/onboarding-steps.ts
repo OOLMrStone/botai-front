@@ -1,13 +1,16 @@
 // Single source of truth для флоу онбординга + регистрации.
 // Порядок шагов, слаги и тексты живут здесь — экраны читают отсюда.
 
+import type { ComponentType } from 'react';
+
 import {
   Clock,
   Coffee,
   Crown,
   Flame,
-  type LucideIcon,
+  Globe,
   Medal,
+  MoreHorizontal,
   Signal,
   SignalHigh,
   SignalLow,
@@ -16,21 +19,33 @@ import {
   Star,
   Target,
   ThumbsUp,
+  Users,
   Zap,
 } from 'lucide-react';
+
+import {
+  InstagramIcon,
+  TelegramIcon,
+  TikTokIcon,
+  VkIcon,
+  YoutubeIcon,
+} from '@/components/onboarding/brand-icons';
 
 export type OnboardingSlug =
   | 'welcome'
   | 'intro'
+  | 'source'
   | 'intro-questions'
   | 'goal'
   | 'goal-result'
-  | 'building'
   | 'level'
   | 'level-result'
   | 'daily-goal'
   | 'daily-goal-result'
+  | 'building'
   | 'notifications'
+  | 'thank-you'
+  | 'commitment'
   | 'ready';
 
 export type RegisterSlug = 'age' | 'name' | 'email' | 'password';
@@ -38,15 +53,18 @@ export type RegisterSlug = 'age' | 'name' | 'email' | 'password';
 export const ONBOARDING_STEPS: OnboardingSlug[] = [
   'welcome',
   'intro',
+  'source',
   'intro-questions',
   'goal',
   'goal-result',
-  'building',
   'level',
   'level-result',
   'daily-goal',
   'daily-goal-result',
+  'building',
   'notifications',
+  'thank-you',
+  'commitment',
   'ready',
 ];
 
@@ -80,14 +98,26 @@ export interface Option {
   id: string;
   label: string;
   description?: string;
-  icon: LucideIcon;
+  icon: ComponentType<{ className?: string }>;
 }
+
+// Откуда узнали про нас - каналы под РФ. Иконки - бренд-лого + общие.
+export const SOURCE_OPTIONS: Option[] = [
+  { id: 'telegram', label: 'Telegram', icon: TelegramIcon },
+  { id: 'vk', label: 'ВКонтакте', icon: VkIcon },
+  { id: 'tiktok', label: 'TikTok', icon: TikTokIcon },
+  { id: 'instagram', label: 'Instagram', icon: InstagramIcon },
+  { id: 'youtube', label: 'YouTube', icon: YoutubeIcon },
+  { id: 'friends', label: 'Друзья', icon: Users },
+  { id: 'web', label: 'Сайты и блоги', icon: Globe },
+  { id: 'other', label: 'Другое', icon: MoreHorizontal },
+];
 
 // В1 — цель по баллам ЕГЭ (когорты из SCOPE). Иконки — по возрастанию престижа.
 export const GOAL_OPTIONS: Option[] = [
   { id: 'norm', label: 'Норм', description: '60-70 баллов', icon: Target },
   { id: 'good', label: 'Хороший', description: '70-80 баллов', icon: ThumbsUp },
-  { id: 'good-plus', label: 'Джентельменский', description: '80-86 баллов', icon: Star },
+  { id: 'good-plus', label: 'Джентльменский', description: '80-86 баллов', icon: Star },
   { id: 'excellent', label: 'Отличный', description: '86-94 балла', icon: Medal },
   { id: 'flawless', label: 'Безупречный', description: '94+ балла', icon: Crown },
 ];
@@ -105,7 +135,7 @@ export const LEVEL_OPTIONS: Option[] = [
   {
     id: 'confident',
     label: 'Уверенно',
-    description: 'Джентельменский делаю',
+    description: 'Джентльменский делаю',
     icon: SignalHigh,
   },
   { id: 'strong', label: 'Сильный', description: 'Мне нужны только гробники', icon: Signal },
@@ -142,62 +172,67 @@ export const DAILY_GOAL_OPTIONS: DailyGoalOption[] = [
 export const COPY = {
   welcome: {
     title: 'botai',
-    subtitle: 'здесь ты подготовишься к ЕГЭ по профмату.',
+    subtitle: 'здесь ты подготовишься к ЕГЭ по профмату',
     primary: 'Начать',
     secondary: 'У меня уже есть аккаунт',
   },
   intro: {
     title: 'Привет! Я <имя>',
-    subtitle: 'Помогу разобраться во всем, будем ботать вместе!',
+    subtitle: 'Помогу разобраться во всём, будем ботать вместе!',
     action: 'Дальше',
+  },
+  source: {
+    title: 'Откуда узнал про нас?',
+    subtitle: 'Интересно, как ты нас нашёл',
+    action: 'Продолжить',
   },
   introQuestions: {
     lead: 'Ответь на',
     highlight: 'всего 3 вопроса',
-    subtitle: 'Так я соберу курс именно под тебя.',
+    subtitle: 'Так я соберу курс именно под тебя',
     action: 'Поехали',
   },
   goal: {
     title: 'Какая цель по баллам?',
-    subtitle: 'От неё зависит план подготовки.',
+    subtitle: 'От неё зависит план подготовки',
     action: 'Продолжить',
   },
   goalResult: {
-    title: 'Отлично! \n С botai 84% пользователей достигают цели',
+    title: 'Отлично!\nПо статистике с botai 84% достигают цели',
     action: 'Дальше',
   },
   building: {
     title: 'Строим курс…',
-    subtitle: 'Подбираем темы и порядок под твою цель.',
+    subtitle: 'Подбираем темы и порядок под твою цель',
   },
   level: {
     title: 'Как у тебя сейчас с профматом?',
-    subtitle: 'Ответь честно - подстроим сложность.',
+    subtitle: 'Ответь честно - подстроим сложность',
     action: 'Продолжить',
   },
   levelResultLow: {
     title: 'Начнём с нуля - это ок',
-    subtitle: 'Разберём базу по полочкам, без спешки.',
+    subtitle: 'Разберём базу по полочкам, без спешки',
     action: 'Дальше',
   },
   levelResultMid: {
     title: 'База есть - подтянем до цели',
-    subtitle: 'Закроем пробелы и уверенно возьмёмся за вторую часть.',
+    subtitle: 'Закроем пробелы и уверенно возьмёмся за вторую часть',
     action: 'Дальше',
   },
   levelResultHigh: {
     title: 'Крутой уровень!',
-    subtitle: 'Сразу дам задачи посложнее - будет интересно.',
+    subtitle: 'Сразу дам задачи посложнее - будет интересно',
     action: 'Дальше',
   },
   dailyGoal: {
     title: 'Сколько занимаемся в день?',
-    subtitle: 'Небольшая, но регулярная цель работает лучше всего.',
+    subtitle: 'Небольшая, но регулярная цель работает лучше всего',
     action: 'Продолжить',
   },
   dailyGoalResult: {
     title: '+5 баллов к пробникам через неделю',
-    subtitle: 'Главное - ботать регулярно.',
+    subtitle: 'Главное - ботать регулярно',
     action: 'Дальше',
   },
   notifications: {
@@ -206,6 +241,19 @@ export const COPY = {
     primary: 'Напоминать мне',
     secondary: 'Не сейчас',
   },
+  commitment: {
+    title: 'Давай закрепим это официально',
+    subtitle: 'Обещаю заниматься каждый день, чтобы сдать профиль на высокий балл',
+    signHint: 'Распишись, чтобы закрепить',
+    signedPrefix: 'Подписано',
+    action: 'Продолжить',
+  },
+  thankYou: {
+    title: 'Спасибо за доверие',
+    cardTitle: 'Твоя безопасность - наш приоритет',
+    cardText: 'Мы гарантируем защиту\nлюбых твоих личных данных',
+    action: 'Продолжить',
+  },
   ready: {
     title: 'Вот твой первый урок',
     subtitle: 'Всё готово. Начнём?',
@@ -213,7 +261,7 @@ export const COPY = {
   },
   lesson: {
     title: 'Урок будет здесь',
-    subtitle: 'Первый урок - заглушка. Сам урок вне текущего этапа.',
+    subtitle: 'Первый урок - заглушка. Сам урок вне текущего этапа',
     action: 'Завершить урок',
   },
   streak: {
@@ -223,7 +271,7 @@ export const COPY = {
   },
   login: {
     title: 'С возвращением',
-    subtitle: 'Войди, чтобы продолжить подготовку.',
+    subtitle: 'Войди, чтобы продолжить подготовку',
     action: 'Войти',
     noAccount: 'Ещё нет аккаунта? Начать',
   },
@@ -234,13 +282,13 @@ export const COPY = {
     password: { title: 'Придумай пароль', action: 'Создать профиль' },
     saveProgress: {
       title: 'Сохрани свой прогресс',
-      subtitle: 'Чтобы не потерять пройденное - создай профиль.',
+      subtitle: 'Чтобы не потерять пройденное - создай профиль',
       emailCta: 'Зарегистрироваться по почте',
       loginCta: 'Уже есть аккаунт? Войти',
     },
     done: {
       title: 'Готово!',
-      subtitle: 'Профиль создан, прогресс сохранён.',
+      subtitle: 'Профиль создан, прогресс сохранён',
       action: 'К обучению',
     },
   },

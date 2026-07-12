@@ -40,8 +40,8 @@ export function QuestionScreen({
       }
     >
       <div className="space-y-1.5">
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        {subtitle ? <p className="text-muted-foreground">{subtitle}</p> : null}
+        <h1 className="text-2xl font-bold tracking-tight whitespace-pre-line">{title}</h1>
+        {subtitle ? <p className="text-muted-foreground whitespace-pre-line">{subtitle}</p> : null}
       </div>
 
       <RadioGroup

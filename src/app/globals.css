@@ -128,3 +128,51 @@
     @apply font-sans;
   }
 }
+
+/* Рисование линий графика (stroke draw). Failsafe: без анимации offset=0 → линия видна. */
+@keyframes draw-in {
+  from {
+    stroke-dashoffset: 400;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Флажок «цель достигнута»: пружинистый поп с оверслутом, в духе Mario. */
+@keyframes flag-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.2);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.2);
+  }
+  72% {
+    opacity: 1;
+    transform: translateY(1px) scale(0.9);
+  }
+  86% {
+    opacity: 1;
+    transform: translateY(0) scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.goal-line {
+  stroke-dasharray: 400;
+  animation: draw-in 1.2s ease-out both;
+}
+.goal-line--delayed {
+  animation-delay: 0.15s;
+}
+.goal-flag {
+  opacity: 1;
+  transform-box: view-box;
+  transform-origin: 288px 26px;
+  animation: flag-pop 0.6s ease-out 0.8s backwards;
+}

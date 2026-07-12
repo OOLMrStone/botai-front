@@ -5,14 +5,14 @@ import { COPY } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
 
 export default function IntroPage() {
-  const { goNext } = useOnboardingFlow();
+  const { goNext } = useOnboardingFlow('intro');
 
   return (
     <ResultScreen
       title={COPY.intro.title}
       subtitle={COPY.intro.subtitle}
       actionLabel={COPY.intro.action}
-      onAction={() => goNext('intro')}
+      onAction={() => goNext()}
     />
   );
 }

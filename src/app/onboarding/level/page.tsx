@@ -6,7 +6,7 @@ import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 
 export default function LevelPage() {
-  const { goNext } = useOnboardingFlow();
+  const { goNext } = useOnboardingFlow('level');
   const level = useOnboardingStore((s) => s.level);
   const setLevel = useOnboardingStore((s) => s.setLevel);
 
@@ -18,7 +18,7 @@ export default function LevelPage() {
       value={level}
       onValueChange={setLevel}
       actionLabel={COPY.level.action}
-      onContinue={() => goNext('level')}
+      onContinue={() => goNext()}
     />
   );
 }
