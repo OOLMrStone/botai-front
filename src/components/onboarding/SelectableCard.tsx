@@ -25,15 +25,16 @@ export function SelectableCard({
     <Radio.Root
       value={value}
       className={cn(
-        'group border-border bg-card flex w-full items-center gap-3 rounded-xl border-2 p-4 text-left transition-all outline-none active:scale-[0.99]',
+        'group border-border bg-card flex w-full items-center gap-2.5 rounded-xl border-2 p-2.5 text-left transition-all outline-none active:scale-[0.99]',
         'hover:border-ring/60 focus-visible:ring-ring/50 focus-visible:ring-3',
         'data-checked:border-primary data-checked:bg-accent',
         className,
       )}
     >
+      {/* Без серого квадрата - просто иконка, растёт вместе с высотой карточки. */}
       {Icon ? (
-        <span className="bg-muted text-muted-foreground group-data-[checked]:bg-primary/10 group-data-[checked]:text-primary flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors">
-          <Icon className="size-5" />
+        <span className="text-muted-foreground group-data-[checked]:text-primary flex aspect-square h-full shrink-0 items-center justify-center transition-colors">
+          <Icon className="size-[50%]" />
         </span>
       ) : null}
 
@@ -44,7 +45,7 @@ export function SelectableCard({
         ) : null}
       </span>
 
-      <span className="border-input group-data-[checked]:border-primary flex size-5 shrink-0 items-center justify-center rounded-full border-2">
+      <span className="border-input group-data-[checked]:border-primary mr-1.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2">
         <Radio.Indicator className="bg-primary size-2.5 rounded-full" />
       </span>
     </Radio.Root>

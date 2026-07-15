@@ -2,6 +2,7 @@ import { GraduationCap } from 'lucide-react';
 import Link from 'next/link';
 
 import { buttonVariants } from '@/components/ui/button';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { ScreenTransition } from '@/components/onboarding/ScreenTransition';
 import { COPY, ROUTES } from '@/config/onboarding-steps';
@@ -26,10 +27,7 @@ export default function LessonPage() {
           <GraduationCap className="size-8" />
         </div>
 
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight">{COPY.lesson.title}</h1>
-          <p className="text-muted-foreground text-balance">{COPY.lesson.subtitle}</p>
-        </div>
+        <ScreenHeading title={COPY.lesson.title} subtitle={COPY.lesson.subtitle} />
       </ScreenShell>
     </ScreenTransition>
   );

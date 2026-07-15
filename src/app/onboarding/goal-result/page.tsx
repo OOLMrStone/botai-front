@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { GoalChart } from '@/components/onboarding/GoalChart';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { COPY } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
@@ -18,9 +19,7 @@ export default function GoalResultPage() {
         </Button>
       }
     >
-      <h1 className="text-3xl font-extrabold tracking-tight text-balance whitespace-pre-line">
-        {COPY.goalResult.title}
-      </h1>
+      <ScreenHeading title={COPY.goalResult.title} />
 
       <GoalChart />
     </ScreenShell>

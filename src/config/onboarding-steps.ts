@@ -27,9 +27,9 @@ import {
   InstagramIcon,
   TelegramIcon,
   TikTokIcon,
-  VkIcon,
   YoutubeIcon,
 } from '@/components/onboarding/brand-icons';
+import { PASSWORD_MIN_LENGTH } from '@/lib/validation';
 
 export type OnboardingSlug =
   | 'welcome'
@@ -63,7 +63,7 @@ export const ONBOARDING_STEPS: OnboardingSlug[] = [
   'daily-goal-result',
   'building',
   'notifications',
-  'thank-you',
+  // 'thank-you' временно отключён - экран и тексты сохранены, вернуть строкой сюда.
   'commitment',
   'ready',
 ];
@@ -104,12 +104,11 @@ export interface Option {
 // Откуда узнали про нас - каналы под РФ. Иконки - бренд-лого + общие.
 export const SOURCE_OPTIONS: Option[] = [
   { id: 'telegram', label: 'Telegram', icon: TelegramIcon },
-  { id: 'vk', label: 'ВКонтакте', icon: VkIcon },
   { id: 'tiktok', label: 'TikTok', icon: TikTokIcon },
   { id: 'instagram', label: 'Instagram', icon: InstagramIcon },
   { id: 'youtube', label: 'YouTube', icon: YoutubeIcon },
   { id: 'friends', label: 'Друзья', icon: Users },
-  { id: 'web', label: 'Сайты и блоги', icon: Globe },
+  { id: 'web', label: 'Реклама на сайтах', icon: Globe },
   { id: 'other', label: 'Другое', icon: MoreHorizontal },
 ];
 
@@ -171,8 +170,7 @@ export const DAILY_GOAL_OPTIONS: DailyGoalOption[] = [
 
 export const COPY = {
   welcome: {
-    title: 'botai',
-    subtitle: 'здесь ты подготовишься к ЕГЭ по профмату',
+    subtitle: 'Твой успех начинается здесь',
     primary: 'Начать',
     secondary: 'У меня уже есть аккаунт',
   },
@@ -187,8 +185,7 @@ export const COPY = {
     action: 'Продолжить',
   },
   introQuestions: {
-    lead: 'Ответь на',
-    highlight: 'всего 3 вопроса',
+    title: 'Ответь всего на \n *три* вопроса',
     subtitle: 'Так я соберу курс именно под тебя',
     action: 'Поехали',
   },
@@ -222,12 +219,12 @@ export const COPY = {
   },
   levelResultHigh: {
     title: 'Крутой уровень!',
-    subtitle: 'Сразу дам задачи посложнее - будет интересно',
+    subtitle: 'Сразу дам задачи посложнее -\n будет интересно',
     action: 'Дальше',
   },
   dailyGoal: {
     title: 'Сколько занимаемся в день?',
-    subtitle: 'Небольшая, но регулярная цель работает лучше всего',
+    subtitle: 'Небольшая, но регулярная практика работает лучше всего',
     action: 'Продолжить',
   },
   dailyGoalResult: {
@@ -241,17 +238,17 @@ export const COPY = {
     primary: 'Напоминать мне',
     secondary: 'Не сейчас',
   },
+  thankYou: {
+    title: 'Спасибо за доверие',
+    cardTitle: 'Твоя безопасность - наш приоритет',
+    cardText: 'Мы гарантируем защиту\nлюбых твоих личных данных',
+    action: 'Продолжить',
+  },
   commitment: {
     title: 'Давай закрепим это официально',
     subtitle: 'Обещаю заниматься каждый день, чтобы сдать профиль на высокий балл',
     signHint: 'Распишись, чтобы закрепить',
     signedPrefix: 'Подписано',
-    action: 'Продолжить',
-  },
-  thankYou: {
-    title: 'Спасибо за доверие',
-    cardTitle: 'Твоя безопасность - наш приоритет',
-    cardText: 'Мы гарантируем защиту\nлюбых твоих личных данных',
     action: 'Продолжить',
   },
   ready: {
@@ -273,7 +270,13 @@ export const COPY = {
     title: 'С возвращением',
     subtitle: 'Войди, чтобы продолжить подготовку',
     action: 'Войти',
+    forgot: 'Забыли пароль?',
     noAccount: 'Ещё нет аккаунта? Начать',
+  },
+  // Тексты ошибок валидации - один источник для почты и пароля.
+  validation: {
+    email: 'Неправильный адрес почты',
+    password: `Пароль должен содержать не менее ${PASSWORD_MIN_LENGTH} символов`,
   },
   register: {
     age: { title: 'Сколько тебе лет?', action: 'Продолжить' },

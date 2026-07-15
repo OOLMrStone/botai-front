@@ -1,9 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
+import { ValidatedField } from '@/components/onboarding/ValidatedField';
 import { COPY } from '@/config/onboarding-steps';
 import { useRegisterFlow } from '@/hooks/use-flow-navigation';
 import { isValidEmail } from '@/lib/validation';
@@ -29,20 +30,20 @@ export default function EmailPage() {
         </Button>
       }
     >
-      <div className="space-y-1.5">
-        <h1 className="text-2xl font-bold tracking-tight">{COPY.register.email.title}</h1>
-      </div>
+      <ScreenHeading title={COPY.register.email.title} />
 
       <div className="space-y-2">
         <Label htmlFor="email">Почта</Label>
-        <Input
+        <ValidatedField
           id="email"
           type="email"
           inputMode="email"
           autoComplete="email"
           autoFocus
           value={email}
-          onChange={(e) => updateRegistration({ email: e.target.value })}
+          onChange={(value) => updateRegistration({ email: value })}
+          validate={isValidEmail}
+          errorText={COPY.validation.email}
           className="h-12 text-base"
         />
       </div>

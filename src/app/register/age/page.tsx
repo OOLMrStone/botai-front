@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { COPY } from '@/config/onboarding-steps';
 import { useRegisterFlow } from '@/hooks/use-flow-navigation';
@@ -29,9 +30,7 @@ export default function AgePage() {
         </Button>
       }
     >
-      <div className="space-y-1.5">
-        <h1 className="text-2xl font-bold tracking-tight">{COPY.register.age.title}</h1>
-      </div>
+      <ScreenHeading title={COPY.register.age.title} />
 
       <div className="space-y-2">
         <Label htmlFor="age">Возраст</Label>

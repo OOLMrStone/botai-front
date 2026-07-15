@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { MascotPlaceholder } from '@/components/onboarding/MascotPlaceholder';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 
 interface ResultScreenProps {
@@ -32,14 +33,7 @@ export function ResultScreen({
     >
       {showMascot ? <MascotPlaceholder /> : null}
 
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight text-balance whitespace-pre-line">
-          {title}
-        </h1>
-        {subtitle ? (
-          <p className="text-muted-foreground text-balance whitespace-pre-line">{subtitle}</p>
-        ) : null}
-      </div>
+      <ScreenHeading title={title} subtitle={subtitle} />
     </ScreenShell>
   );
 }

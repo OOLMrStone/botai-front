@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 
 import { MascotPlaceholder } from '@/components/onboarding/MascotPlaceholder';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { TIMINGS } from '@/config/constants';
 
 interface BuildingLoaderProps {
@@ -29,12 +30,7 @@ export function BuildingLoader({
     <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
       <MascotPlaceholder />
 
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight whitespace-pre-line">{title}</h1>
-        {subtitle ? (
-          <p className="text-muted-foreground text-balance whitespace-pre-line">{subtitle}</p>
-        ) : null}
-      </div>
+      <ScreenHeading title={title} subtitle={subtitle} />
 
       <Loader2 className="text-muted-foreground size-6 animate-spin" />
     </div>

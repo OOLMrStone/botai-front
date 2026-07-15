@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
 import { MascotPlaceholder } from '@/components/onboarding/MascotPlaceholder';
 import { OAuthButtons } from '@/components/onboarding/OAuthButtons';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { COPY, registerPath, ROUTES } from '@/config/onboarding-steps';
 import { cn } from '@/lib/utils';
@@ -37,12 +38,10 @@ export default function SaveProgressPage() {
     >
       <MascotPlaceholder />
 
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight text-balance">
-          {COPY.register.saveProgress.title}
-        </h1>
-        <p className="text-muted-foreground text-balance">{COPY.register.saveProgress.subtitle}</p>
-      </div>
+      <ScreenHeading
+        title={COPY.register.saveProgress.title}
+        subtitle={COPY.register.saveProgress.subtitle}
+      />
     </ScreenShell>
   );
 }

@@ -3,9 +3,9 @@ import { ONBOARDING_STEPS } from '@/config/onboarding-steps';
 
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-svh flex-col">
+    <div className="flex h-svh flex-col">
       <OnboardingHeader steps={ONBOARDING_STEPS} />
-      <main className="flex flex-1 flex-col">{children}</main>
+      <main className="flex min-h-0 flex-1 flex-col">{children}</main>
     </div>
   );
 }

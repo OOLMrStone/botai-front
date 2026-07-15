@@ -17,8 +17,8 @@ export function OnboardingHeader({ steps }: OnboardingHeaderProps) {
   const slug = pathname.split('/').filter(Boolean).pop() ?? '';
   const index = steps.indexOf(slug);
 
-  // Не-шаговые роуты (гейт, «Готово») — без шапки и прогресса.
-  if (index === -1) return null;
+  // Не-шаговые роуты (гейт, «Готово») и welcome (сцена «Рассвета») - без шапки.
+  if (index <= 0) return null;
 
   const progress = ((index + 1) / steps.length) * 100;
   const showBack = index > 0;

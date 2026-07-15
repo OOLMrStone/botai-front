@@ -3,6 +3,7 @@
 import { ShieldCheck } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { COPY } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
@@ -23,9 +24,7 @@ export default function ThankYouPage() {
         <ShieldCheck className="size-8" />
       </div>
 
-      <h1 className="text-2xl font-bold tracking-tight text-balance whitespace-pre-line">
-        {COPY.thankYou.title}
-      </h1>
+      <ScreenHeading title={COPY.thankYou.title} />
 
       <div className="border-border w-full space-y-1 rounded-2xl border p-4 text-center">
         <p className="font-medium whitespace-pre-line">{COPY.thankYou.cardTitle}</p>

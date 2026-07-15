@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { SignaturePad } from '@/components/onboarding/SignaturePad';
 import { COPY } from '@/config/onboarding-steps';
@@ -33,19 +34,13 @@ export default function CommitmentPage() {
         </Button>
       }
     >
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight text-balance whitespace-pre-line">
-          {COPY.commitment.title}
-        </h1>
-        <p className="text-muted-foreground text-balance whitespace-pre-line">
-          {COPY.commitment.subtitle}
-        </p>
-      </div>
+      <ScreenHeading title={COPY.commitment.title} />
 
-      <div className="mt-4 space-y-2">
-        <p className="text-muted-foreground text-center text-sm whitespace-pre-line">
-          {COPY.commitment.signHint}
-        </p>
+      <p className="text-lg text-balance whitespace-pre-line">{COPY.commitment.subtitle}</p>
+
+      {/* Блок подписи чуть отступает от текста, свободное место остаётся снизу - у кнопки. */}
+      <div className="mt-10 space-y-3">
+        <p className="text-muted-foreground text-center">{COPY.commitment.signHint}</p>
         <SignaturePad onSignedChange={setSigned} />
         <p className="text-muted-foreground text-center text-xs" suppressHydrationWarning>
           {COPY.commitment.signedPrefix} {today}

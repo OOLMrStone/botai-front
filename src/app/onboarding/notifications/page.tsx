@@ -3,6 +3,7 @@
 import { Bell } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { COPY } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
@@ -41,14 +42,7 @@ export default function NotificationsPage() {
         <Bell className="size-8" />
       </div>
 
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight text-balance whitespace-pre-line">
-          {COPY.notifications.title}
-        </h1>
-        <p className="text-muted-foreground text-balance whitespace-pre-line">
-          {COPY.notifications.subtitle}
-        </p>
-      </div>
+      <ScreenHeading title={COPY.notifications.title} subtitle={COPY.notifications.subtitle} />
     </ScreenShell>
   );
 }

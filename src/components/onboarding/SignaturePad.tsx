@@ -72,12 +72,12 @@ export function SignaturePad({ onSignedChange, className }: SignaturePadProps) {
       <canvas
         ref={canvasRef}
         width={600}
-        height={220}
+        height={380}
         onPointerDown={start}
         onPointerMove={move}
         onPointerUp={end}
         onPointerLeave={end}
-        className="text-foreground border-border bg-card h-40 w-full touch-none rounded-2xl border"
+        className="text-foreground border-border bg-muted h-56 w-full touch-none rounded-2xl border"
       />
       {hasInk ? (
         <button

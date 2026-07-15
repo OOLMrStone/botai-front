@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { OAuthButtons } from '@/components/onboarding/OAuthButtons';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { ScreenTransition } from '@/components/onboarding/ScreenTransition';
 import { COPY, onboardingPath, ROUTES } from '@/config/onboarding-steps';
 import { loginUser } from '@/lib/api/auth';
-import { isValidEmail, isValidPassword } from '@/lib/validation';
 
 // Вход существующего пользователя. Заглушка: реальный вход - через lib/api/auth.
 export default function LoginPage() {
@@ -20,7 +20,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [pending, setPending] = useState(false);
 
-  const valid = isValidEmail(email) && isValidPassword(password);
+  // На логине поля не валидируем - у зарегистрированного они уже корректны.
+  // Достаточно, чтобы в каждом было хоть что-то.
+  const valid = email.length > 0 && password.length > 0;
+
+  const handleForgot = () => {
+    // TODO: восстановление пароля - экран и роут появятся позже.
+  };
 
   const handleLogin = async () => {
     setPending(true);
@@ -33,6 +39,7 @@ export default function LoginPage() {
   return (
     <ScreenTransition>
       <ScreenShell
+        className="pt-16"
         footer={
           <div className="space-y-4">
             <Button
@@ -62,10 +69,7 @@ export default function LoginPage() {
           </div>
         }
       >
-        <div className="space-y-1.5">
-          <h1 className="text-2xl font-bold tracking-tight">{COPY.login.title}</h1>
-          <p className="text-muted-foreground whitespace-pre-line">{COPY.login.subtitle}</p>
-        </div>
+        <ScreenHeading title={COPY.login.title} subtitle={COPY.login.subtitle} />
 
         <div className="space-y-4">
           <div className="space-y-2">
@@ -92,6 +96,16 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               className="h-12 text-base"
             />
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="link"
+                className="text-muted-foreground h-auto p-0 text-sm font-normal"
+                onClick={handleForgot}
+              >
+                {COPY.login.forgot}
+              </Button>
+            </div>
           </div>
         </div>
       </ScreenShell>
