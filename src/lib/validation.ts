@@ -2,6 +2,7 @@
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const AGE_LIMITS = { min: 1, max: 120 } as const;
+// Синхронизировано с бэкендом (RegisterRequest: 8-72 символа).
 export const PASSWORD_MIN_LENGTH = 8;
 
 export function isValidEmail(email: string): boolean {

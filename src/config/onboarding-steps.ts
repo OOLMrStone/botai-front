@@ -90,6 +90,7 @@ export const ROUTES = {
   streak: '/streak',
   saveProgress: '/register/save-progress',
   done: '/register/done',
+  user: '/user',
 } as const;
 
 // --- Варианты вопросов -------------------------------------------------------
@@ -272,6 +273,15 @@ export const COPY = {
     action: 'Войти',
     forgot: 'Забыли пароль?',
     noAccount: 'Ещё нет аккаунта? Начать',
+    badCredentials: 'Неверная почта или пароль',
+    error: 'Не получилось войти. Попробуй ещё раз',
+  },
+  user: {
+    greeting: 'Привет',
+    subtitle: 'Сессия активна - вход выполнен автоматически',
+    loading: 'Проверяем сессию…',
+    toLesson: 'К обучению',
+    logout: 'Выйти',
   },
   // Тексты ошибок валидации - один источник для почты и пароля.
   validation: {
@@ -282,7 +292,12 @@ export const COPY = {
     age: { title: 'Сколько тебе лет?', action: 'Продолжить' },
     name: { title: 'Как тебя зовут?', action: 'Продолжить' },
     email: { title: 'Твоя почта', action: 'Продолжить' },
-    password: { title: 'Придумай пароль', action: 'Создать профиль' },
+    password: {
+      title: 'Придумай пароль',
+      action: 'Создать профиль',
+      emailTaken: 'Эта почта уже занята. Попробуй войти',
+      error: 'Не получилось создать профиль. Попробуй ещё раз',
+    },
     saveProgress: {
       title: 'Сохрани свой прогресс',
       subtitle: 'Чтобы не потерять пройденное - создай профиль',
