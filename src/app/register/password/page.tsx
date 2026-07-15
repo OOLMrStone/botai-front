@@ -9,24 +9,39 @@ import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { COPY } from '@/config/onboarding-steps';
 import { useRegisterFlow } from '@/hooks/use-flow-navigation';
 import { registerUser } from '@/lib/api/auth';
+import { ApiError } from '@/lib/api/client';
 import { isValidPassword, PASSWORD_MIN_LENGTH } from '@/lib/validation';
+import { useAuthStore } from '@/stores/auth-store';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 
 export default function PasswordPage() {
   const { goNext } = useRegisterFlow('password');
   const registration = useOnboardingStore((s) => s.registration);
   const updateRegistration = useOnboardingStore((s) => s.updateRegistration);
+  const setUser = useAuthStore((s) => s.setUser);
   const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const password = registration.password;
   const valid = isValidPassword(password);
 
   const handleCreate = async () => {
     setPending(true);
+    setError(null);
 
-    await registerUser(registration);
-
-    goNext();
+    try {
+      // registerUser сразу логинит - пользователь уходит дальше уже с сессией.
+      const user = await registerUser(registration);
+      setUser(user);
+      goNext();
+    } catch (e) {
+      setError(
+        e instanceof ApiError && e.status === 409
+          ? COPY.register.password.emailTaken
+          : COPY.register.password.error,
+      );
+      setPending(false);
+    }
   };
 
   return (
@@ -58,6 +73,7 @@ export default function PasswordPage() {
           className="h-12 text-base"
         />
         <p className="text-muted-foreground text-sm">Минимум {PASSWORD_MIN_LENGTH} символов.</p>
+        {error ? <p className="text-destructive text-sm">{error}</p> : null}
       </div>
     </ScreenShell>
   );

@@ -1,5 +1,5 @@
 import { TIMINGS } from '@/config/constants';
-import { sleep } from '@/lib/api/client';
+import { ApiError, apiFetch, sleep } from '@/lib/api/client';
 
 export type OAuthProvider = 'yandex' | 'google' | 'vk';
 
@@ -16,28 +16,56 @@ export interface LoginPayload {
   password: string;
 }
 
-export interface AuthResult {
-  userId: string;
-  token: string;
+// Пользователь, как его отдаёт бэкенд (GET /api/auth/me и ответы login/register).
+export interface User {
+  id: string;
+  email: string;
+  displayName: string | null;
+  role: string;
+  authProvider: string;
 }
 
-export async function oauthSignIn(provider: OAuthProvider): Promise<AuthResult> {
+export async function oauthSignIn(provider: OAuthProvider): Promise<User> {
   await sleep(TIMINGS.mockLatencyMs);
 
-  // TODO: реальный OAuth-редирект (Яндекс / Google / ВК) - нужен бэкенд, см. SCOPE.
-  return { userId: `mock-${provider}`, token: 'mock-token' };
+  // TODO: реальный OAuth-редирект (Яндекс / Google / ВК) - база на бэкенде уже есть.
+  return {
+    id: `mock-${provider}`,
+    email: `mock@${provider}`,
+    displayName: null,
+    role: 'USER',
+    authProvider: provider.toUpperCase(),
+  };
 }
 
-export async function registerUser(_payload: RegisterPayload): Promise<AuthResult> {
-  await sleep(TIMINGS.mockLatencyMs);
+export async function registerUser(payload: RegisterPayload): Promise<User> {
+  // TODO: возраст (payload.age) бэкенд пока не хранит.
+  await apiFetch<User>('/api/auth/register', {
+    json: {
+      email: payload.email,
+      password: payload.password,
+      displayName: [payload.firstName, payload.lastName].filter(Boolean).join(' ') || undefined,
+    },
+  });
 
-  // TODO: POST /auth/register - создать профиль.
-  return { userId: 'mock-user', token: 'mock-token' };
+  // Регистрация не создаёт сессию - сразу входим, чтобы кука появилась.
+  return loginUser({ email: payload.email, password: payload.password });
 }
 
-export async function loginUser(_payload: LoginPayload): Promise<AuthResult> {
-  await sleep(TIMINGS.mockLatencyMs);
+export async function loginUser(payload: LoginPayload): Promise<User> {
+  return apiFetch<User>('/api/auth/login', { json: payload });
+}
 
-  // TODO: POST /auth/login - вход существующего пользователя.
-  return { userId: 'mock-user', token: 'mock-token' };
+// null - сессии нет (или истекла); это штатный случай, не ошибка.
+export async function fetchCurrentUser(): Promise<User | null> {
+  try {
+    return await apiFetch<User>('/api/auth/me');
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) return null;
+    throw error;
+  }
+}
+
+export async function logoutUser(): Promise<void> {
+  await apiFetch<void>('/api/auth/logout', { method: 'POST' });
 }

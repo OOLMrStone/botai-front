@@ -11,23 +11,35 @@ import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { ScreenTransition } from '@/components/onboarding/ScreenTransition';
 import { COPY, onboardingPath, ROUTES } from '@/config/onboarding-steps';
 import { loginUser } from '@/lib/api/auth';
+import { ApiError } from '@/lib/api/client';
 import { isValidEmail, isValidPassword } from '@/lib/validation';
+import { useAuthStore } from '@/stores/auth-store';
 
-// Вход существующего пользователя. Заглушка: реальный вход - через lib/api/auth.
+// Вход существующего пользователя: POST /api/auth/login, сессия - в куке.
 export default function LoginPage() {
   const router = useRouter();
+  const setUser = useAuthStore((s) => s.setUser);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const valid = isValidEmail(email) && isValidPassword(password);
 
   const handleLogin = async () => {
     setPending(true);
+    setError(null);
 
-    await loginUser({ email, password });
-
-    router.push(ROUTES.lesson);
+    try {
+      const user = await loginUser({ email, password });
+      setUser(user);
+      router.push(ROUTES.user);
+    } catch (e) {
+      setError(
+        e instanceof ApiError && e.status === 401 ? COPY.login.badCredentials : COPY.login.error,
+      );
+      setPending(false);
+    }
   };
 
   return (
@@ -93,6 +105,8 @@ export default function LoginPage() {
               className="h-12 text-base"
             />
           </div>
+
+          {error ? <p className="text-destructive text-sm">{error}</p> : null}
         </div>
       </ScreenShell>
     </ScreenTransition>
