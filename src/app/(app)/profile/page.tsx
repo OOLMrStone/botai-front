@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { layout } from '@/config/layout';
 import { COPY, GOAL_OPTIONS, ROUTES } from '@/config/onboarding-steps';
 import { usePlan } from '@/hooks/use-plan';
+import { cn } from '@/lib/utils';
 import { useUserStats } from '@/hooks/use-user-stats';
 import { useAuthStore } from '@/stores/auth-store';
 import { useProfileStore } from '@/stores/profile-store';
@@ -61,7 +62,7 @@ export default function ProfilePage() {
         </div>
       }
     >
-      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain">
+      <div className={cn(layout.scroll, 'space-y-6')}>
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="bg-muted text-muted-foreground flex size-20 items-center justify-center rounded-3xl">
             <UserRound className="size-8" />

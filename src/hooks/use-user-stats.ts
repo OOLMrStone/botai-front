@@ -1,72 +1,29 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-
+import { useAsyncData, type AsyncData } from '@/hooks/use-async-data';
 import { fetchUserStats, type UserStats } from '@/lib/api/stats';
+import { cachedResource } from '@/lib/cached-resource';
 import { useProfileStore } from '@/stores/profile-store';
 
-// Кэш «на сессию»: базу тянем один раз, дальше отдаём из памяти - переключения
-// вкладок мгновенные, без повторной загрузки и мигания. Сбрасывается на
-// перезагрузке страницы. С реальным бэком здесь появится инвалидция / SWR.
-let cache: UserStats | null = null;
-let inflight: Promise<UserStats> | null = null;
+const statsResource = cachedResource(fetchUserStats);
 
-function loadStats(): Promise<UserStats> {
-  if (cache) return Promise.resolve(cache);
-  if (!inflight) {
-    inflight = fetchUserStats()
-      .then((data) => {
-        cache = data;
-        return data;
-      })
-      .finally(() => {
-        inflight = null;
-      });
-  }
-  return inflight;
-}
-
-export interface UserStatsState {
+export interface UserStatsState extends Omit<AsyncData<UserStats>, 'data'> {
   // null - ещё грузится или запрос упал: экран показывает скелетон или плашку.
   stats: UserStats | null;
-  failed: boolean;
-  retry: () => void;
 }
 
-// Статистика для хаба, профиля и настроек. База - из кэша (мок); поверх
-// накладываем правки пользователя из profile-store (цель, цель дня), чтобы
-// экраны совпадали.
+// Статистика для хаба, профиля и настроек. База - с бэкенда; поверх накладываем
+// правки пользователя из profile-store (цель, цель дня), чтобы экраны совпадали.
 export function useUserStats(): UserStatsState {
-  const [base, setBase] = useState<UserStats | null>(cache);
-  const [failed, setFailed] = useState(false);
+  const { data, failed, retry } = useAsyncData(statsResource);
   const goalId = useProfileStore((s) => s.goalId);
   const dailyGoalMinutes = useProfileStore((s) => s.dailyGoalMinutes);
 
-  useEffect(() => {
-    if (base || failed) return;
-
-    let alive = true;
-    void loadStats().then(
-      (data) => {
-        if (alive) setBase(data);
-      },
-      () => {
-        if (alive) setFailed(true);
-      },
-    );
-
-    return () => {
-      alive = false;
-    };
-  }, [base, failed]);
-
-  const retry = useCallback(() => setFailed(false), []);
-
-  const stats = base
+  const stats = data
     ? {
-        ...base,
-        goalId: goalId ?? base.goalId,
-        dailyGoalMinutes: dailyGoalMinutes ?? base.dailyGoalMinutes,
+        ...data,
+        goalId: goalId ?? data.goalId,
+        dailyGoalMinutes: dailyGoalMinutes ?? data.dailyGoalMinutes,
       }
     : null;
 

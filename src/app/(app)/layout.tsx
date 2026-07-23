@@ -6,7 +6,7 @@ import { AppGuard } from './AppGuard';
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-svh flex-col">
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <AppGuard>{children}</AppGuard>
       </main>
       <BottomNav />

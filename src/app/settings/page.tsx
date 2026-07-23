@@ -78,9 +78,7 @@ export default function SettingsPage() {
         <span className="text-lg font-semibold">{COPY.settings.title}</span>
       </header>
 
-      <div
-        className={cn('min-h-0 flex-1 overflow-y-auto overscroll-contain py-6', layout.shell.padX)}
-      >
+      <div className={cn(layout.scroll, 'pt-6', layout.shell.padX)}>
         <ProfileEditFields
           name={name}
           onNameChange={setNameDraft}

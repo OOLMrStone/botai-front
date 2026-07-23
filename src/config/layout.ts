@@ -17,6 +17,11 @@ export const layout = {
     footerTop: 'pt-[clamp(0.75rem,3svh,1.5rem)]',
   },
 
+  // Прокручиваемая область экрана - одна на экран. Запас снизу нужен, чтобы
+  // последний элемент не упирался в край контейнера: иначе на низких экранах
+  // край срезает кружки/карточки и это читается как «обрезано белым».
+  scroll: 'min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[clamp(0.5rem,2svh,1rem)]',
+
   // Заголовок экрана (ScreenHeading): флюидная версия шкалы typography.
   heading: {
     title: 'text-[clamp(1.75rem,4.4svh,2.25rem)]',

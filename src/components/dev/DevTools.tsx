@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DEMO_ACCOUNT, DEV_COPY, DEV_SCREENS } from '@/config/dev';
 import { APP_ENV, IS_MOCK_API } from '@/config/env';
+import { ROUTES } from '@/config/onboarding-steps';
 import { PLAN_IDS, PLANS, type PlanId } from '@/config/plans';
 import { loginUser } from '@/lib/api/auth';
 import { changePlan } from '@/lib/api/billing';
@@ -49,6 +50,12 @@ function DevPanel({ onClose }: { onClose: () => void }) {
 
   const plan = normalizePlan(user?.plan);
 
+  // Уход на экран закрывает панель - она перекрывает то, что идём смотреть.
+  const go = (href: string) => {
+    onClose();
+    router.push(href);
+  };
+
   // Действия панели одинаково сообщают об успехе и о провале - разработчик
   // видит результат, а не тихо упавший промис.
   const run = async (action: () => Promise<unknown>, done: string) => {
@@ -60,8 +67,13 @@ function DevPanel({ onClose }: { onClose: () => void }) {
     }
   };
 
+  // Вход тестовым аккаунтом сразу уводит в приложение - тестировать после
+  // нажатия нужно именно там, а не на экране, с которого панель открыли.
   const handleLogin = () =>
-    run(async () => setUser(await loginUser(DEMO_ACCOUNT)), DEV_COPY.loginDone);
+    run(async () => {
+      setUser(await loginUser(DEMO_ACCOUNT));
+      go(ROUTES.home);
+    }, DEV_COPY.loginDone);
 
   const handlePlan = (next: PlanId) =>
     run(async () => setUser(await changePlan(next)), DEV_COPY.planDone);
@@ -70,11 +82,6 @@ function DevPanel({ onClose }: { onClose: () => void }) {
     resetOnboarding();
     resetProfile();
     setNote(DEV_COPY.resetDone);
-  };
-
-  const go = (href: string) => {
-    onClose();
-    router.push(href);
   };
 
   return (
