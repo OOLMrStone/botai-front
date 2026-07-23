@@ -3,17 +3,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { SPHERE } from '@/config/constants';
 import {
   distributeSphere,
   frameAt,
   gaussianFalloff,
   HOLD_FORCE,
-  POINTS,
   projectPoint,
   stepSpring,
   WAVE_IMPULSE,
   WAVE_RADIUS_FACTOR,
 } from '@/lib/particle-sphere';
+
+// Точки группируем в полосы по яркости и заливаем полосой за раз: одна заливка
+// на полосу вместо отдельной на каждую точку - главный выигрыш по перфу.
+const BANDS = 7;
+const TAU = Math.PI * 2;
+// Яркость полосы = альфа середины её диапазона edge (0.16..1 как в drawFrame).
+const bandAlpha = Array.from({ length: BANDS }, (_, b) => 0.16 + ((b + 0.5) / BANDS) * 0.84);
 
 interface ParticleSphereProps {
   size?: number;
@@ -48,7 +55,8 @@ export function ParticleSphere({ size = 224, className }: ParticleSphereProps) {
     const ctx = canvas?.getContext('2d');
     if (!anchor || !canvas || !ctx) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const count = SPHERE.points;
+    const dpr = Math.min(window.devicePixelRatio || 1, SPHERE.dprCap);
     const radius = (size / 2) * 0.92 * dpr;
     const sigma = radius * WAVE_RADIUS_FACTOR;
     let centerX = 0;
@@ -68,11 +76,14 @@ export function ParticleSphere({ size = 224, className }: ParticleSphereProps) {
     };
     resize();
 
-    const points = distributeSphere(POINTS);
+    const points = distributeSphere(count);
 
     // Смещения волны (ox, oy, vx, vy на точку) и экранные позиции точек.
-    const offsets = new Float32Array(POINTS * 4);
-    const screen = new Float32Array(POINTS * 2);
+    const offsets = new Float32Array(count * 4);
+    const screen = new Float32Array(count * 2);
+    // Радиус и полоса яркости каждой точки на текущем кадре (считаем раз, рисуем раз).
+    const radii = new Float32Array(count);
+    const bands = new Uint8Array(count);
     const hold = { active: false, x: 0, y: 0 };
 
     const color = getComputedStyle(canvas).color;
@@ -83,24 +94,37 @@ export function ParticleSphere({ size = 224, className }: ParticleSphereProps) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = color;
 
-      for (let i = 0; i < POINTS; i++) {
+      // Проход 1: позиции, радиусы и полоса яркости (edge→1 у силуэта - ярче и крупнее).
+      for (let i = 0; i < count; i++) {
         const { x, y, edge } = projectPoint(points[i], f);
 
         const px = centerX + x * radius + offsets[i * 4];
         const py = centerY + y * radius + offsets[i * 4 + 1];
         screen[i * 2] = px;
         screen[i * 2 + 1] = py;
+        radii[i] = (0.65 + edge * 0.75) * dpr;
+        const b = (edge * BANDS) | 0;
+        bands[i] = b >= BANDS ? BANDS - 1 : b;
+      }
 
-        // У силуэта (edge→1) точки ярче и крупнее - объём читается без 3D.
-        ctx.globalAlpha = 0.16 + edge * 0.84;
+      // Проход 2: одна заливка на полосу яркости вместо заливки на точку.
+      for (let b = 0; b < BANDS; b++) {
+        ctx.globalAlpha = bandAlpha[b];
         ctx.beginPath();
-        ctx.arc(px, py, (0.65 + edge * 0.75) * dpr, 0, Math.PI * 2);
+        for (let i = 0; i < count; i++) {
+          if (bands[i] !== b) continue;
+          const px = screen[i * 2];
+          const py = screen[i * 2 + 1];
+          const r = radii[i];
+          ctx.moveTo(px + r, py);
+          ctx.arc(px, py, r, 0, TAU);
+        }
         ctx.fill();
       }
     };
 
     const stepWave = (dt: number) => {
-      for (let i = 0; i < POINTS; i++) {
+      for (let i = 0; i < count; i++) {
         const j = i * 4;
         const ox = offsets[j];
         const oy = offsets[j + 1];
@@ -108,10 +132,12 @@ export function ParticleSphere({ size = 224, className }: ParticleSphereProps) {
         let vy = offsets[j + 3];
 
         if (hold.active) {
-          // Зажатый палец непрерывно выдавливает точки от себя.
+          // Зажатый палец непрерывно выдавливает точки от себя. Дистанция - через
+          // sqrt, а не Math.hypot: тот вдвое дороже (защита от переполнения),
+          // а тут он считается для каждой точки на каждом кадре.
           const dx = screen[i * 2] - hold.x;
           const dy = screen[i * 2 + 1] - hold.y;
-          const d = Math.hypot(dx, dy) || 1;
+          const d = Math.sqrt(dx * dx + dy * dy) || 1;
           const f = HOLD_FORCE * dpr * gaussianFalloff(d, sigma) * dt;
           vx += (dx / d) * f;
           vy += (dy / d) * f;
@@ -134,7 +160,7 @@ export function ParticleSphere({ size = 224, className }: ParticleSphereProps) {
       hold.x = x;
       hold.y = y;
 
-      for (let i = 0; i < POINTS; i++) {
+      for (let i = 0; i < count; i++) {
         const dx = screen[i * 2] - x;
         const dy = screen[i * 2 + 1] - y;
         const d = Math.hypot(dx, dy) || 1;
@@ -209,7 +235,7 @@ export function ParticleSphere({ size = 224, className }: ParticleSphereProps) {
           <canvas
             ref={canvasRef}
             aria-hidden="true"
-            className="text-foreground pointer-events-none fixed inset-0 h-screen w-screen"
+            className="text-foreground pointer-events-none fixed inset-0 h-full w-full"
           />,
           document.body,
         )}
