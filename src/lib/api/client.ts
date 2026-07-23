@@ -2,6 +2,8 @@
 // прикладывает её сам. Для мутирующих запросов бэкенд требует CSRF-токен:
 // читаем куку XSRF-TOKEN и возвращаем её значение в заголовке X-XSRF-TOKEN.
 
+import { AUTH_COOKIE, AUTH_HEADER } from '@/config/auth';
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -22,11 +24,11 @@ function readCookie(name: string): string | null {
 // Кука XSRF-TOKEN появляется после любого запроса к бэкенду;
 // если её ещё нет - дёргаем bootstrap-эндпоинт.
 async function csrfToken(): Promise<string> {
-  const existing = readCookie('XSRF-TOKEN');
+  const existing = readCookie(AUTH_COOKIE.xsrf);
   if (existing) return existing;
 
   await fetch('/api/auth/csrf', { credentials: 'include' });
-  return readCookie('XSRF-TOKEN') ?? '';
+  return readCookie(AUTH_COOKIE.xsrf) ?? '';
 }
 
 interface ApiFetchInit extends RequestInit {
@@ -39,7 +41,7 @@ export async function apiFetch<T>(path: string, init: ApiFetchInit = {}): Promis
 
   const headers = new Headers(rest.headers);
   if (json !== undefined) headers.set('Content-Type', 'application/json');
-  if (MUTATING_METHODS.has(method)) headers.set('X-XSRF-TOKEN', await csrfToken());
+  if (MUTATING_METHODS.has(method)) headers.set(AUTH_HEADER.xsrf, await csrfToken());
 
   const response = await fetch(path, {
     ...rest,

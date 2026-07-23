@@ -5,6 +5,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { ScreenTransition } from '@/components/onboarding/ScreenTransition';
+import { layout } from '@/config/layout';
 import { COPY, ROUTES } from '@/config/onboarding-steps';
 import { cn } from '@/lib/utils';
 
@@ -15,10 +16,7 @@ export default function LessonPage() {
       <ScreenShell
         center
         footer={
-          <Link
-            href={ROUTES.streak}
-            className={cn(buttonVariants({ size: 'lg' }), 'h-12 w-full text-base')}
-          >
+          <Link href={ROUTES.streak} className={cn(buttonVariants({ size: 'lg' }), layout.cta)}>
             {COPY.lesson.action}
           </Link>
         }

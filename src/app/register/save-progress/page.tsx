@@ -5,6 +5,7 @@ import { MascotPlaceholder } from '@/components/onboarding/MascotPlaceholder';
 import { OAuthButtons } from '@/components/onboarding/OAuthButtons';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
+import { layout } from '@/config/layout';
 import { COPY, registerPath, ROUTES } from '@/config/onboarding-steps';
 import { cn } from '@/lib/utils';
 
@@ -25,7 +26,7 @@ export default function SaveProgressPage() {
 
           <Link
             href={registerPath('age')}
-            className={cn(buttonVariants({ size: 'lg' }), 'h-12 w-full text-base')}
+            className={cn(buttonVariants({ size: 'lg' }), layout.cta)}
           >
             {COPY.register.saveProgress.emailCta}
           </Link>

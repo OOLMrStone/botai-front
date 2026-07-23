@@ -5,6 +5,7 @@ import { RadioGroup } from '@/components/ui/radio-group';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { SelectableCard } from '@/components/onboarding/SelectableCard';
+import { layout } from '@/config/layout';
 import type { Option } from '@/config/onboarding-steps';
 
 interface QuestionScreenProps {
@@ -30,12 +31,7 @@ export function QuestionScreen({
   return (
     <ScreenShell
       footer={
-        <Button
-          className="h-12 w-full text-base"
-          size="lg"
-          disabled={value === null}
-          onClick={onContinue}
-        >
+        <Button className={layout.cta} size="lg" disabled={value === null} onClick={onContinue}>
           {actionLabel}
         </Button>
       }
@@ -43,11 +39,11 @@ export function QuestionScreen({
       <ScreenHeading title={title} subtitle={subtitle} />
 
       {/* Список тянется на всё свободное место: карточки делят его поровну,
-          но не ниже min и не выше max - экран заполнен, без пустот и «тонких» карточек. */}
+          но не ниже тач-пола и не выше потолка - экран заполнен и всегда влезает. */}
       <RadioGroup
         value={value ?? ''}
         onValueChange={(next) => onValueChange(String(next))}
-        className="flex min-h-0 flex-1 flex-col justify-start gap-2.5"
+        className={layout.list}
       >
         {options.map((option) => (
           <SelectableCard
@@ -56,7 +52,7 @@ export function QuestionScreen({
             label={option.label}
             description={option.description}
             icon={option.icon}
-            className="max-h-24 min-h-16 flex-1"
+            className={layout.card}
           />
         ))}
       </RadioGroup>

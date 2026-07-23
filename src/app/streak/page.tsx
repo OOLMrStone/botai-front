@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { ScreenTransition } from '@/components/onboarding/ScreenTransition';
+import { layout } from '@/config/layout';
 import { COPY, ROUTES } from '@/config/onboarding-steps';
 import { cn } from '@/lib/utils';
 
@@ -32,11 +33,7 @@ export default function StreakPage() {
       <ScreenShell
         center
         footer={
-          <Button
-            className="h-12 w-full text-base"
-            size="lg"
-            onClick={() => router.push(ROUTES.saveProgress)}
-          >
+          <Button className={layout.cta} size="lg" onClick={() => router.push(ROUTES.saveProgress)}>
             {COPY.streak.action}
           </Button>
         }

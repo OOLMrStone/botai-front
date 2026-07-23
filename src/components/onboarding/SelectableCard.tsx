@@ -34,7 +34,7 @@ export function SelectableCard({
       {/* Без серого квадрата - просто иконка, растёт вместе с высотой карточки. */}
       {Icon ? (
         <span className="text-muted-foreground group-data-[checked]:text-primary flex aspect-square h-full shrink-0 items-center justify-center transition-colors">
-          <Icon className="size-[50%]" />
+          <Icon className="size-[70%]" />
         </span>
       ) : null}
 

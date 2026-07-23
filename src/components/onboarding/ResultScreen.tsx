@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { MascotPlaceholder } from '@/components/onboarding/MascotPlaceholder';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
+import { layout } from '@/config/layout';
 
 interface ResultScreenProps {
   title: string;
@@ -26,7 +27,7 @@ export function ResultScreen({
     <ScreenShell
       center
       footer={
-        <Button className="h-12 w-full text-base" size="lg" onClick={onAction}>
+        <Button className={layout.cta} size="lg" onClick={onAction}>
           {actionLabel}
         </Button>
       }

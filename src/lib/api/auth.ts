@@ -23,6 +23,9 @@ export interface User {
   displayName: string | null;
   role: string;
   authProvider: string;
+  // Тариф. Реальный бэкенд его пока не отдаёт - тогда считаем бесплатным
+  // (lib/plan.normalizePlan), мок отдаёт всегда.
+  plan?: string;
 }
 
 export async function oauthSignIn(provider: OAuthProvider): Promise<User> {

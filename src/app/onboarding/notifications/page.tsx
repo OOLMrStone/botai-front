@@ -5,6 +5,7 @@ import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
+import { layout } from '@/config/layout';
 import { COPY } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
 import { useOnboardingStore } from '@/stores/onboarding-store';
@@ -23,16 +24,11 @@ export default function NotificationsPage() {
     <ScreenShell
       center
       footer={
-        <div className="space-y-3">
-          <Button className="h-12 w-full text-base" size="lg" onClick={() => finish(true)}>
+        <div className={layout.ctaStack}>
+          <Button className={layout.cta} size="lg" onClick={() => finish(true)}>
             {COPY.notifications.primary}
           </Button>
-          <Button
-            variant="ghost"
-            className="h-12 w-full text-base"
-            size="lg"
-            onClick={() => finish(false)}
-          >
+          <Button variant="ghost" className={layout.cta} size="lg" onClick={() => finish(false)}>
             {COPY.notifications.secondary}
           </Button>
         </div>

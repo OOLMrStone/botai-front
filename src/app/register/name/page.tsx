@@ -1,12 +1,14 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
+import { ValidatedField } from '@/components/onboarding/ValidatedField';
+import { layout } from '@/config/layout';
 import { COPY } from '@/config/onboarding-steps';
 import { useRegisterFlow } from '@/hooks/use-flow-navigation';
+import { isValidName } from '@/lib/validation';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 
 export default function NamePage() {
@@ -14,17 +16,12 @@ export default function NamePage() {
   const { firstName, lastName } = useOnboardingStore((s) => s.registration);
   const updateRegistration = useOnboardingStore((s) => s.updateRegistration);
 
-  const valid = firstName.trim() !== '' && lastName.trim() !== '';
+  const valid = isValidName(firstName) && isValidName(lastName);
 
   return (
     <ScreenShell
       footer={
-        <Button
-          className="h-12 w-full text-base"
-          size="lg"
-          disabled={!valid}
-          onClick={() => goNext()}
-        >
+        <Button className={layout.cta} size="lg" disabled={!valid} onClick={() => goNext()}>
           {COPY.register.name.action}
         </Button>
       }
@@ -34,21 +31,25 @@ export default function NamePage() {
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="firstName">Имя</Label>
-          <Input
+          <ValidatedField
             id="firstName"
             autoFocus
             value={firstName}
-            onChange={(e) => updateRegistration({ firstName: e.target.value })}
+            onChange={(value) => updateRegistration({ firstName: value })}
+            validate={isValidName}
+            errorText={COPY.validation.name}
             className="h-12 text-base"
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="lastName">Фамилия</Label>
-          <Input
+          <ValidatedField
             id="lastName"
             value={lastName}
-            onChange={(e) => updateRegistration({ lastName: e.target.value })}
+            onChange={(value) => updateRegistration({ lastName: value })}
+            validate={isValidName}
+            errorText={COPY.validation.name}
             className="h-12 text-base"
           />
         </div>

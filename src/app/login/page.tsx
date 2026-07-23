@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { ErrorNote } from '@/components/common/ErrorNote';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +11,7 @@ import { OAuthButtons } from '@/components/onboarding/OAuthButtons';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { ScreenTransition } from '@/components/onboarding/ScreenTransition';
+import { layout } from '@/config/layout';
 import { COPY, onboardingPath, ROUTES } from '@/config/onboarding-steps';
 import { loginUser } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
@@ -39,7 +41,7 @@ export default function LoginPage() {
     try {
       const user = await loginUser({ email, password });
       setUser(user);
-      router.push(ROUTES.user);
+      router.push(ROUTES.home);
     } catch (e) {
       setError(
         e instanceof ApiError && e.status === 401 ? COPY.login.badCredentials : COPY.login.error,
@@ -55,7 +57,7 @@ export default function LoginPage() {
         footer={
           <div className="space-y-4">
             <Button
-              className="h-12 w-full text-base"
+              className={layout.cta}
               size="lg"
               disabled={!valid || pending}
               onClick={handleLogin}
@@ -69,7 +71,7 @@ export default function LoginPage() {
               <span className="bg-border h-px flex-1" />
             </div>
 
-            <OAuthButtons redirectTo={ROUTES.lesson} />
+            <OAuthButtons redirectTo={ROUTES.home} />
 
             <Button
               variant="ghost"
@@ -120,7 +122,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {error ? <p className="text-destructive text-sm">{error}</p> : null}
+          {error ? <ErrorNote message={error} /> : null}
         </div>
       </ScreenShell>
     </ScreenTransition>

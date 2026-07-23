@@ -7,6 +7,7 @@ import { ParticleSphere } from '@/components/onboarding/ParticleSphere';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { Wordmark } from '@/components/onboarding/Wordmark';
+import { layout } from '@/config/layout';
 import { COPY, ROUTES } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
 
@@ -18,13 +19,13 @@ export default function WelcomePage() {
     <ScreenShell
       center
       footer={
-        <div className="space-y-3">
-          <Button className="h-12 w-full text-base" size="lg" onClick={() => goNext()}>
+        <div className={layout.ctaStack}>
+          <Button className={layout.cta} size="lg" onClick={() => goNext()}>
             {COPY.welcome.primary}
           </Button>
           <Button
             variant="ghost"
-            className="h-12 w-full text-base"
+            className={layout.cta}
             size="lg"
             onClick={() => router.push(ROUTES.login)}
           >

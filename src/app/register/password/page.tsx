@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 
+import { ErrorNote } from '@/components/common/ErrorNote';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { ValidatedField } from '@/components/onboarding/ValidatedField';
+import { layout } from '@/config/layout';
 import { COPY } from '@/config/onboarding-steps';
 import { useRegisterFlow } from '@/hooks/use-flow-navigation';
 import { registerUser } from '@/lib/api/auth';
@@ -49,7 +51,7 @@ export default function PasswordPage() {
     <ScreenShell
       footer={
         <Button
-          className="h-12 w-full text-base"
+          className={layout.cta}
           size="lg"
           disabled={!valid || pending}
           onClick={handleCreate}
@@ -73,7 +75,7 @@ export default function PasswordPage() {
           errorText={COPY.validation.password}
           className="h-12 text-base"
         />
-        {error ? <p className="text-destructive text-sm">{error}</p> : null}
+        {error ? <ErrorNote message={error} /> : null}
       </div>
     </ScreenShell>
   );

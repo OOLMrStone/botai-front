@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { SignaturePad } from '@/components/onboarding/SignaturePad';
+import { layout } from '@/config/layout';
 import { COPY } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
 
@@ -24,12 +25,7 @@ export default function CommitmentPage() {
   return (
     <ScreenShell
       footer={
-        <Button
-          className="h-12 w-full text-base"
-          size="lg"
-          disabled={!signed}
-          onClick={() => goNext()}
-        >
+        <Button className={layout.cta} size="lg" disabled={!signed} onClick={() => goNext()}>
           {COPY.commitment.action}
         </Button>
       }

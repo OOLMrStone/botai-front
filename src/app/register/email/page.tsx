@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { ValidatedField } from '@/components/onboarding/ValidatedField';
+import { layout } from '@/config/layout';
 import { COPY } from '@/config/onboarding-steps';
 import { useRegisterFlow } from '@/hooks/use-flow-navigation';
 import { isValidEmail } from '@/lib/validation';
@@ -20,12 +21,7 @@ export default function EmailPage() {
   return (
     <ScreenShell
       footer={
-        <Button
-          className="h-12 w-full text-base"
-          size="lg"
-          disabled={!valid}
-          onClick={() => goNext()}
-        >
+        <Button className={layout.cta} size="lg" disabled={!valid} onClick={() => goNext()}>
           {COPY.register.email.action}
         </Button>
       }

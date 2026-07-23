@@ -12,9 +12,12 @@
     ]
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "NEXT_PUBLIC_APP_ENV=local NEXT_PUBLIC_API_MOCK=1 next dev",
+    "dev:api": "NEXT_PUBLIC_APP_ENV=local NEXT_PUBLIC_API_MOCK=0 next dev",
+    "build": "NEXT_PUBLIC_APP_ENV=prod NEXT_PUBLIC_API_MOCK=0 next build",
+    "build:dev": "NEXT_PUBLIC_APP_ENV=dev NEXT_PUBLIC_API_MOCK=1 next build",
+    "start": "NEXT_PUBLIC_APP_ENV=prod NEXT_PUBLIC_API_MOCK=0 next start",
+    "start:dev": "NEXT_PUBLIC_APP_ENV=dev NEXT_PUBLIC_API_MOCK=1 next start",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

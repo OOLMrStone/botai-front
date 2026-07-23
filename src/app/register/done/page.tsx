@@ -19,7 +19,7 @@ export default function DonePage() {
     void saveOnboarding({ goal, level, dailyGoalMinutes, notificationsEnabled });
     reset();
 
-    router.push(ROUTES.lesson);
+    router.push(ROUTES.home);
   };
 
   return (

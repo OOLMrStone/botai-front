@@ -1,10 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
+import { ValidatedField } from '@/components/onboarding/ValidatedField';
+import { layout } from '@/config/layout';
 import { COPY } from '@/config/onboarding-steps';
 import { useRegisterFlow } from '@/hooks/use-flow-navigation';
 import { AGE_LIMITS, isValidAge } from '@/lib/validation';
@@ -20,12 +21,7 @@ export default function AgePage() {
   return (
     <ScreenShell
       footer={
-        <Button
-          className="h-12 w-full text-base"
-          size="lg"
-          disabled={!valid}
-          onClick={() => goNext()}
-        >
+        <Button className={layout.cta} size="lg" disabled={!valid} onClick={() => goNext()}>
           {COPY.register.age.action}
         </Button>
       }
@@ -34,7 +30,7 @@ export default function AgePage() {
 
       <div className="space-y-2">
         <Label htmlFor="age">Возраст</Label>
-        <Input
+        <ValidatedField
           id="age"
           type="number"
           inputMode="numeric"
@@ -42,7 +38,9 @@ export default function AgePage() {
           max={AGE_LIMITS.max}
           autoFocus
           value={age}
-          onChange={(e) => updateRegistration({ age: e.target.value })}
+          onChange={(value) => updateRegistration({ age: value })}
+          validate={isValidAge}
+          errorText={COPY.validation.age}
           className="h-12 text-base"
         />
       </div>

@@ -1,3 +1,4 @@
+import { layout } from '@/config/layout';
 import { cn } from '@/lib/utils';
 
 interface ScreenShellProps {
@@ -7,20 +8,29 @@ interface ScreenShellProps {
   className?: string;
 }
 
-// Общий каркас экрана: контент + прижатый снизу блок действий.
+// Общий каркас экрана: контент + прижатый снизу блок действий. Размеры - из layout.
 export function ScreenShell({ children, footer, center = false, className }: ScreenShellProps) {
   return (
-    <div className={cn('flex min-h-0 flex-1 flex-col px-6 pt-4 pb-8', className)}>
+    <div
+      className={cn(
+        'flex min-h-0 flex-1 flex-col',
+        layout.shell.padX,
+        layout.shell.padTop,
+        layout.shell.padBottom,
+        className,
+      )}
+    >
       <div
         className={cn(
-          'flex min-h-0 flex-1 flex-col gap-6',
+          'flex min-h-0 flex-1 flex-col',
+          layout.shell.gap,
           center ? 'items-center justify-center text-center' : 'justify-start',
         )}
       >
         {children}
       </div>
 
-      {footer ? <div className="pt-6">{footer}</div> : null}
+      {footer ? <div className={layout.shell.footerTop}>{footer}</div> : null}
     </div>
   );
 }

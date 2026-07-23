@@ -1,7 +1,9 @@
 // Правила валидации форм - чистые функции, одна ответственность на функцию.
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-export const AGE_LIMITS = { min: 1, max: 120 } as const;
+// ЕГЭ по профмату сдают в 10-11 классе - младше 14 регистрация не имеет смысла,
+// верхнюю границу держим щедрой (родители, репетиторы, поздний пересдающий).
+export const AGE_LIMITS = { min: 14, max: 100 } as const;
 // Синхронизировано с бэкендом (RegisterRequest: 8-72 символа).
 export const PASSWORD_MIN_LENGTH = 8;
 
@@ -16,4 +18,8 @@ export function isValidAge(age: string): boolean {
 
 export function isValidPassword(password: string): boolean {
   return password.length >= PASSWORD_MIN_LENGTH;
+}
+
+export function isValidName(name: string): boolean {
+  return name.trim().length > 0;
 }

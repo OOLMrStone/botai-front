@@ -29,7 +29,7 @@ import {
   TikTokIcon,
   YoutubeIcon,
 } from '@/components/onboarding/brand-icons';
-import { PASSWORD_MIN_LENGTH } from '@/lib/validation';
+import { AGE_LIMITS, PASSWORD_MIN_LENGTH } from '@/lib/validation';
 
 export type OnboardingSlug =
   | 'welcome'
@@ -83,14 +83,17 @@ export const nextRegisterSlug = (slug: RegisterSlug) => nextStep(REGISTER_STEPS,
 export const onboardingPath = (slug: OnboardingSlug) => `/onboarding/${slug}`;
 export const registerPath = (slug: RegisterSlug) => `/register/${slug}`;
 
-// Роуты вне нумерованных сегментов: развилки и отдельные экраны.
+// Роуты вне нумерованных сегментов: развилки, отдельные экраны и раздел (app).
 export const ROUTES = {
   login: '/login',
   lesson: '/lesson',
   streak: '/streak',
   saveProgress: '/register/save-progress',
   done: '/register/done',
-  user: '/user',
+  home: '/home',
+  tasks: '/tasks',
+  profile: '/profile',
+  settings: '/settings',
 } as const;
 
 // --- Варианты вопросов -------------------------------------------------------
@@ -176,7 +179,7 @@ export const COPY = {
     secondary: 'У меня уже есть аккаунт',
   },
   intro: {
-    title: 'Привет! Я <имя>',
+    title: 'Привет! Я botai',
     subtitle: 'Помогу разобраться во всём, будем ботать вместе!',
     action: 'Дальше',
   },
@@ -276,17 +279,75 @@ export const COPY = {
     badCredentials: 'Неверная почта или пароль',
     error: 'Не получилось войти. Попробуй ещё раз',
   },
-  user: {
+  // --- Раздел (app): нижняя навигация + хаб + задачи + профиль ---
+  nav: {
+    home: 'Главная',
+    tasks: 'Задачи',
+    profile: 'Профиль',
+  },
+  home: {
     greeting: 'Привет',
-    subtitle: 'Сессия активна - вход выполнен автоматически',
+    tagline: 'Готов ботать сегодня?',
+    streakUnit: 'дней в ударе',
+    xpUnit: 'XP',
+    dailyGoalTitle: 'Цель дня',
+    dailyGoalUnit: 'мин',
+    dailyGoalDone: 'Цель дня выполнена - красавчик!',
+    continueTitle: 'Продолжить урок',
+    continueSubtitle: 'Первый урок уже ждёт',
+    continueAction: 'Поехали',
+    goalCardTitle: 'Твоя цель',
+    goalCardLevelPrefix: 'Уровень',
+    aiReviewTitle: 'Разбор с ИИ',
+    aiReviewSubtitle: 'Объясняю решение любой задачи по шагам',
+    aiReviewOn: 'Включён - спроси прямо в уроке',
+  },
+  // Тарифы: подпись гейта и карточка тарифа в профиле.
+  plan: {
+    locked: 'Доступно в Pro',
+    cardTitle: 'Твой тариф',
+  },
+  tasks: {
+    title: 'Задачи',
+    subtitle: 'Скоро здесь появятся задачи по всем темам профиля\nСобираем - загляни попозже',
+  },
+  profile: {
     loading: 'Проверяем сессию…',
+    settingsRow: 'Настройки',
+    overviewTitle: 'Обзор',
+    overviewStreak: 'Стрик',
+    overviewXp: 'Опыт',
+    overviewGoal: 'Цель',
+    overviewDailyGoal: 'Цель дня',
+    streakWeekTitle: 'Неделя в ударе',
+    goalTitle: 'Твоя цель',
+    nameTitle: 'Как тебя называть',
+    namePlaceholder: 'Твоё имя',
+    dailyGoalTitle: 'Цель дня',
+    dailyGoalUnit: 'мин',
+    streakUnit: 'дней',
     toLesson: 'К обучению',
     logout: 'Выйти',
   },
-  // Тексты ошибок валидации - один источник для почты и пароля.
+  settings: {
+    title: 'Настройки',
+    save: 'Сохранить',
+    back: 'Назад',
+  },
+  // Ошибки запросов - один источник для всех экранов (плашка ErrorNote).
+  errors: {
+    retry: 'Повторить',
+    stats: 'Не удалось загрузить данные',
+    save: 'Не получилось сохранить. Попробуй ещё раз',
+    logout: 'Не получилось выйти. Попробуй ещё раз',
+    plan: 'Не получилось сменить тариф',
+  },
+  // Тексты ошибок валидации - один источник для всех полей регистрации.
   validation: {
     email: 'Неправильный адрес почты',
     password: `Пароль должен содержать не менее ${PASSWORD_MIN_LENGTH} символов`,
+    age: `Возраст от ${AGE_LIMITS.min} до ${AGE_LIMITS.max} лет`,
+    name: 'Заполни это поле',
   },
   register: {
     age: { title: 'Сколько тебе лет?', action: 'Продолжить' },
