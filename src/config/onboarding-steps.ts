@@ -92,6 +92,8 @@ export const ROUTES = {
   done: '/register/done',
   home: '/home',
   tasks: '/tasks',
+  training: '/training',
+  mockExams: '/mock-exams',
   profile: '/profile',
   settings: '/settings',
 } as const;
@@ -283,6 +285,7 @@ export const COPY = {
   nav: {
     home: 'Главная',
     tasks: 'Задачи',
+    mockExams: 'Пробники',
     profile: 'Профиль',
   },
   home: {
@@ -296,6 +299,8 @@ export const COPY = {
     continueTitle: 'Продолжить урок',
     continueSubtitle: 'Первый урок уже ждёт',
     continueAction: 'Поехали',
+    continueTrainingTitle: 'Продолжить тренировку',
+    continueTrainingSubtitle: 'Твои ответы сохранены',
     dailyTaskTitle: 'Задача дня',
     dailyTaskReveal: 'Показать ответ',
     dailyTaskAnswerPrefix: 'Ответ',
@@ -310,7 +315,10 @@ export const COPY = {
   },
   tasks: {
     title: 'Задачи',
-    subtitle: 'Скоро здесь появятся задачи по всем темам профиля\nСобираем - загляни попозже',
+  },
+  mockExams: {
+    title: 'Пробники',
+    subtitle: 'Скоро здесь появятся пробные варианты',
   },
   profile: {
     loading: 'Проверяем сессию…',
@@ -339,6 +347,7 @@ export const COPY = {
   errors: {
     retry: 'Повторить',
     stats: 'Не удалось загрузить данные',
+    tasks: 'Не удалось загрузить задачи',
     save: 'Не получилось сохранить. Попробуй ещё раз',
     logout: 'Не получилось выйти. Попробуй ещё раз',
     plan: 'Не получилось сменить тариф',

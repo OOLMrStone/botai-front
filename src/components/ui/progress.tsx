@@ -5,6 +5,11 @@ import { Progress as ProgressPrimitive } from '@base-ui/react/progress';
 import { cn } from '@/lib/utils';
 
 function Progress({ className, children, value, ...props }: ProgressPrimitive.Root.Props) {
+  const min = props.min ?? 0;
+  const max = props.max ?? 100;
+  const numericValue = typeof value === 'number' ? value : min;
+  const scale = max === min ? 0 : Math.min(1, Math.max(0, (numericValue - min) / (max - min)));
+
   return (
     <ProgressPrimitive.Root
       value={value}
@@ -14,7 +19,11 @@ function Progress({ className, children, value, ...props }: ProgressPrimitive.Ro
     >
       {children}
       <ProgressTrack>
-        <ProgressIndicator />
+        <div
+          data-slot="progress-indicator"
+          className="bg-primary h-full w-full origin-left transition-transform duration-[var(--progress-motion-duration)] ease-out motion-reduce:transition-none"
+          style={{ transform: `scaleX(${scale})` }}
+        />
       </ProgressTrack>
     </ProgressPrimitive.Root>
   );
@@ -28,16 +37,6 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
         className,
       )}
       data-slot="progress-track"
-      {...props}
-    />
-  );
-}
-
-function ProgressIndicator({ className, ...props }: ProgressPrimitive.Indicator.Props) {
-  return (
-    <ProgressPrimitive.Indicator
-      data-slot="progress-indicator"
-      className={cn('bg-primary h-full transition-all duration-500 ease-out', className)}
       {...props}
     />
   );
@@ -63,4 +62,4 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
   );
 }
 
-export { Progress, ProgressTrack, ProgressIndicator, ProgressLabel, ProgressValue };
+export { Progress, ProgressTrack, ProgressLabel, ProgressValue };

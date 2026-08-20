@@ -18,6 +18,7 @@ import { useUserStats } from '@/hooks/use-user-stats';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import { useProfileStore } from '@/stores/profile-store';
+import { useTasksStore } from '@/stores/tasks-store';
 
 // Хаб после логина: приветствие, статус (стрик/XP), кольцо дневной цели,
 // задача дня, продолжение урока и платный разбор с ИИ.
@@ -27,6 +28,7 @@ export default function HomePage() {
   const { stats, failed, retry } = useUserStats();
   const { task } = useDailyTask();
   const nameOverride = useProfileStore((s) => s.name);
+  const trainingSession = useTasksStore((s) => s.session);
 
   const name = nameOverride ?? user?.displayName ?? user?.email ?? '';
   const loading = !stats && !failed;
@@ -57,10 +59,18 @@ export default function HomePage() {
 
         <div className="border-border bg-card w-full shrink-0 space-y-3 rounded-2xl border p-4">
           <div className="space-y-1">
-            <p className="font-semibold">{COPY.home.continueTitle}</p>
-            <p className="text-muted-foreground text-sm">{COPY.home.continueSubtitle}</p>
+            <p className="font-semibold">
+              {trainingSession ? COPY.home.continueTrainingTitle : COPY.home.continueTitle}
+            </p>
+            <p className="text-muted-foreground text-sm">
+              {trainingSession ? COPY.home.continueTrainingSubtitle : COPY.home.continueSubtitle}
+            </p>
           </div>
-          <Button size="lg" className={layout.cta} onClick={() => router.push(ROUTES.lesson)}>
+          <Button
+            size="lg"
+            className={layout.cta}
+            onClick={() => router.push(trainingSession ? ROUTES.training : ROUTES.lesson)}
+          >
             {COPY.home.continueAction}
           </Button>
         </div>

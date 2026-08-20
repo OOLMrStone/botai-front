@@ -1,4 +1,4 @@
-import { Home, ListChecks, UserRound } from 'lucide-react';
+import { ClipboardCheck, Home, ListChecks, UserRound } from 'lucide-react';
 import type { ComponentType } from 'react';
 
 import { COPY, ROUTES } from '@/config/onboarding-steps';
@@ -13,5 +13,6 @@ export interface AppTab {
 export const APP_TABS: AppTab[] = [
   { href: ROUTES.home, label: COPY.nav.home, icon: Home },
   { href: ROUTES.tasks, label: COPY.nav.tasks, icon: ListChecks },
+  { href: ROUTES.mockExams, label: COPY.nav.mockExams, icon: ClipboardCheck },
   { href: ROUTES.profile, label: COPY.nav.profile, icon: UserRound },
 ];

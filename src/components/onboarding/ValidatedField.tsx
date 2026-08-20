@@ -2,10 +2,7 @@
 
 import type { ComponentProps } from 'react';
 
-import { Check } from 'lucide-react';
-
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { ValidatedInput } from '@/components/ui/validated-input';
 
 interface ValidatedFieldProps extends Omit<ComponentProps<'input'>, 'onChange'> {
   value: string;
@@ -28,22 +25,13 @@ export function ValidatedField({
 
   return (
     <>
-      <div className="relative">
-        <Input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          aria-invalid={state === 'error'}
-          className={cn(
-            state === 'success' &&
-              'border-success focus-visible:border-success focus-visible:ring-success/20 ring-success/20 pr-10 ring-3',
-            className,
-          )}
-          {...props}
-        />
-        {state === 'success' ? (
-          <Check className="text-success pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2" />
-        ) : null}
-      </div>
+      <ValidatedInput
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        validationState={state}
+        className={className}
+        {...props}
+      />
 
       {state === 'error' ? <p className="text-destructive text-sm">{errorText}</p> : null}
     </>

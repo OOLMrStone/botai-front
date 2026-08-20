@@ -50,6 +50,12 @@
 }
 
 :root {
+  --progress-motion-duration: 500ms;
+  --task-sheet-enter-duration: 260ms;
+  --task-overlay-enter-duration: 180ms;
+  --task-lens-enter-duration: 160ms;
+  --task-tab-motion-duration: 220ms;
+  --task-control-motion-duration: 200ms;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -208,4 +214,55 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+@keyframes tasks-sheet-enter {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tasks-overlay-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tasks-lens-enter {
+  from {
+    opacity: 0;
+    transform: scaleX(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.tasks-sheet-enter {
+  animation: tasks-sheet-enter var(--task-sheet-enter-duration) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tasks-overlay-enter {
+  animation: tasks-overlay-enter var(--task-overlay-enter-duration) ease-out;
+}
+
+.tasks-lens-enter {
+  animation: tasks-lens-enter var(--task-lens-enter-duration) ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tasks-sheet-enter,
+  .tasks-overlay-enter,
+  .tasks-lens-enter {
+    animation: none;
+  }
 }
