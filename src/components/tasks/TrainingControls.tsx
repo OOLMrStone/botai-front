@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+import { AnswerInput } from '@/components/tasks/AnswerInput';
 import { Button } from '@/components/ui/button';
-import { ValidatedInput } from '@/components/ui/validated-input';
 import { layout } from '@/config/layout';
 import { TASK_ANSWER_INPUT_ID, TASK_COPY, type TaskStatus } from '@/config/tasks';
 import type { TrainingSession } from '@/stores/tasks-store';
@@ -66,19 +66,15 @@ export function TrainingControls({
       >
         <ChevronLeft />
       </Button>
-      <div className={layout.training.answerWrap}>
-        <ValidatedInput
-          id={TASK_ANSWER_INPUT_ID}
-          inputMode="decimal"
-          value={session.answers[taskId] ?? ''}
-          validationState={
-            status === 'correct' ? 'success' : status === 'incorrect' ? 'error' : 'neutral'
-          }
-          className={layout.training.answer}
-          placeholder={TASK_COPY.training.answer}
-          onChange={(event) => onAnswer(taskId, event.target.value)}
-        />
-      </div>
+      <AnswerInput
+        id={TASK_ANSWER_INPUT_ID}
+        value={session.answers[taskId] ?? ''}
+        validationState={
+          status === 'correct' ? 'success' : status === 'incorrect' ? 'error' : 'neutral'
+        }
+        placeholder={TASK_COPY.training.answer}
+        onValueChange={(answer) => onAnswer(taskId, answer)}
+      />
       {session.currentIndex === taskCount - 1 ? (
         <Button className={layout.training.reviewButton} onClick={() => onSelect(reviewIndex)}>
           {TASK_COPY.training.toReview}

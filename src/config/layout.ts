@@ -8,6 +8,7 @@
 // читаемого/тач-пола. Боковые поля фиксированы: ширина колонки ≈ десктопной,
 // по горизонтали пропорции уже верные.
 export const layout = {
+  gestureSurface: 'gesture-surface',
   focusRing: 'outline-none focus-visible:ring-2 focus-visible:ring-ring/40',
 
   // Каркас экрана (ScreenShell): поля, вертикальный ритм, отбивка футера.
@@ -30,6 +31,14 @@ export const layout = {
     subtitle: 'text-[clamp(1rem,2.2svh,1.125rem)]',
     gap: 'space-y-[clamp(0.25rem,1svh,0.75rem)]',
   },
+  typography: {
+    navigationTitle: 'text-2xl font-extrabold tracking-tight text-foreground',
+    sectionTitle: 'text-base font-semibold text-foreground',
+    controlTitle: 'text-base font-medium text-foreground',
+    description: 'text-sm text-muted-foreground',
+    value: 'text-lg font-bold tracking-tight text-foreground',
+    caption: 'text-xs text-muted-foreground',
+  },
 
   // Список вариантов делит свободную высоту (flex-1) - влезает любое число
   // карточек без переполнения. Пол карточки - тач-таргет 2.75rem, потолок - десктоп.
@@ -39,6 +48,26 @@ export const layout = {
   // Основное действие экрана (CTA); stack - вертикальный зазор пары кнопок.
   cta: 'h-[clamp(2.75rem,6svh,3rem)] w-full text-base',
   ctaStack: 'space-y-[clamp(0.5rem,1.5svh,0.75rem)]',
+  commitment: {
+    block:
+      'mt-[clamp(1.25rem,4svh,2.5rem)] flex flex-col items-center gap-[clamp(0.625rem,1.5svh,0.75rem)]',
+    hint: 'min-h-5 text-sm text-muted-foreground transition-opacity duration-200 motion-reduce:transition-none',
+    hintHidden: 'opacity-0',
+    hintVisible: 'opacity-100',
+    seal: 'relative isolate flex size-[clamp(7.5rem,20svh,10rem)] touch-none items-center justify-center overflow-hidden rounded-full border border-border bg-background outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+    fill: 'pointer-events-none absolute inset-1 -z-10 origin-center scale-[var(--commitment-seal-scale)] rounded-full bg-foreground transition-transform duration-[var(--commitment-seal-duration)] ease-out motion-reduce:transition-none',
+    label: 'pointer-events-none max-w-24 text-center text-sm font-medium',
+    labelIdle: 'text-foreground',
+    labelHolding: 'text-background',
+    check:
+      'pointer-events-none size-10 text-background animate-in fade-in zoom-in-75 duration-200 motion-reduce:animate-none',
+    status: 'min-h-4 text-xs text-muted-foreground',
+    statusVisible:
+      'animate-in fade-in slide-in-from-bottom-1 duration-200 motion-reduce:animate-none',
+    footer: 'transition-[opacity,transform] duration-200 motion-reduce:transition-none',
+    footerHidden: 'pointer-events-none translate-y-2 opacity-0',
+    footerVisible: 'translate-y-0 opacity-100',
+  },
   tasks: {
     content: 'mx-auto w-full max-w-2xl',
     catalogScroll: '[overflow-anchor:none]',
@@ -60,7 +89,7 @@ export const layout = {
     compactCard: 'p-4',
     activeCard:
       'bg-card border-border border shadow-[0_1px_0_color-mix(in_oklch,var(--foreground)_8%,transparent)]',
-    disabledCard: 'bg-muted/35 border-border/70 border opacity-55',
+    disabledCard: 'bg-muted/35 border-border/70 text-muted-foreground border',
     expanded: 'z-10 col-span-2 p-4',
     expandedContent: 'mt-4',
     metric: 'space-y-2',
@@ -69,23 +98,27 @@ export const layout = {
     metricValue: 'text-sm tabular-nums text-muted-foreground',
     topicList: 'space-y-2',
     topic:
-      'border-border bg-card hover:bg-muted/35 min-h-16 w-full rounded-[calc(var(--radius-3xl)-1rem)] border px-4 py-3 text-left transition-transform duration-[var(--task-control-motion-duration)] active:scale-[0.99] motion-reduce:transition-none',
+      'bg-muted/55 hover:bg-muted/75 min-h-16 w-full rounded-2xl border border-transparent px-4 py-3 text-left transition-[background-color,transform] duration-[var(--task-control-motion-duration)] active:scale-[0.99] motion-reduce:transition-none',
     progress: 'h-1.5',
     sheet:
-      'tasks-sheet-enter bg-background border-border fixed inset-x-0 bottom-0 z-[60] mx-auto max-w-2xl rounded-t-4xl border p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]',
+      'tasks-sheet-enter bg-background border-border fixed inset-x-0 bottom-0 z-[60] mx-auto max-h-[calc(100svh-0.5rem)] max-w-2xl overflow-y-auto overscroll-contain rounded-t-4xl border p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]',
     sheetOverlay: 'tasks-overlay-enter fixed inset-0 z-[55] bg-black/30',
     sheetHeader: 'flex items-start justify-between gap-4',
     sheetHeaderActions: 'flex shrink-0 items-center gap-1',
     sheetTitle: 'text-lg font-semibold',
     sheetTime: 'text-sm tabular-nums text-muted-foreground',
     sheetClose: 'size-11 rounded-full',
+    sheetGrabber:
+      'group -mt-4 mx-auto mb-1 flex h-11 w-16 touch-none items-center justify-center rounded-full outline-none',
+    sheetGrabberPill:
+      'h-1.5 w-9 rounded-full bg-muted-foreground/35 transition-[background-color] group-focus-visible:bg-foreground motion-reduce:transition-none',
     favoriteAll: 'h-auto justify-start text-left',
     favoriteCard: 'h-auto flex-col items-start',
     favoriteNumber: 'text-lg font-semibold',
     favoriteId: 'text-xs text-muted-foreground',
     empty: 'py-12 text-center text-base text-muted-foreground',
-    numberHeader: 'scroll-mt-[4.5rem] min-h-20 w-full min-w-0 rounded-xl text-left',
-    numberHeaderExpanded: 'min-h-11',
+    numberHeader: 'scroll-mt-[4.5rem] min-h-20 w-full min-w-0 rounded-2xl text-left',
+    numberHeaderExpanded: 'min-h-11 px-4',
     numberHeaderGrid:
       'grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-3',
     numberHeadingTitle: 'min-w-0 truncate text-base font-medium',
@@ -96,37 +129,85 @@ export const layout = {
     compactMetricValue: 'col-start-3 row-start-2 text-sm tabular-nums text-muted-foreground',
     compactProgress: 'col-span-3 col-start-1 row-start-3 h-1.5',
     skeleton: 'h-32 rounded-2xl',
-    setup: 'space-y-4',
-    setupGroup: 'space-y-2.5',
+    setup: 'space-y-5',
+    setupGroup: 'space-y-3',
+    setupLegendRow: 'space-y-0.5',
     setupLegend: 'text-base font-medium',
+    setupHint: 'block text-xs text-muted-foreground',
     countGrid: 'grid grid-cols-4 gap-2',
-    difficultyGrid: 'grid grid-cols-3 gap-2',
-    setupOption: 'h-11 min-w-0 rounded-xl px-1 text-base',
-    setupCta: 'h-12 w-full rounded-xl text-base font-medium',
+    setupOption: 'h-11 min-w-0 px-1 text-base',
+    setupCta: 'h-12 w-full text-base font-medium',
+    difficultyControl: 'space-y-2',
+    difficultyValue: 'text-sm font-medium',
+    difficultySliderWrap: 'relative h-11',
+    difficultyTrack:
+      'bg-muted absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full',
+    difficultyTrackFill:
+      'bg-foreground absolute inset-0 origin-left scale-x-[var(--difficulty-progress)]',
+    difficultyThumb:
+      'bg-foreground border-background pointer-events-none absolute top-1/2 left-[var(--difficulty-position)] z-10 size-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] shadow-sm',
+    difficultySlider:
+      'absolute inset-0 z-20 h-11 w-full cursor-pointer appearance-none rounded-lg bg-transparent opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 [&::-moz-range-thumb]:size-6 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-transparent [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-11 [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:mt-2.5 [&::-webkit-slider-thumb]:size-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-transparent',
+    difficultyScale: 'flex justify-between text-xs text-muted-foreground',
     soon: 'col-span-3 col-start-1 row-start-3 text-xs text-muted-foreground',
     icon: 'size-5',
   },
+  settings: {
+    shell: 'flex h-svh flex-col bg-background',
+    header: 'flex shrink-0 items-center gap-3 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2',
+    backButton:
+      'text-muted-foreground hover:bg-muted flex size-11 shrink-0 items-center justify-center rounded-2xl transition-colors',
+    backIcon: 'size-5',
+    content: 'space-y-7 pt-4',
+    fields: 'space-y-7 text-left',
+    fieldGroup: 'space-y-3',
+    input: 'h-12 rounded-2xl text-base',
+    footer: 'border-border shrink-0 space-y-3 border-t pt-3',
+  },
   training: {
-    shell: 'mx-auto flex h-svh w-full max-w-2xl flex-col overflow-hidden',
+    shell:
+      'fixed inset-x-0 top-0 mx-auto flex h-[var(--training-viewport-height,100svh)] w-full max-w-2xl translate-y-[var(--training-viewport-offset-top,0px)] flex-col overflow-hidden',
     header: 'shrink-0 px-4 pt-[max(0.625rem,env(safe-area-inset-top))] pb-1',
     scrubber: 'h-16 min-w-0 flex-1',
-    cardArea: 'min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3',
+    cardArea: 'min-h-0 flex-1 overflow-hidden px-4 py-3',
     card: 'min-h-full rounded-4xl p-5',
-    taskCard: 'border-border bg-card border',
-    reviewCard: 'border-border bg-card flex min-h-full flex-col border',
-    controls:
-      'flex shrink-0 gap-2 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] translate-y-[calc(-1*var(--keyboard-offset,0px))]',
+    taskCard:
+      'border-border bg-card relative flex h-full min-h-0 flex-col overflow-hidden rounded-4xl border',
+    reviewCard:
+      'border-border bg-card flex min-h-full flex-col overflow-y-auto overscroll-contain border',
+    controls: 'shrink-0 gap-2 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]',
+    controlsRow: 'flex',
+    controlsEqual: 'grid grid-cols-[3rem_minmax(0,1fr)_minmax(0,1fr)]',
     controlButton: 'size-12 shrink-0 rounded-xl',
-    reviewButton: 'h-12 shrink-0 rounded-xl px-4 text-base',
-    answerWrap: 'relative min-w-0 flex-1',
-    answer: 'h-12 w-full rounded-xl text-base',
+    reviewButton: 'h-12 min-w-0 flex-1 px-2 text-base',
+    answerWrap: 'min-w-0 flex-1 [&>div]:min-w-0',
+    answer: 'h-12 w-full text-base md:text-base',
     headerRow: 'flex items-center gap-2 pr-[3.25rem]',
     closeButton: 'size-11 shrink-0 rounded-full',
-    cardHeader: 'mb-6 flex items-center justify-between gap-3',
-    cardTitle: 'text-lg font-semibold',
-    actions: 'flex items-center gap-1',
-    actionButton: 'size-11 rounded-xl',
-    actionIcon: 'size-5',
+    cardHeader:
+      'relative z-20 flex shrink-0 flex-nowrap items-start gap-x-[clamp(0.125rem,1vw,0.75rem)] px-5 pt-5 pb-6',
+    titleGroup: 'flex min-h-10 min-w-0 flex-1 flex-col justify-center gap-0.5',
+    difficultyIcon: 'task-skull-icon ml-1.5 inline-block size-4.5 align-[-0.125em] text-foreground',
+    cardTitle: 'text-lg font-semibold whitespace-nowrap',
+    solvedMeta: 'max-w-full truncate text-xs leading-4 font-medium text-muted-foreground',
+    actions: 'ml-auto flex shrink-0 items-center gap-0 sm:gap-1',
+    actionButton: 'size-10 rounded-xl sm:size-11',
+    actionButtonActive: 'bg-foreground text-background hover:bg-foreground hover:text-background',
+    actionIcon: 'size-4.5 sm:size-5',
+    pointEraserIcon:
+      "inline-block size-4.5 translate-y-px bg-current sm:size-5 [mask:url('/icons/eraser-trail.svg')_center/contain_no-repeat]",
+    eraserControl: 'relative',
+    eraserTriggerIconHidden: 'flex items-center justify-center opacity-0',
+    eraserMenu:
+      'absolute top-full right-0 z-30 mt-1 flex gap-1 rounded-2xl border border-border bg-popover p-1 shadow-lg animate-in fade-in slide-in-from-top-1 duration-[var(--task-control-motion-duration)] motion-reduce:animate-none',
+    eraserOption: 'size-11 rounded-xl text-muted-foreground',
+    eraserOptionActive: 'bg-foreground text-background hover:bg-foreground hover:text-background',
+    drawingViewport: 'min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain',
+    drawingDocument: 'relative min-h-full w-full',
+    drawingContent: 'relative flex flex-col px-5',
+    drawingCanvas: 'absolute inset-0 z-10 h-full w-full touch-none text-[var(--task-ink)]',
+    drawingCanvasIdle: 'pointer-events-none',
+    drawingCanvasActive: 'cursor-crosshair',
     solutionButton: 'mt-6',
     solution: 'border-border mt-3 border-t pt-4',
     reviewStats: 'mt-2',
@@ -143,7 +224,7 @@ export const layout = {
     exitActions: 'grid grid-cols-2 gap-2',
     exitAction: 'h-11',
     blockList: 'space-y-4',
-    latex: 'overflow-x-auto py-2 text-center',
+    latex: 'overflow-x-auto py-2 text-center text-[clamp(1.25rem,2.4vw,1.625rem)]',
     image: 'relative mx-auto w-full max-w-md',
     blockText: 'text-base whitespace-pre-line',
     blockImage: 'object-contain',
@@ -167,10 +248,8 @@ export const layout = {
     segmentAnswered: 'border-muted-foreground bg-muted-foreground',
     segmentCorrect: 'border-success bg-success',
     segmentIncorrect: 'border-destructive bg-destructive',
-    lensItem: 'border-background/20 bg-background/10 text-background',
-    lensItemCorrect: 'border-success',
-    lensItemIncorrect: 'border-destructive',
-    lensItemActive: 'scale-105 border-background bg-background text-foreground',
+    lensItem: 'task-lens-item bg-background/10 text-background',
+    lensItemActive: 'scale-105 bg-background text-foreground',
     reviewActive: 'bg-foreground text-background',
     reviewInactive: 'bg-muted/80 text-muted-foreground',
   },
@@ -180,6 +259,9 @@ export const taskGestures = {
   scrubberHoldMs: 280,
   scrubberSlowdown: 0.42,
   scrubberLensRadius: 2,
+  sheetDragSlopPx: 6,
+  sheetDismissDistanceRatio: 0.24,
+  sheetDismissVelocityPxMs: 0.65,
 } as const;
 
 export const taskMotion = {
@@ -187,4 +269,7 @@ export const taskMotion = {
   catalogReflowEasing: 'cubic-bezier(0.22, 0.8, 0.25, 1)',
   catalogShapeStartOpacity: 0.55,
   catalogShapeTolerancePx: 1,
+  sheetDismissMs: 220,
+  sheetSnapBackMs: 260,
+  sheetReleaseEasing: 'cubic-bezier(0.22, 0.8, 0.25, 1)',
 } as const;

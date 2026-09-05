@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { normalizeDailyGoalMinutes } from '@/lib/daily-goal';
+
 // Пользовательские переопределения базовых настроек профиля.
 // null у поля - использовать значение с бэкенда (обращение - displayName,
 // цель/цель дня - из stats). Правки редактируются в профиле и переживают
@@ -24,6 +26,19 @@ export const useProfileStore = create<ProfileState>()(
       update: (patch) => set(patch),
       reset: () => set({ name: null, goalId: null, dailyGoalMinutes: null }),
     }),
-    { name: 'botai-profile' },
+    {
+      name: 'botai-profile',
+      version: 1,
+      migrate: (persisted) => {
+        const saved = persisted as Partial<ProfileState>;
+        return {
+          ...saved,
+          dailyGoalMinutes:
+            saved.dailyGoalMinutes === null || saved.dailyGoalMinutes === undefined
+              ? null
+              : normalizeDailyGoalMinutes(saved.dailyGoalMinutes),
+        } as ProfileState;
+      },
+    },
   ),
 );

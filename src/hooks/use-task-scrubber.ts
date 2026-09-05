@@ -4,6 +4,7 @@ import type { KeyboardEvent, PointerEvent } from 'react';
 import { useRef, useState } from 'react';
 
 import { taskGestures } from '@/config/layout';
+import { capturePointer } from '@/lib/pointer-capture';
 
 interface ScrubberInput {
   taskCount: number;
@@ -56,7 +57,7 @@ export function useTaskScrubber({ taskCount, currentIndex, onSelect }: ScrubberI
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
     const index = indexAt(event.clientX);
-    event.currentTarget.setPointerCapture(event.pointerId);
+    capturePointer(event.currentTarget, event.pointerId);
     anchor.current = { x: event.clientX, index, segmentWidth: bounds.width / taskCount };
     setPreviewIndex(index);
     clearHold();

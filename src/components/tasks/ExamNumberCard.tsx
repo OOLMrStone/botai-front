@@ -2,7 +2,7 @@ import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 
 import { Progress } from '@/components/ui/progress';
 import { layout } from '@/config/layout';
-import { EXAM_NUMBERS, TASK_COPY, type TrainingTask } from '@/config/tasks';
+import { EXAM_NUMBERS, TASK_COPY, type TaskHistoryStatus, type TrainingTask } from '@/config/tasks';
 import { taskProgress } from '@/lib/task-training';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ interface Props {
   number: ExamNumber;
   tasks: TrainingTask[];
   expanded: boolean;
-  history: Record<string, 'correct' | 'incorrect'>;
+  history: Record<string, TaskHistoryStatus>;
   onToggle: () => void;
   onOpenTasks: (tasks: TrainingTask[]) => void;
 }
@@ -69,7 +69,7 @@ export function ExamNumberCard({ number, tasks, expanded, history, onToggle, onO
               {number.title}
             </span>
             <span className={layout.tasks.numberHeaderMeta}>
-              {expanded ? (
+              {!active ? null : expanded ? (
                 <ChevronUp className={layout.tasks.icon} />
               ) : progress === 100 ? (
                 <Check className={layout.tasks.icon} />

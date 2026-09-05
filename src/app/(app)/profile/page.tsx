@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { StatTile } from '@/components/app/StatTile';
 import { StreakCalendar } from '@/components/app/StreakCalendar';
 import { ErrorNote } from '@/components/common/ErrorNote';
+import { SectionHeading } from '@/components/common/SectionHeading';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { Button } from '@/components/ui/button';
@@ -53,9 +54,6 @@ export default function ProfilePage() {
       footer={
         <div className={layout.ctaStack}>
           {logoutFailed ? <ErrorNote message={COPY.errors.logout} /> : null}
-          <Button className={layout.cta} size="lg" onClick={() => router.push(ROUTES.lesson)}>
-            {COPY.profile.toLesson}
-          </Button>
           <Button variant="ghost" className="w-full" disabled={pending} onClick={handleLogout}>
             {COPY.profile.logout}
           </Button>
@@ -68,7 +66,7 @@ export default function ProfilePage() {
             <UserRound className="size-8" />
           </div>
           <ScreenHeading title={displayName} />
-          <p className="text-muted-foreground text-sm">{user.email}</p>
+          <p className={layout.typography.description}>{user.email}</p>
         </div>
 
         <button
@@ -77,20 +75,22 @@ export default function ProfilePage() {
           className="border-border bg-card flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-transform active:scale-[0.99]"
         >
           <Settings className="text-muted-foreground size-5 shrink-0" />
-          <span className="flex-1 font-medium">{COPY.profile.settingsRow}</span>
+          <span className={`flex-1 ${layout.typography.controlTitle}`}>
+            {COPY.profile.settingsRow}
+          </span>
           <ChevronRight className="text-muted-foreground size-5 shrink-0" />
         </button>
 
         <div className="border-border bg-card w-full space-y-1 rounded-2xl border p-4">
-          <p className="text-muted-foreground text-sm">{COPY.plan.cardTitle}</p>
-          <p className="font-semibold">{plan.label}</p>
-          <p className="text-muted-foreground text-sm">{plan.description}</p>
+          <p className={layout.typography.description}>{COPY.plan.cardTitle}</p>
+          <p className={layout.typography.sectionTitle}>{plan.label}</p>
+          <p className={layout.typography.description}>{plan.description}</p>
         </div>
 
         {stats ? (
           <>
             <div className="space-y-3">
-              <p className="text-muted-foreground text-sm">{COPY.profile.overviewTitle}</p>
+              <SectionHeading>{COPY.profile.overviewTitle}</SectionHeading>
               <div className="grid grid-cols-2 gap-3">
                 <StatTile
                   icon={Flame}
@@ -112,7 +112,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-3">
-              <p className="text-muted-foreground text-sm">{COPY.profile.streakWeekTitle}</p>
+              <SectionHeading>{COPY.profile.streakWeekTitle}</SectionHeading>
               <StreakCalendar streakDays={stats.streakDays} />
             </div>
           </>

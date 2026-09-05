@@ -65,20 +65,20 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex h-svh flex-col">
-      <header className="border-border flex shrink-0 items-center gap-3 border-b px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3">
+    <div className={layout.settings.shell}>
+      <header className={layout.settings.header}>
         <button
           type="button"
           onClick={() => router.back()}
           aria-label={COPY.settings.back}
-          className="text-muted-foreground hover:bg-muted flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors"
+          className={layout.settings.backButton}
         >
-          <ChevronLeft className="size-5" />
+          <ChevronLeft className={layout.settings.backIcon} />
         </button>
-        <span className="text-lg font-semibold">{COPY.settings.title}</span>
+        <h1 className={layout.typography.navigationTitle}>{COPY.settings.title}</h1>
       </header>
 
-      <div className={cn(layout.scroll, 'pt-6', layout.shell.padX)}>
+      <div className={cn(layout.scroll, layout.settings.content, layout.shell.padX)}>
         <ProfileEditFields
           name={name}
           onNameChange={setNameDraft}
@@ -89,13 +89,7 @@ export default function SettingsPage() {
         />
       </div>
 
-      <div
-        className={cn(
-          'border-border shrink-0 space-y-3 border-t pt-3',
-          layout.shell.padX,
-          layout.shell.padBottom,
-        )}
-      >
+      <div className={cn(layout.settings.footer, layout.shell.padX, layout.shell.padBottom)}>
         {saveFailed ? <ErrorNote message={COPY.errors.save} /> : null}
         <Button className={layout.cta} size="lg" disabled={saving} onClick={handleSave}>
           {COPY.settings.save}

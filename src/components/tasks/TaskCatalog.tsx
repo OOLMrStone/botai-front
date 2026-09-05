@@ -54,6 +54,7 @@ export function TaskCatalog({ tasks }: { tasks: TrainingTask[] }) {
     const selected = selectTrainingTasks({
       tasks: target.tasks,
       difficulties: nextSettings.difficulties,
+      difficultyLevel: nextSettings.difficultyLevel,
       count: nextSettings.count,
       history,
     });

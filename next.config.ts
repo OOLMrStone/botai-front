@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       beforeFiles: [{ source: '/api/:path*', destination: `${BACKEND_URL}/api/:path*` }],
     };
   },
-  allowedDevOrigins: ['192.168.1.59'],
+  allowedDevOrigins: ['192.168.0.29'],
 };
 
 export default nextConfig;

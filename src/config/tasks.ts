@@ -3,21 +3,45 @@ type ExamPart = 1 | 2;
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export type TaskStatus = 'unverified' | 'correct' | 'incorrect';
+export type TaskHistoryStatus = 'in-progress' | 'correct';
+export type DrawingTool = 'off' | 'pencil' | 'stroke-eraser' | 'point-eraser';
+export interface DrawingPoint {
+  x: number;
+  y: number;
+}
+export interface DrawingStroke {
+  id: string;
+  points: DrawingPoint[];
+  coordinateSpace?: 'workspace';
+}
 export const TASK_ANSWER_INPUT_ID = 'training-answer';
 export const TASK_DEFAULT_IMAGE_ASPECT_RATIO = 4 / 3;
 export const TASK_IMAGE_SIZES = '(max-width: 768px) 90vw, 28rem';
+export const TASK_SOLVED_DATE_FORMAT = new Intl.DateTimeFormat('ru-RU', {
+  day: 'numeric',
+  month: 'short',
+});
 export const TASK_COUNT_OPTIONS = [5, 10, 20, 'all'] as const;
 export const TASK_DIFFICULTY_OPTIONS: Difficulty[] = ['easy', 'medium', 'hard'];
 export type TaskCount = (typeof TASK_COUNT_OPTIONS)[number];
 
+export const TASK_DIFFICULTY_SLIDER = {
+  min: 0,
+  max: 100,
+  step: 5,
+  defaultValue: 50,
+} as const;
+
 export interface TrainingSettings {
   count: TaskCount;
   difficulties: Difficulty[];
+  difficultyLevel?: number;
 }
 
 export const DEFAULT_TRAINING_SETTINGS: TrainingSettings = {
   count: 10,
-  difficulties: ['medium'],
+  difficulties: ['easy', 'medium', 'hard'],
+  difficultyLevel: TASK_DIFFICULTY_SLIDER.defaultValue,
 };
 
 export type TaskBlock =
@@ -142,6 +166,19 @@ export const TASK_COPY = {
     title: 'Настрой тренировку',
     count: 'Количество задач',
     difficulty: 'Сложность',
+    difficultyHint: 'Двигай ползунок - подборка изменится автоматически',
+    difficultyScale: {
+      easy: 'Простые',
+      balanced: 'Баланс',
+      hard: 'Сложные',
+    },
+    difficultyLevels: {
+      easy: 'Только простые',
+      easyMedium: 'Простые и средние',
+      balanced: 'Сбалансировано',
+      mediumHard: 'Средние и сложные',
+      hard: 'Только сложные',
+    },
     all: 'Все',
     time: '≈ 0 мин',
     start: 'Начать',
@@ -153,17 +190,21 @@ export const TASK_COPY = {
   },
   training: {
     task: 'Задание',
+    solved: (date: string) => `Решено ${date}`,
     exit: 'Сохранить и выйти',
     favorite: 'Добавить в избранное',
-    pencil: 'Карандаш скоро появится',
-    eraser: 'Ластик скоро появится',
-    objectEraser: 'Объектный ластик скоро появится',
+    pencil: 'Карандаш',
+    eraserModes: 'Режим ластика',
+    strokeEraser: 'Стереть линию целиком',
+    pointEraser: 'Ластик - стереть часть линии',
+    workspace: 'Рабочая область задания',
     answer: 'Введи ответ',
     navigation: 'Навигация по заданиям',
     previous: 'Предыдущее задание',
     next: 'Следующее задание',
     toReview: 'К проверке',
     solution: 'Посмотреть решение',
+    hideSolution: 'Свернуть решение',
   },
   review: {
     title: 'Проверь тренировку',

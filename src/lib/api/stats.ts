@@ -16,8 +16,8 @@ export async function fetchUserStats(): Promise<UserStats> {
   return {
     streakDays: 7,
     xp: 120,
-    dailyGoalMinutes: 10,
-    dailyProgressMinutes: 4,
+    dailyGoalMinutes: 30,
+    dailyProgressMinutes: 12,
     goalId: 'good-plus',
     levelId: 'middle',
   };

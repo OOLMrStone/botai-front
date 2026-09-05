@@ -1,0 +1,43 @@
+import { ChevronRight } from 'lucide-react';
+import { MOCK_EXAM_COPY, MOCK_EXAM_LAYOUT, type MockExam } from '@/config/mock-exams';
+import type { MockExamResult, MockExamSession } from '@/stores/mock-exams-store';
+
+interface MockExamCardProps {
+  exam: MockExam;
+  result: MockExamResult | undefined;
+  session: MockExamSession | undefined;
+  onOpen: () => void;
+}
+
+export function MockExamCard({ exam, result, session, onOpen }: MockExamCardProps) {
+  const inProgress = Boolean(session) && !result;
+  const status = result
+    ? MOCK_EXAM_COPY.solved
+    : inProgress
+      ? MOCK_EXAM_COPY.inProgress
+      : MOCK_EXAM_COPY.notStarted;
+  const action = result
+    ? MOCK_EXAM_COPY.details
+    : inProgress
+      ? MOCK_EXAM_COPY.continue
+      : MOCK_EXAM_COPY.solve;
+
+  return (
+    <button type="button" className={MOCK_EXAM_LAYOUT.card} onClick={onOpen}>
+      <div className={MOCK_EXAM_LAYOUT.cardMeta}>
+        <span>{exam.dateLabel}</span>
+        <span className={MOCK_EXAM_LAYOUT.cardStatus}>{status}</span>
+      </div>
+      <div className={MOCK_EXAM_LAYOUT.cardBody}>
+        <div className="min-w-0">
+          <h2 className={MOCK_EXAM_LAYOUT.cardTitle}>{exam.title}</h2>
+          <p className={MOCK_EXAM_LAYOUT.cardResult}>
+            {result ? MOCK_EXAM_COPY.score(result.score) : MOCK_EXAM_COPY.scorePending}
+          </p>
+          <p className={MOCK_EXAM_LAYOUT.cardHint}>{action}</p>
+        </div>
+        <ChevronRight aria-hidden="true" className={MOCK_EXAM_LAYOUT.cardChevron} />
+      </div>
+    </button>
+  );
+}

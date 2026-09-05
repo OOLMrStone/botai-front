@@ -1,4 +1,11 @@
-import type { Difficulty, TaskCount, TaskStatus, TrainingTask } from '@/config/tasks';
+import type {
+  Difficulty,
+  TaskCount,
+  TaskHistoryStatus,
+  TaskStatus,
+  TrainingTask,
+} from '@/config/tasks';
+import { allocateDifficultyCounts, difficultiesAt } from '@/lib/task-difficulty';
 
 const DIFFICULTY_ORDER: Record<Difficulty, number> = { easy: 0, medium: 1, hard: 2 };
 
@@ -6,39 +13,57 @@ interface SelectTasksInput {
   tasks: TrainingTask[];
   difficulties: Difficulty[];
   count: TaskCount;
-  history: Record<string, 'correct' | 'incorrect'>;
+  difficultyLevel?: number;
+  history: Record<string, TaskHistoryStatus>;
 }
 
 interface CheckAnswersInput {
   taskIds: string[];
   answers: Record<string, string>;
   statuses: Record<string, TaskStatus>;
-  history: Record<string, Exclude<TaskStatus, 'unverified'>>;
+  history: Record<string, TaskHistoryStatus>;
   tasks: TrainingTask[];
 }
 
-export function selectTrainingTasks({ tasks, difficulties, count, history }: SelectTasksInput) {
+export function selectTrainingTasks({
+  tasks,
+  difficulties,
+  count,
+  difficultyLevel,
+  history,
+}: SelectTasksInput) {
   const priority = (task: TrainingTask) => {
     const status = history[task.id];
-    return status === undefined ? 0 : status === 'incorrect' ? 1 : 2;
+    return status === 'in-progress' ? 0 : status === undefined ? 1 : 2;
   };
 
+  const activeDifficulties =
+    difficultyLevel === undefined ? difficulties : difficultiesAt(difficultyLevel);
   const sorted = tasks
-    .filter((task) => difficulties.includes(task.difficulty))
-    .toSorted(
+    .filter((task) => activeDifficulties.includes(task.difficulty))
+    .sort(
       (a, b) =>
         priority(a) - priority(b) ||
         DIFFICULTY_ORDER[a.difficulty] - DIFFICULTY_ORDER[b.difficulty],
     );
 
-  if (count === 'all') return sorted.filter((task) => history[task.id] !== 'correct');
-  return sorted.slice(0, count);
+  if (count === 'all' || difficultyLevel === undefined) {
+    const available = sorted.filter((task) => history[task.id] !== 'correct');
+    return count === 'all' ? available : available.slice(0, count);
+  }
+
+  const counts = allocateDifficultyCounts(count, difficultyLevel);
+  const selected = activeDifficulties.flatMap((difficulty) =>
+    sorted.filter((task) => task.difficulty === difficulty).slice(0, counts[difficulty]),
+  );
+  if (selected.length >= count) return selected.slice(0, count);
+
+  const selectedIds = new Set(selected.map((task) => task.id));
+  const remainder = sorted.filter((task) => !selectedIds.has(task.id));
+  return [...selected, ...remainder].slice(0, count);
 }
 
-export function taskProgress(
-  tasks: TrainingTask[],
-  history: Record<string, 'correct' | 'incorrect'>,
-) {
+export function taskProgress(tasks: TrainingTask[], history: Record<string, TaskHistoryStatus>) {
   if (tasks.length === 0) return 0;
   const correct = tasks.filter((task) => history[task.id] === 'correct').length;
   return Math.round((correct / tasks.length) * 100);
@@ -69,7 +94,8 @@ export function checkTrainingAnswers({
     const correct = task.acceptedAnswers.some((answer) => normalizedNumber(answer) === normalized);
     const status = correct ? 'correct' : 'incorrect';
     statuses[taskId] = status;
-    history[taskId] = status;
+    history[taskId] =
+      status === 'correct' || history[taskId] === 'correct' ? 'correct' : 'in-progress';
   }
 
   return { statuses, history };

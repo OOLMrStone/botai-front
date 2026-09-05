@@ -166,11 +166,25 @@ export interface DailyGoalOption extends Option {
 }
 
 export const DAILY_GOAL_OPTIONS: DailyGoalOption[] = [
-  { id: '5', minutes: 5, label: '5 минут', description: 'Чиловый старт', icon: Coffee },
-  { id: '10', minutes: 10, label: '10 минут', description: 'Рекомендуем', icon: Clock },
-  { id: '15', minutes: 15, label: '15 минут', description: 'Серьёзный настрой', icon: Flame },
-  { id: '20', minutes: 20, label: '20 минут', description: 'Интенсив', icon: Zap },
+  { id: '15', minutes: 15, label: '15 минут', description: 'Чиловый старт', icon: Coffee },
+  {
+    id: '30',
+    minutes: 30,
+    label: '30 минут',
+    description: 'Рекомендуем',
+    icon: Clock,
+  },
+  {
+    id: '45',
+    minutes: 45,
+    label: '45 минут',
+    description: 'Серьёзная подготовка',
+    icon: Flame,
+  },
+  { id: '60', minutes: 60, label: '60 минут', description: 'Гроза ЕГЭ', icon: Zap },
 ];
+
+export const DEFAULT_DAILY_GOAL_MINUTES = 30;
 
 // --- Тексты экранов ----------------------------------------------------------
 
@@ -229,8 +243,8 @@ export const COPY = {
     action: 'Дальше',
   },
   dailyGoal: {
-    title: 'Сколько занимаемся в день?',
-    subtitle: 'Небольшая, но регулярная практика работает лучше всего',
+    title: 'Сколько времени ты готов уделять подготовке в обычный день?',
+    subtitle: 'Подстроим количество задач под твой темп',
     action: 'Продолжить',
   },
   dailyGoalResult: {
@@ -253,8 +267,10 @@ export const COPY = {
   commitment: {
     title: 'Давай закрепим это официально',
     subtitle: 'Обещаю заниматься каждый день, чтобы сдать профиль на высокий балл',
-    signHint: 'Распишись, чтобы закрепить',
-    signedPrefix: 'Подписано',
+    sealHint: 'Приложи палец, чтобы закрепить',
+    sealIdle: 'Приложи палец',
+    sealHolding: 'Держи палец',
+    sealedPrefix: 'Обещание дано',
     action: 'Продолжить',
   },
   ready: {
@@ -335,7 +351,6 @@ export const COPY = {
     dailyGoalTitle: 'Цель дня',
     dailyGoalUnit: 'мин',
     streakUnit: 'дней',
-    toLesson: 'К обучению',
     logout: 'Выйти',
   },
   settings: {

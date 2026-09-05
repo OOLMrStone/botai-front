@@ -3,12 +3,13 @@
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { CommitmentSeal } from '@/components/onboarding/CommitmentSeal';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
-import { SignaturePad } from '@/components/onboarding/SignaturePad';
 import { layout } from '@/config/layout';
 import { COPY } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
+import { cn } from '@/lib/utils';
 
 const DATE_FMT = new Intl.DateTimeFormat('ru-RU', {
   day: 'numeric',
@@ -18,14 +19,24 @@ const DATE_FMT = new Intl.DateTimeFormat('ru-RU', {
 
 export default function CommitmentPage() {
   const { goNext } = useOnboardingFlow('commitment');
-  const [signed, setSigned] = useState(false);
+  const [sealed, setSealed] = useState(false);
 
   const today = DATE_FMT.format(new Date());
 
   return (
     <ScreenShell
       footer={
-        <Button className={layout.cta} size="lg" disabled={!signed} onClick={() => goNext()}>
+        <Button
+          className={cn(
+            layout.cta,
+            layout.commitment.footer,
+            sealed ? layout.commitment.footerVisible : layout.commitment.footerHidden,
+          )}
+          size="lg"
+          disabled={!sealed}
+          tabIndex={sealed ? 0 : -1}
+          onClick={() => goNext()}
+        >
           {COPY.commitment.action}
         </Button>
       }
@@ -34,14 +45,7 @@ export default function CommitmentPage() {
 
       <p className="text-lg text-balance whitespace-pre-line">{COPY.commitment.subtitle}</p>
 
-      {/* Блок подписи чуть отступает от текста, свободное место остаётся снизу - у кнопки. */}
-      <div className="mt-10 space-y-3">
-        <p className="text-muted-foreground text-center">{COPY.commitment.signHint}</p>
-        <SignaturePad onSignedChange={setSigned} />
-        <p className="text-muted-foreground text-center text-xs" suppressHydrationWarning>
-          {COPY.commitment.signedPrefix} {today}
-        </p>
-      </div>
+      <CommitmentSeal date={today} onSealChange={setSealed} />
     </ScreenShell>
   );
 }

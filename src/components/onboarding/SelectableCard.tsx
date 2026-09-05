@@ -3,6 +3,7 @@
 import { Radio } from '@base-ui/react/radio';
 import type { ComponentType } from 'react';
 
+import { layout } from '@/config/layout';
 import { cn } from '@/lib/utils';
 
 interface SelectableCardProps {
@@ -25,9 +26,10 @@ export function SelectableCard({
     <Radio.Root
       value={value}
       className={cn(
-        'group border-border bg-card flex w-full items-center gap-2.5 rounded-xl border-2 p-2.5 text-left transition-all outline-none active:scale-[0.99]',
-        'hover:border-ring/60 focus-visible:ring-ring/50 focus-visible:ring-3',
-        'data-checked:border-primary data-checked:bg-accent',
+        'group bg-muted/45 flex min-h-16 w-full items-center gap-3 rounded-3xl border border-transparent px-4 py-3 text-left outline-none',
+        'transition-[background-color,border-color,transform] active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100',
+        'hover:bg-muted/65 focus-visible:ring-ring/50 focus-visible:ring-3',
+        'data-checked:border-ring/35 data-checked:bg-muted',
         className,
       )}
     >
@@ -38,10 +40,10 @@ export function SelectableCard({
         </span>
       ) : null}
 
-      <span className="flex-1">
-        <span className="block font-medium">{label}</span>
+      <span className="min-w-0 flex-1">
+        <span className={cn('block', layout.typography.controlTitle)}>{label}</span>
         {description ? (
-          <span className="text-muted-foreground mt-0.5 block text-sm">{description}</span>
+          <span className={cn('mt-0.5 block', layout.typography.description)}>{description}</span>
         ) : null}
       </span>
 

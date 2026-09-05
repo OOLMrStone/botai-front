@@ -2,25 +2,36 @@
 
 import { useEffect } from 'react';
 
-export function useKeyboardViewport(inputId: string) {
+export function useKeyboardViewport() {
   useEffect(() => {
     const viewport = window.visualViewport;
     if (!viewport) return;
 
-    const keepInputVisible = () => {
-      const input = document.getElementById(inputId);
-      const keyboardOffset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
-      document.documentElement.style.setProperty('--keyboard-offset', `${keyboardOffset}px`);
-      if (document.activeElement === input)
-        input?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    let frame = 0;
+
+    const syncViewport = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        document.documentElement.style.setProperty(
+          '--training-viewport-height',
+          `${viewport.height}px`,
+        );
+        document.documentElement.style.setProperty(
+          '--training-viewport-offset-top',
+          `${viewport.offsetTop}px`,
+        );
+      });
     };
 
-    viewport.addEventListener('resize', keepInputVisible);
-    viewport.addEventListener('scroll', keepInputVisible);
+    syncViewport();
+    viewport.addEventListener('resize', syncViewport);
+    viewport.addEventListener('scroll', syncViewport);
     return () => {
-      document.documentElement.style.removeProperty('--keyboard-offset');
-      viewport.removeEventListener('resize', keepInputVisible);
-      viewport.removeEventListener('scroll', keepInputVisible);
+      cancelAnimationFrame(frame);
+      document.documentElement.style.removeProperty('--training-viewport-height');
+      document.documentElement.style.removeProperty('--training-viewport-offset-top');
+      viewport.removeEventListener('resize', syncViewport);
+      viewport.removeEventListener('scroll', syncViewport);
     };
-  }, [inputId]);
+  }, []);
 }

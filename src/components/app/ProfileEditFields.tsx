@@ -1,9 +1,11 @@
 'use client';
 
 import { SelectableCard } from '@/components/onboarding/SelectableCard';
+import { SectionHeading } from '@/components/common/SectionHeading';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup } from '@/components/ui/radio-group';
+import { layout } from '@/config/layout';
 import { COPY, DAILY_GOAL_OPTIONS, GOAL_OPTIONS } from '@/config/onboarding-steps';
 
 interface ProfileEditFieldsProps {
@@ -28,20 +30,22 @@ export function ProfileEditFields({
   const dailyId = DAILY_GOAL_OPTIONS.find((option) => option.minutes === dailyMinutes)?.id ?? '';
 
   return (
-    <div className="space-y-6 text-left">
-      <div className="space-y-2">
-        <Label htmlFor="profile-name">{COPY.profile.nameTitle}</Label>
+    <div className={layout.settings.fields}>
+      <div className={layout.settings.fieldGroup}>
+        <Label htmlFor="profile-name" className={layout.typography.sectionTitle}>
+          {COPY.profile.nameTitle}
+        </Label>
         <Input
           id="profile-name"
           value={name}
           onChange={(event) => onNameChange(event.target.value)}
           placeholder={COPY.profile.namePlaceholder}
-          className="h-12 text-base"
+          className={layout.settings.input}
         />
       </div>
 
-      <div className="space-y-2">
-        <p className="text-sm font-medium">{COPY.profile.dailyGoalTitle}</p>
+      <div className={layout.settings.fieldGroup}>
+        <SectionHeading>{COPY.profile.dailyGoalTitle}</SectionHeading>
         <RadioGroup
           value={dailyId}
           onValueChange={(next) => {
@@ -61,8 +65,8 @@ export function ProfileEditFields({
         </RadioGroup>
       </div>
 
-      <div className="space-y-2">
-        <p className="text-sm font-medium">{COPY.profile.goalTitle}</p>
+      <div className={layout.settings.fieldGroup}>
+        <SectionHeading>{COPY.profile.goalTitle}</SectionHeading>
         <RadioGroup value={goalId} onValueChange={(next) => onGoalChange(String(next))}>
           {GOAL_OPTIONS.map((option) => (
             <SelectableCard

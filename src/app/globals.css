@@ -28,6 +28,7 @@
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
+  --color-attention: var(--attention);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -56,12 +57,14 @@
   --task-lens-enter-duration: 160ms;
   --task-tab-motion-duration: 220ms;
   --task-control-motion-duration: 200ms;
+  --task-ink: #002868;
+  --ink: oklch(0.145 0 0);
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --foreground: var(--ink);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: var(--ink);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --popover-foreground: var(--ink);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
@@ -72,6 +75,7 @@
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --success: oklch(0.6 0.14 150);
+  --attention: oklch(0.72 0.19 55);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -82,7 +86,7 @@
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-foreground: var(--ink);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
@@ -92,12 +96,14 @@
 }
 
 .dark {
+  --task-ink: #7aa2e3;
+  --ink: oklch(0.985 0 0);
   --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
+  --foreground: var(--ink);
   --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
+  --card-foreground: var(--ink);
   --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  --popover-foreground: var(--ink);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
@@ -108,6 +114,7 @@
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --success: oklch(0.7 0.15 150);
+  --attention: oklch(0.78 0.17 65);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
@@ -117,7 +124,7 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-foreground: var(--ink);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.269 0 0);
@@ -129,6 +136,11 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    scrollbar-width: none;
+  }
+  *::-webkit-scrollbar {
+    width: 0;
+    height: 0;
   }
   html {
     @apply font-sans;
@@ -140,6 +152,25 @@
     overflow-x: hidden;
     overscroll-behavior: none;
   }
+}
+
+/* На поверхностях, которыми управляет жест приложения, системное выделение и
+   long-press callout конкурируют с рисованием/удержанием. Обычный контент вне
+   этого класса остаётся выделяемым. */
+.gesture-surface {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Поле внутри жестовой поверхности остаётся полноценным редактором: shell
+   гасит выделение вокруг него, но не забирает caret и системные действия ввода. */
+.gesture-surface :where(input, textarea, [contenteditable='true']) {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 /* Проявление графика слева-направо: линии статичны, а поверх едет «шторка»
@@ -257,6 +288,35 @@
 
 .tasks-lens-enter {
   animation: tasks-lens-enter var(--task-lens-enter-duration) ease-out;
+}
+
+.task-lens-item {
+  border-color: var(--background);
+}
+
+.task-lens-item[data-status='answered'] {
+  /* Непрозрачный эквивалент прежнего background/20 на фоне линзы. */
+  border-color: color-mix(in oklch, var(--background) 20%, var(--foreground));
+}
+
+.task-lens-item[data-status='correct'] {
+  border-color: var(--success);
+}
+
+.task-lens-item[data-status='incorrect'] {
+  border-color: var(--destructive);
+}
+
+.task-lens-item[data-selected='true'] {
+  border-color: var(--border);
+}
+
+.task-skull-icon {
+  background-color: currentColor;
+  filter: contrast(100);
+  -webkit-mask: url('/icons/skull-mask.png') center / contain no-repeat;
+  mask: url('/icons/skull-mask.png') center / contain no-repeat;
+  mask-mode: luminance;
 }
 
 @media (prefers-reduced-motion: reduce) {

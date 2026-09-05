@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { DEFAULT_DAILY_GOAL_MINUTES } from '@/config/onboarding-steps';
+import { normalizeDailyGoalMinutes } from '@/lib/daily-goal';
+
 export interface RegistrationData {
   age: string;
   firstName: string;
@@ -39,7 +42,7 @@ export const useOnboardingStore = create<OnboardingState>()(
     (set) => ({
       goal: null,
       level: null,
-      dailyGoalMinutes: null,
+      dailyGoalMinutes: DEFAULT_DAILY_GOAL_MINUTES,
       notificationsEnabled: false,
       hearAboutUs: null,
       registration: emptyRegistration,
@@ -55,12 +58,46 @@ export const useOnboardingStore = create<OnboardingState>()(
         set({
           goal: null,
           level: null,
-          dailyGoalMinutes: null,
+          dailyGoalMinutes: DEFAULT_DAILY_GOAL_MINUTES,
           notificationsEnabled: false,
           hearAboutUs: null,
           registration: emptyRegistration,
         }),
     }),
-    { name: 'botai-onboarding' },
+    {
+      name: 'botai-onboarding',
+      version: 2,
+      partialize: (state) => ({
+        ...state,
+        registration: { ...state.registration, password: '' },
+      }),
+      migrate: (persisted) => {
+        const saved = persisted as Partial<OnboardingState>;
+        return {
+          ...saved,
+          dailyGoalMinutes:
+            saved.dailyGoalMinutes === null || saved.dailyGoalMinutes === undefined
+              ? DEFAULT_DAILY_GOAL_MINUTES
+              : normalizeDailyGoalMinutes(saved.dailyGoalMinutes),
+          registration: {
+            ...emptyRegistration,
+            ...saved.registration,
+            password: '',
+          },
+        } as OnboardingState;
+      },
+      merge: (persisted, current) => {
+        const saved = persisted as Partial<OnboardingState>;
+        return {
+          ...current,
+          ...saved,
+          registration: {
+            ...current.registration,
+            ...saved.registration,
+            password: '',
+          },
+        };
+      },
+    },
   ),
 );

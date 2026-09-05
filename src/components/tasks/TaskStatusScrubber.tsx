@@ -80,16 +80,20 @@ export function TaskStatusScrubber({
           <div className={layout.training.scrubberLens}>
             {lensIndices.map((index) => {
               const selected = index === previewIndex;
-              const status = statuses[taskIds[index]] ?? 'unverified';
+              const taskId = taskIds[index];
+              const status = statuses[taskId] ?? 'unverified';
+              const answered = Boolean(answers[taskId]?.trim());
+              const visualStatus =
+                status === 'unverified' ? (answered ? 'answered' : 'empty') : status;
 
               return (
                 <span
-                  key={taskIds[index]}
+                  key={taskId}
+                  data-selected={selected}
+                  data-status={visualStatus}
                   className={cn(
                     layout.training.scrubberLensSegment,
                     layout.training.lensItem,
-                    !selected && status === 'correct' && layout.training.lensItemCorrect,
-                    !selected && status === 'incorrect' && layout.training.lensItemIncorrect,
                     selected && layout.training.lensItemActive,
                   )}
                 >

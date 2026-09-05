@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { ROUTES } from '@/config/onboarding-steps';
-import { TASK_ANSWER_INPUT_ID, type TrainingTask } from '@/config/tasks';
+import { TASK_SOLVED_DATE_FORMAT, type TrainingTask } from '@/config/tasks';
 import { useKeyboardViewport } from '@/hooks/use-keyboard-viewport';
 import { saveFavoriteTask } from '@/lib/api/tasks';
 import { useTasksStore } from '@/stores/tasks-store';
@@ -13,16 +13,21 @@ export function useTrainingShell(tasks: TrainingTask[]) {
   const router = useRouter();
   const [exitDialogOpen, setExitDialogOpen] = useState(false);
   const session = useTasksStore((state) => state.session);
+  const solvedAt = useTasksStore((state) => state.solvedAt);
   const setCurrentIndex = useTasksStore((state) => state.setCurrentIndex);
   const setAnswer = useTasksStore((state) => state.setAnswer);
   const checkAnswers = useTasksStore((state) => state.checkAnswers);
   const toggleSolution = useTasksStore((state) => state.toggleSolution);
-  useKeyboardViewport(TASK_ANSWER_INPUT_ID);
+  useKeyboardViewport();
 
   const reviewIndex = tasks.length;
   const review = session?.currentIndex === reviewIndex;
   const task = session ? tasks[session.currentIndex] : undefined;
   const taskId = task?.id;
+  const solvedDate =
+    taskId && solvedAt[taskId]
+      ? TASK_SOLVED_DATE_FORMAT.format(new Date(solvedAt[taskId]))
+      : undefined;
   const status = taskId ? (session?.statuses[taskId] ?? 'unverified') : 'unverified';
   const unverified =
     session?.taskIds.some((id) => (session.statuses[id] ?? 'unverified') === 'unverified') ?? false;
@@ -30,7 +35,10 @@ export function useTrainingShell(tasks: TrainingTask[]) {
   const missing =
     session?.taskIds.flatMap((id, index) => (session.answers[id]?.trim() ? [] : [index])) ?? [];
 
-  const leaveTraining = () => router.push(ROUTES.tasks);
+  const leaveTraining = () => {
+    useTasksStore.getState().prepareSessionExit();
+    router.push(ROUTES.tasks);
+  };
 
   const exit = () => {
     if (
@@ -61,12 +69,15 @@ export function useTrainingShell(tasks: TrainingTask[]) {
   };
 
   const continueTraining = () => {
+    const state = useTasksStore.getState();
+    state.prepareSessionExit();
     useTasksStore.getState().requestSetup();
     router.push(ROUTES.tasks);
   };
 
   return {
     session,
+    solvedDate,
     reviewIndex,
     review,
     task,
