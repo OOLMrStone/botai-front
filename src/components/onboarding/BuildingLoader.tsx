@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 import { MascotPlaceholder } from '@/components/onboarding/MascotPlaceholder';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { TIMINGS } from '@/config/constants';
+import { MOTION_STYLES } from '@/config/motion';
+import { cn } from '@/lib/utils';
 
 interface BuildingLoaderProps {
   title: string;
@@ -32,7 +34,7 @@ export function BuildingLoader({
 
       <ScreenHeading title={title} subtitle={subtitle} />
 
-      <Loader2 className="text-muted-foreground size-6 animate-spin" />
+      <Loader2 className={cn('text-muted-foreground size-6', MOTION_STYLES.loadingSpin)} />
     </div>
   );
 }

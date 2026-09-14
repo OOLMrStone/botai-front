@@ -5,18 +5,25 @@ interface ScreenShellProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   center?: boolean;
+  bottomNavigation?: boolean;
   className?: string;
 }
 
 // Общий каркас экрана: контент + прижатый снизу блок действий. Размеры - из layout.
-export function ScreenShell({ children, footer, center = false, className }: ScreenShellProps) {
+export function ScreenShell({
+  children,
+  footer,
+  center = false,
+  bottomNavigation = false,
+  className,
+}: ScreenShellProps) {
   return (
     <div
       className={cn(
         'flex min-h-0 flex-1 flex-col',
         layout.shell.padX,
-        layout.shell.padTop,
-        layout.shell.padBottom,
+        bottomNavigation ? layout.shell.padTopWithNav : layout.shell.padTop,
+        bottomNavigation ? layout.shell.padBottomWithNav : layout.shell.padBottom,
         className,
       )}
     >

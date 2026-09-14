@@ -2,15 +2,15 @@
 
 import { useRouter } from 'next/navigation';
 
-import { DailyGoalRing } from '@/components/app/DailyGoalRing';
-import { DailyTaskCard } from '@/components/app/DailyTaskCard';
-import { HomeStatusBar } from '@/components/app/HomeStatusBar';
+import { AppCard, AppCardHeading } from '@/components/app/AppCard';
+import { DailyGoalRing, DailyGoalRingSkeleton } from '@/components/app/DailyGoalRing';
+import { DailyTaskCard, DailyTaskCardSkeleton } from '@/components/app/DailyTaskCard';
+import { HomeStatusBar, HomeStatusBarSkeleton } from '@/components/app/HomeStatusBar';
 import { PlanGate } from '@/components/app/PlanGate';
 import { ErrorNote } from '@/components/common/ErrorNote';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { layout } from '@/config/layout';
 import { COPY, ROUTES } from '@/config/onboarding-steps';
 import { useDailyTask } from '@/hooks/use-daily-task';
@@ -26,7 +26,7 @@ export default function HomePage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const { stats, failed, retry } = useUserStats();
-  const { task } = useDailyTask();
+  const { task, failed: taskFailed, retry: retryTask } = useDailyTask();
   const nameOverride = useProfileStore((s) => s.name);
   const trainingSession = useTasksStore((s) => s.session);
 
@@ -34,16 +34,19 @@ export default function HomePage() {
   const loading = !stats && !failed;
 
   return (
-    <ScreenShell>
-      {stats ? (
-        <HomeStatusBar streakDays={stats.streakDays} xp={stats.xp} />
-      ) : loading ? (
-        <Skeleton className="h-9 w-full rounded-full" />
-      ) : null}
+    <ScreenShell bottomNavigation>
+      <div className={cn(layout.scroll, layout.app.home.content)}>
+        {stats ? (
+          <HomeStatusBar streakDays={stats.streakDays} xp={stats.xp} />
+        ) : loading ? (
+          <HomeStatusBarSkeleton />
+        ) : null}
+        <ScreenHeading
+          variant="app"
+          title={`${COPY.home.greeting}, ${name}!`}
+          subtitle={COPY.home.tagline}
+        />
 
-      <ScreenHeading title={`${COPY.home.greeting}, ${name}!`} subtitle={COPY.home.tagline} />
-
-      <div className={cn(layout.scroll, 'flex flex-col', layout.shell.gap)}>
         {failed ? <ErrorNote message={COPY.errors.stats} onRetry={retry} /> : null}
 
         {stats ? (
@@ -52,20 +55,24 @@ export default function HomePage() {
             goalMinutes={stats.dailyGoalMinutes}
           />
         ) : loading ? (
-          <Skeleton className="size-40 shrink-0 self-center rounded-full" />
+          <DailyGoalRingSkeleton />
         ) : null}
 
-        {task ? <DailyTaskCard task={task} /> : <Skeleton className="h-28 w-full rounded-2xl" />}
+        {task ? (
+          <DailyTaskCard key={task.id} task={task} />
+        ) : taskFailed ? (
+          <ErrorNote message={COPY.errors.stats} onRetry={retryTask} />
+        ) : (
+          <DailyTaskCardSkeleton />
+        )}
 
-        <div className="border-border bg-card w-full shrink-0 space-y-3 rounded-2xl border p-4">
-          <div className="space-y-1">
-            <p className="font-semibold">
-              {trainingSession ? COPY.home.continueTrainingTitle : COPY.home.continueTitle}
-            </p>
-            <p className="text-muted-foreground text-sm">
-              {trainingSession ? COPY.home.continueTrainingSubtitle : COPY.home.continueSubtitle}
-            </p>
-          </div>
+        <AppCard>
+          <AppCardHeading
+            title={trainingSession ? COPY.home.continueTrainingTitle : COPY.home.continueTitle}
+            subtitle={
+              trainingSession ? COPY.home.continueTrainingSubtitle : COPY.home.continueSubtitle
+            }
+          />
           <Button
             size="lg"
             className={layout.cta}
@@ -73,17 +80,14 @@ export default function HomePage() {
           >
             {COPY.home.continueAction}
           </Button>
-        </div>
+        </AppCard>
 
-        <div className="border-border bg-card w-full shrink-0 space-y-2 rounded-2xl border p-4">
-          <div className="space-y-1">
-            <p className="font-semibold">{COPY.home.aiReviewTitle}</p>
-            <p className="text-muted-foreground text-sm">{COPY.home.aiReviewSubtitle}</p>
-          </div>
+        <AppCard>
+          <AppCardHeading title={COPY.home.aiReviewTitle} subtitle={COPY.home.aiReviewSubtitle} />
           <PlanGate feature="aiReview">
-            <p className="text-sm font-medium">{COPY.home.aiReviewOn}</p>
+            <p className={layout.typography.description}>{COPY.home.aiReviewOn}</p>
           </PlanGate>
-        </div>
+        </AppCard>
       </div>
     </ScreenShell>
   );

@@ -2,6 +2,7 @@
 
 import { Lock } from 'lucide-react';
 
+import { layout } from '@/config/layout';
 import { COPY } from '@/config/onboarding-steps';
 import type { FeatureId } from '@/config/plans';
 import { useHasFeature } from '@/hooks/use-plan';
@@ -14,8 +15,8 @@ export function PlanGate({ feature, children }: { feature: FeatureId; children: 
   if (allowed) return <>{children}</>;
 
   return (
-    <div className="text-muted-foreground flex items-center gap-2 text-sm">
-      <Lock className="size-4 shrink-0" />
+    <div className={layout.app.planGate.root}>
+      <Lock className={layout.app.planGate.icon} />
       <span>{COPY.plan.locked}</span>
     </div>
   );

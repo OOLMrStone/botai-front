@@ -44,7 +44,7 @@ export function MockExamTrainingShell({
   const attachmentNames = taskRef ? (session.attachments[taskRef.taskId] ?? []) : [];
 
   return (
-    <div className={layout.training.shell}>
+    <div className={cn(layout.training.shell, layout.viewport.width)}>
       <header className={layout.training.header}>
         <div className={layout.training.headerRow}>
           <Button

@@ -27,7 +27,6 @@ export function TrainingSetupSheet({ tasks, initial, onClose, onStart }: Trainin
       closeLabel={TASK_COPY.close}
       className={layout.tasks.setup}
       swipeToClose
-      headerAside={<span className={layout.tasks.sheetTime}>{TASK_COPY.setup.time}</span>}
       onOpenChange={(open) => {
         if (!open) onClose();
       }}

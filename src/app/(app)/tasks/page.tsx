@@ -28,15 +28,15 @@ export default function TasksPage() {
   }, [scrollTop, tasks]);
 
   return (
-    <ScreenShell className={layout.tasks.content}>
-      <ScreenHeading title={COPY.tasks.title} />
+    <ScreenShell bottomNavigation className={layout.tasks.content}>
+      <ScreenHeading variant="app" title={COPY.tasks.title} />
       <div
         ref={scrollRef}
         className={cn(layout.scroll, layout.tasks.catalogScroll)}
         onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
       >
         {failed ? (
-          <ErrorNote message={COPY.errors.stats} onRetry={retry} />
+          <ErrorNote message={COPY.errors.tasks} onRetry={retry} />
         ) : tasks ? (
           <TaskCatalog tasks={tasks} />
         ) : (

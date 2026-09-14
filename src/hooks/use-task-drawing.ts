@@ -248,12 +248,8 @@ export function useTaskDrawing(
     cancelDrawing();
   };
 
-  const togglePencil = () => setTool((current) => (current === 'pencil' ? 'off' : 'pencil'));
-  const selectEraser = (eraser: Extract<DrawingTool, `${string}-eraser`>) => setTool(eraser);
-  const disableEraser = () =>
-    setTool((current) =>
-      current === 'stroke-eraser' || current === 'point-eraser' ? 'off' : current,
-    );
+  const toggleTool = (nextTool: Exclude<DrawingTool, 'off'>) =>
+    setTool((current) => (current === nextTool ? 'off' : nextTool));
 
-  return { canvasRef, tool, togglePencil, selectEraser, disableEraser, start, move, end, cancel };
+  return { canvasRef, tool, toggleTool, start, move, end, cancel };
 }

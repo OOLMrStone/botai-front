@@ -1,6 +1,7 @@
 import { Button as ButtonPrimitive } from '@base-ui/react/button';
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import { answerSuccessSurface } from '@/config/layout';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
@@ -9,6 +10,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/80',
+        success: `${answerSuccessSurface} hover:bg-emerald-100 dark:hover:bg-emerald-900`,
+        error: 'bg-destructive text-white hover:bg-destructive/90 dark:text-red-950',
         outline:
           'border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
         secondary:

@@ -2,6 +2,7 @@
 
 import { Flame } from 'lucide-react';
 
+import { layout } from '@/config/layout';
 import { cn } from '@/lib/utils';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -31,20 +32,20 @@ export function StreakCalendar({ streakDays }: StreakCalendarProps) {
   });
 
   return (
-    <div className="flex justify-between gap-1">
+    <div className={layout.app.calendar.root}>
       {days.map((day) => (
-        <div key={day.key} className="flex flex-col items-center gap-1.5">
-          <span className="text-muted-foreground text-xs">{day.label}</span>
+        <div key={day.key} className={layout.app.calendar.day}>
+          <span className={layout.typography.caption}>{day.label}</span>
           <div
             className={cn(
-              'flex size-9 items-center justify-center rounded-full text-sm',
-              day.active ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground',
+              layout.app.calendar.circle,
+              day.active ? layout.app.calendar.active : layout.app.calendar.idle,
               // Кольцо внутреннее: внешнее вылезает за бокс ячейки и его срезает
               // край скролл-контейнера, когда календарь упирается в низ экрана.
-              day.isToday && 'inset-ring-primary inset-ring-2',
+              day.isToday && layout.app.calendar.today,
             )}
           >
-            {day.active ? <Flame className="size-4" /> : day.date}
+            {day.active ? <Flame className={layout.app.calendar.icon} /> : day.date}
           </div>
         </div>
       ))}

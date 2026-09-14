@@ -52,8 +52,8 @@
 
 :root {
   --progress-motion-duration: 500ms;
-  --task-sheet-enter-duration: 260ms;
-  --task-overlay-enter-duration: 180ms;
+  --sheet-enter-duration: 260ms;
+  --sheet-overlay-enter-duration: 180ms;
   --task-lens-enter-duration: 160ms;
   --task-tab-motion-duration: 220ms;
   --task-control-motion-duration: 200ms;
@@ -247,7 +247,7 @@
   color: transparent;
 }
 
-@keyframes tasks-sheet-enter {
+@keyframes sheet-enter {
   from {
     opacity: 0;
     transform: translateY(1.5rem);
@@ -258,7 +258,7 @@
   }
 }
 
-@keyframes tasks-overlay-enter {
+@keyframes sheet-overlay-enter {
   from {
     opacity: 0;
   }
@@ -278,12 +278,12 @@
   }
 }
 
-.tasks-sheet-enter {
-  animation: tasks-sheet-enter var(--task-sheet-enter-duration) cubic-bezier(0.22, 1, 0.36, 1);
+.sheet-enter {
+  animation: sheet-enter var(--sheet-enter-duration) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.tasks-overlay-enter {
-  animation: tasks-overlay-enter var(--task-overlay-enter-duration) ease-out;
+.sheet-overlay-enter {
+  animation: sheet-overlay-enter var(--sheet-overlay-enter-duration) ease-out;
 }
 
 .tasks-lens-enter {
@@ -320,9 +320,52 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tasks-sheet-enter,
-  .tasks-overlay-enter,
+  .goal-wipe,
+  .goal-flag,
+  .sheet-enter,
+  .sheet-overlay-enter,
   .tasks-lens-enter {
+    animation: none;
+  }
+}
+
+@keyframes quiz-answer-error {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(calc(-1 * var(--quiz-error-distance)));
+  }
+  60% {
+    transform: translateX(var(--quiz-error-distance));
+  }
+}
+
+.quiz-answer-error {
+  animation: quiz-answer-error var(--quiz-error-duration) ease-out;
+}
+
+@keyframes quiz-answer-success {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(calc(-1 * var(--quiz-success-lift)));
+  }
+  70% {
+    transform: translateY(var(--quiz-success-settle));
+  }
+}
+
+.quiz-answer-success {
+  animation: quiz-answer-success var(--quiz-success-duration) ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-answer-error,
+  .quiz-answer-success {
     animation: none;
   }
 }

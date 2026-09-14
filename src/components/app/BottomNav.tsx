@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { layout } from '@/config/layout';
 import { APP_TABS } from '@/config/navigation';
 import { cn } from '@/lib/utils';
 
@@ -11,7 +12,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="border-border bg-background flex shrink-0 items-stretch border-t">
+    <nav className={layout.bottomNav.root}>
       {APP_TABS.map(({ href, label, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
 
@@ -21,11 +22,11 @@ export function BottomNav() {
             href={href}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex flex-1 flex-col items-center gap-1 py-2 text-xs transition-colors',
+              layout.bottomNav.item,
               active ? 'text-foreground font-medium' : 'text-muted-foreground',
             )}
           >
-            <Icon className="size-6" />
+            <Icon className={layout.bottomNav.icon} />
             {label}
           </Link>
         );

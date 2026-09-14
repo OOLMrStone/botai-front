@@ -1,5 +1,7 @@
 import { Flame, Zap } from 'lucide-react';
 
+import { Skeleton } from '@/components/ui/skeleton';
+import { layout } from '@/config/layout';
 import { COPY } from '@/config/onboarding-steps';
 
 interface HomeStatusBarProps {
@@ -11,19 +13,28 @@ interface HomeStatusBarProps {
 // aria-label на стрике, потому что одна цифра рядом с иконкой без него непонятна.
 export function HomeStatusBar({ streakDays, xp }: HomeStatusBarProps) {
   return (
-    <div className="text-foreground flex items-center justify-between font-semibold">
+    <div className={layout.app.home.status}>
       <span
-        className="flex items-center gap-1.5"
+        className={layout.app.home.statusItem}
         aria-label={`${streakDays} ${COPY.home.streakUnit}`}
       >
-        <Flame className="size-5" />
+        <Flame className={layout.app.home.statusIcon} />
         {streakDays}
       </span>
 
-      <span className="flex items-center gap-1.5">
-        <Zap className="size-5" />
+      <span className={layout.app.home.statusItem}>
+        <Zap className={layout.app.home.statusIcon} />
         {`${xp} ${COPY.home.xpUnit}`}
       </span>
+    </div>
+  );
+}
+
+export function HomeStatusBarSkeleton() {
+  return (
+    <div className={layout.app.home.status}>
+      <Skeleton className={layout.app.skeleton.status} />
+      <Skeleton className={layout.app.skeleton.status} />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 import { MockExamCard } from '@/components/mock-exams/MockExamCard';
 import { MockExamDetails } from '@/components/mock-exams/MockExamDetails';
+import { layout } from '@/config/layout';
 import {
   MOCK_EXAM_COPY,
   MOCK_EXAM_LAYOUT,
@@ -165,7 +166,7 @@ export function MockExamCatalog({ exams }: { exams: MockExam[] }) {
           ) : null}
         </div>
       </div>
-      <div className={MOCK_EXAM_LAYOUT.list}>
+      <div className={cn(layout.scroll, MOCK_EXAM_LAYOUT.list)}>
         {visibleExams.map((exam) => (
           <MockExamCard
             key={exam.id}

@@ -4,6 +4,8 @@ import { ChevronLeft } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { Progress } from '@/components/ui/progress';
+import { layout } from '@/config/layout';
+import { COPY } from '@/config/onboarding-steps';
 
 interface OnboardingHeaderProps {
   steps: readonly string[];
@@ -21,21 +23,19 @@ export function OnboardingHeader({ steps }: OnboardingHeaderProps) {
   if (index <= 0) return null;
 
   const progress = ((index + 1) / steps.length) * 100;
-  const showBack = index > 0;
 
   return (
-    <header className="flex items-center gap-3 px-4 pt-4">
+    <header className={layout.flowHeader.root}>
       <button
         type="button"
         onClick={() => router.back()}
-        aria-label="Назад"
-        className="text-muted-foreground hover:bg-muted flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors disabled:pointer-events-none disabled:opacity-0"
-        disabled={!showBack}
+        aria-label={COPY.nav.back}
+        className={layout.flowHeader.back}
       >
-        <ChevronLeft className="size-5" />
+        <ChevronLeft className={layout.flowHeader.icon} />
       </button>
 
-      <Progress value={progress} className="flex-1" />
+      <Progress value={progress} className={layout.flowHeader.progress} />
     </header>
   );
 }

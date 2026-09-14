@@ -12,7 +12,7 @@ interface TrainingReviewProps {
 
 export function TrainingReview({ taskCount, missing, onSelect }: TrainingReviewProps) {
   return (
-    <section className={cn(layout.training.reviewCard, layout.training.card)}>
+    <section className={cn(layout.training.card, layout.training.reviewCard)}>
       <h2 className={layout.training.cardTitle}>{TASK_COPY.review.title}</h2>
       <div className={layout.training.reviewStats}>
         <p className={layout.training.reviewStat}>

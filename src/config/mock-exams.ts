@@ -1,3 +1,4 @@
+import { layout } from '@/config/layout';
 import type { TaskBlock, TrainingTask } from '@/config/tasks';
 
 export type MockExamSort = 'newest' | 'oldest' | 'score';
@@ -298,7 +299,7 @@ export const MOCK_EXAM_LAYOUT = {
   filterIcon: 'size-[1.125rem] shrink-0',
   filterIndicator:
     'absolute top-0 right-0 size-2.5 rounded-full bg-attention ring-2 ring-background',
-  list: 'min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain pb-2',
+  list: 'space-y-3',
   card: 'border-border bg-card group flex h-40 w-full min-w-0 flex-col rounded-3xl border p-5 text-left shadow-[0_1px_0_color-mix(in_oklch,var(--foreground)_6%,transparent)] outline-none transition-[background-color,border-color,transform] duration-[var(--task-control-motion-duration)] hover:bg-muted/25 focus-visible:ring-2 focus-visible:ring-ring/40 active:translate-y-px motion-reduce:transition-none motion-reduce:active:translate-y-0',
   cardMeta:
     'flex min-h-5 items-start justify-between gap-3 text-sm leading-5 text-muted-foreground',
@@ -326,8 +327,7 @@ export const MOCK_EXAM_LAYOUT = {
   attachmentRemove:
     'hover:bg-muted focus-visible:ring-ring/50 ml-1 flex size-11 shrink-0 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-2 motion-reduce:transition-none',
   attachmentRemoveIcon: 'size-4',
-  footerAction:
-    'h-auto min-h-12 min-w-0 flex-1 self-stretch bg-foreground px-2 py-2 text-center text-sm leading-tight whitespace-normal text-background sm:px-3 sm:text-base sm:whitespace-nowrap',
+  footerAction: layout.training.reviewButton,
   visuallyHidden: 'sr-only',
 } as const;
 export function mockExamPath(mockExamId: string) {

@@ -1,10 +1,13 @@
+import { Eraser, Pencil } from 'lucide-react';
+
 type ExamPart = 1 | 2;
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export type TaskStatus = 'unverified' | 'correct' | 'incorrect';
 export type TaskHistoryStatus = 'in-progress' | 'correct';
-export type DrawingTool = 'off' | 'pencil' | 'stroke-eraser' | 'point-eraser';
+export type EraserTool = 'stroke-eraser' | 'point-eraser';
+export type DrawingTool = 'off' | 'pencil' | EraserTool;
 export interface DrawingPoint {
   x: number;
   y: number;
@@ -180,7 +183,6 @@ export const TASK_COPY = {
       hard: 'Только сложные',
     },
     all: 'Все',
-    time: '≈ 0 мин',
     start: 'Начать',
   },
   difficulty: {
@@ -194,11 +196,11 @@ export const TASK_COPY = {
     exit: 'Сохранить и выйти',
     favorite: 'Добавить в избранное',
     pencil: 'Карандаш',
-    eraserModes: 'Режим ластика',
     strokeEraser: 'Стереть линию целиком',
     pointEraser: 'Ластик - стереть часть линии',
     workspace: 'Рабочая область задания',
     answer: 'Введи ответ',
+    clearAnswer: 'Очистить ответ',
     navigation: 'Навигация по заданиям',
     previous: 'Предыдущее задание',
     next: 'Следующее задание',
@@ -860,3 +862,9 @@ export const TRAINING_TASKS: TrainingTask[] = [
     provenance: ORIGINAL_PROVENANCE,
   },
 ];
+
+export const TRAINING_DRAWING_TOOLS = [
+  { id: 'pencil', label: TASK_COPY.training.pencil, icon: Pencil },
+  { id: 'stroke-eraser', label: TASK_COPY.training.strokeEraser, icon: Eraser },
+  { id: 'point-eraser', label: TASK_COPY.training.pointEraser, icon: null },
+] as const;

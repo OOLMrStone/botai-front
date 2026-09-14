@@ -3,7 +3,8 @@
 import { useEffect, useRef } from 'react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 
-import { taskGestures, taskMotion } from '@/config/layout';
+import { sheetGestures, sheetMotion } from '@/config/motion';
+import { useGestureSurfaceGuard } from '@/hooks/use-gesture-surface-guard';
 import { capturePointer } from '@/lib/pointer-capture';
 
 interface SheetSwipeOptions {
@@ -40,12 +41,14 @@ function translateY(transform: string) {
 export function useSheetSwipe({ enabled, onClose }: SheetSwipeOptions) {
   const popupRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
+  const handleRef = useRef<HTMLButtonElement>(null);
   const anchorRef = useRef<DragAnchor | null>(null);
   const animationsRef = useRef<Animation[]>([]);
   const suppressClickRef = useRef(false);
   const closeRunRef = useRef(0);
   const stopListeningRef = useRef<(() => void) | null>(null);
   const clickResetFrameRef = useRef<number | null>(null);
+  useGestureSurfaceGuard(handleRef, { enabled });
 
   const cancelAnimations = () => {
     const popup = popupRef.current;
@@ -101,16 +104,16 @@ export function useSheetSwipe({ enabled, onClose }: SheetSwipeOptions) {
     const popupAnimation = popup.animate(
       [{ transform: popupTransform }, { transform: targetTransform }],
       {
-        duration: close ? taskMotion.sheetDismissMs : taskMotion.sheetSnapBackMs,
-        easing: taskMotion.sheetReleaseEasing,
+        duration: close ? sheetMotion.dismissMs : sheetMotion.snapBackMs,
+        easing: sheetMotion.releaseEasing,
         fill: 'forwards',
       },
     );
     const backdropAnimation = backdrop.animate(
       [{ opacity: backdropOpacity }, { opacity: close ? 0 : 1 }],
       {
-        duration: close ? taskMotion.sheetDismissMs : taskMotion.sheetSnapBackMs,
-        easing: taskMotion.sheetReleaseEasing,
+        duration: close ? sheetMotion.dismissMs : sheetMotion.snapBackMs,
+        easing: sheetMotion.releaseEasing,
         fill: 'forwards',
       },
     );
@@ -118,6 +121,8 @@ export function useSheetSwipe({ enabled, onClose }: SheetSwipeOptions) {
 
     await popupAnimation.finished.catch(() => undefined);
     if (closeRun !== closeRunRef.current) return;
+    popupAnimation.cancel();
+    backdropAnimation.cancel();
     animationsRef.current = [];
     clearStyles();
     if (close) onClose();
@@ -135,7 +140,6 @@ export function useSheetSwipe({ enabled, onClose }: SheetSwipeOptions) {
     const velocity = elapsed > 0 ? (event.clientY - anchor.lastY) / elapsed : anchor.velocity;
     const progress = Math.min(1, distance / anchor.sheetHeight);
     popup.style.transform = `translate3d(0, ${distance}px, 0)`;
-    popup.dataset.dragProbe = `move:${distance}`;
     backdrop.style.opacity = String(anchor.backdropOpacity * (1 - progress));
     anchorRef.current = {
       ...anchor,
@@ -160,15 +164,14 @@ export function useSheetSwipe({ enabled, onClose }: SheetSwipeOptions) {
       Math.abs(event.clientY - anchor.startY),
       Math.abs(anchor.lastY - anchor.startY),
     );
-    const dragged = pointerTravel >= taskGestures.sheetDragSlopPx;
-    popupRef.current?.setAttribute('data-drag-probe', `finish:${finalDistance}:${pointerTravel}`);
+    const dragged = pointerTravel >= sheetGestures.dragSlopPx;
     if (!dragged) {
       clearStyles();
       return;
     }
     const dismiss =
-      finalDistance >= anchor.sheetHeight * taskGestures.sheetDismissDistanceRatio ||
-      finalVelocity >= taskGestures.sheetDismissVelocityPxMs;
+      finalDistance >= anchor.sheetHeight * sheetGestures.dismissDistanceRatio ||
+      finalVelocity >= sheetGestures.dismissVelocityPxMs;
     suppressNextClick();
     void animateRelease(dismiss);
   };
@@ -177,7 +180,7 @@ export function useSheetSwipe({ enabled, onClose }: SheetSwipeOptions) {
     const anchor = anchorRef.current;
     if (!anchor || anchor.pointerId !== event.pointerId) return;
     anchorRef.current = null;
-    const dragged = Math.abs(anchor.lastY - anchor.startY) >= taskGestures.sheetDragSlopPx;
+    const dragged = Math.abs(anchor.lastY - anchor.startY) >= sheetGestures.dragSlopPx;
     if (dragged) suppressNextClick();
     if (!dragged) {
       clearStyles();
@@ -206,15 +209,16 @@ export function useSheetSwipe({ enabled, onClose }: SheetSwipeOptions) {
       distance: startOffset,
       velocity: 0,
     };
-    popup.dataset.dragProbe = 'down';
 
     stopListeningRef.current?.();
     const onMove = (pointerEvent: PointerEvent) => move(pointerEvent);
     const onFinish = (pointerEvent: PointerEvent) => {
+      if (anchorRef.current?.pointerId !== pointerEvent.pointerId) return;
       stopListening();
       finish(pointerEvent);
     };
     const onCancel = (pointerEvent: PointerEvent) => {
+      if (anchorRef.current?.pointerId !== pointerEvent.pointerId) return;
       stopListening();
       cancel(pointerEvent);
     };
@@ -228,6 +232,12 @@ export function useSheetSwipe({ enabled, onClose }: SheetSwipeOptions) {
     window.addEventListener('pointerup', onFinish);
     window.addEventListener('pointercancel', onCancel);
     stopListeningRef.current = stopListening;
+  };
+
+  const onLostPointerCapture = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    if (anchorRef.current?.pointerId !== event.pointerId) return;
+    stopListeningRef.current?.();
+    cancel(event);
   };
 
   const onClick = () => {
@@ -254,8 +264,10 @@ export function useSheetSwipe({ enabled, onClose }: SheetSwipeOptions) {
     popupRef,
     backdropRef,
     handleProps: {
+      ref: handleRef,
       onClick,
       onPointerDown,
+      onLostPointerCapture,
     },
   };
 }

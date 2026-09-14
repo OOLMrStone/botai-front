@@ -36,13 +36,17 @@ export function ExamNumberCard({ number, tasks, expanded, history, onToggle, onO
   return (
     <article
       data-exam-number={number.number}
-      className={cn(
-        layout.tasks.card,
-        active ? layout.tasks.activeCard : layout.tasks.disabledCard,
-        expanded ? layout.tasks.expanded : layout.tasks.compactCard,
-      )}
+      className={cn(layout.tasks.card, expanded ? layout.tasks.expanded : layout.tasks.compactCard)}
     >
-      <div data-reflow-content className={layout.tasks.cardContent}>
+      <div
+        data-reflow-surface
+        aria-hidden="true"
+        className={cn(
+          layout.tasks.cardSurface,
+          active ? layout.tasks.activeCard : layout.tasks.disabledCard,
+        )}
+      />
+      <div className={cn(layout.tasks.cardContent, !active && layout.tasks.disabledCardContent)}>
         <button
           type="button"
           disabled={!active}
@@ -55,7 +59,7 @@ export function ExamNumberCard({ number, tasks, expanded, history, onToggle, onO
           onClick={onToggle}
         >
           <span className={layout.tasks.numberHeaderGrid}>
-            <span className={layout.tasks.numberLabel}>
+            <span data-reflow-shared="number" className={layout.tasks.numberLabel}>
               {TASK_COPY.examNumberPrefix}
               {number.number}
             </span>
@@ -68,7 +72,7 @@ export function ExamNumberCard({ number, tasks, expanded, history, onToggle, onO
             >
               {number.title}
             </span>
-            <span className={layout.tasks.numberHeaderMeta}>
+            <span data-reflow-detail className={layout.tasks.numberHeaderMeta}>
               {!active ? null : expanded ? (
                 <ChevronUp className={layout.tasks.icon} />
               ) : progress === 100 ? (
@@ -79,8 +83,14 @@ export function ExamNumberCard({ number, tasks, expanded, history, onToggle, onO
             </span>
             {active && !expanded ? (
               <>
-                <span className={layout.tasks.compactMetricValue}>{progress}%</span>
-                <Progress value={progress} className={layout.tasks.compactProgress} />
+                <span data-reflow-detail className={layout.tasks.compactMetricValue}>
+                  {progress}%
+                </span>
+                <Progress
+                  data-reflow-detail
+                  value={progress}
+                  className={layout.tasks.compactProgress}
+                />
               </>
             ) : null}
             {!active ? <span className={layout.tasks.soon}>{TASK_COPY.soon}</span> : null}
@@ -88,7 +98,7 @@ export function ExamNumberCard({ number, tasks, expanded, history, onToggle, onO
         </button>
 
         {expanded ? (
-          <div className={layout.tasks.expandedContent}>
+          <div data-reflow-detail className={layout.tasks.expandedContent}>
             <div className={layout.tasks.topicList}>
               <button
                 type="button"

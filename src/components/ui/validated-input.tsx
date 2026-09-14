@@ -1,33 +1,41 @@
 'use client';
 
-import type { ComponentProps } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 import { Check } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
+import { layout } from '@/config/layout';
 import { cn } from '@/lib/utils';
 
 export type InputValidationState = 'neutral' | 'error' | 'success';
 
 interface ValidatedInputProps extends ComponentProps<'input'> {
   validationState: InputValidationState;
+  trailingAction?: ReactNode;
 }
 
-export function ValidatedInput({ validationState, className, ...props }: ValidatedInputProps) {
+export function ValidatedInput({
+  validationState,
+  trailingAction,
+  className,
+  ...props
+}: ValidatedInputProps) {
   return (
-    <div className="relative">
+    <div className={layout.validatedInput.frame}>
       <Input
         aria-invalid={validationState === 'error'}
         className={cn(
-          validationState === 'success' &&
-            'border-success focus-visible:border-success focus-visible:ring-success/20 ring-success/20 pr-10 ring-3',
+          validationState === 'success' && layout.validatedInput.success,
           className,
+          trailingAction && layout.validatedInput.withAction,
         )}
         {...props}
       />
-      {validationState === 'success' ? (
-        <Check className="text-success pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2" />
-      ) : null}
+      {trailingAction ??
+        (validationState === 'success' ? (
+          <Check aria-hidden="true" className={layout.validatedInput.successIcon} />
+        ) : null)}
     </div>
   );
 }

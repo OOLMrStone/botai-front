@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import { DevToolsSlot } from '@/components/dev/DevToolsSlot';
+import { layout } from '@/config/layout';
+import { cn } from '@/lib/utils';
 
 import './globals.css';
 import 'katex/dist/katex.min.css';
@@ -37,9 +39,7 @@ export default function RootLayout({
   return (
     <html lang="ru" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="bg-muted/30">
-        <div className="bg-background mx-auto flex min-h-svh w-full max-w-md flex-col">
-          {children}
-        </div>
+        <div className={cn(layout.viewport.width, layout.viewport.frame)}>{children}</div>
         <DevToolsSlot />
       </body>
     </html>

@@ -1,14 +1,18 @@
-import { Bookmark, Eraser, Pencil } from 'lucide-react';
+import { Bookmark } from 'lucide-react';
 
 import { TaskBlockRenderer } from '@/components/tasks/TaskBlockRenderer';
 import { Button } from '@/components/ui/button';
 import { layout } from '@/config/layout';
-import { TASK_COPY, type TaskStatus, type TrainingTask } from '@/config/tasks';
+import {
+  TASK_COPY,
+  TRAINING_DRAWING_TOOLS,
+  type TaskStatus,
+  type TrainingTask,
+} from '@/config/tasks';
 import { useDrawingWorkspace } from '@/hooks/use-drawing-workspace';
 import { useGestureSurfaceGuard } from '@/hooks/use-gesture-surface-guard';
 import { useTaskFavorite } from '@/hooks/use-task-favorite';
 import { useTaskDrawing } from '@/hooks/use-task-drawing';
-import { useEraserMenu } from '@/hooks/use-eraser-menu';
 import { cn } from '@/lib/utils';
 import { preventGestureContextMenu } from '@/lib/gesture-surface';
 
@@ -44,37 +48,14 @@ export function TrainingTaskCard({
   } = useDrawingWorkspace(task.id);
   const drawing = useTaskDrawing(task.id, ensureWritingSpace, scrollAtWritingEdge, panWorkspaceBy);
   const { canvasRef, tool, start, move, end, cancel } = drawing;
-  const {
-    open: eraserMenuOpen,
-    selecting: eraserSelecting,
-    rootRef: eraserMenuRef,
-    triggerRef: eraserTriggerRef,
-    strokeOptionRef,
-    pointOptionRef,
-    toggle: toggleEraserMenu,
-    select: selectEraser,
-    navigate: navigateEraserMenu,
-    close: closeEraserMenu,
-  } = useEraserMenu({
-    tool,
-    selectEraser: drawing.selectEraser,
-    disableEraser: drawing.disableEraser,
-  });
-  const eraserLabel =
-    tool === 'point-eraser' ? TASK_COPY.training.pointEraser : TASK_COPY.training.strokeEraser;
   const drawingToolActive = tool !== 'off';
   useGestureSurfaceGuard(canvasRef, {
     enabled: drawingToolActive,
     preventTouchDefaults: true,
   });
-  const handlePencil = () => {
-    closeEraserMenu();
-    drawing.togglePencil();
-  };
   const handleDrawingStart = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     event.preventDefault();
     start(event);
-    if (tool === 'stroke-eraser' || tool === 'point-eraser') closeEraserMenu();
   };
 
   return (
@@ -100,6 +81,7 @@ export function TrainingTaskCard({
             size="icon"
             className={layout.training.actionButton}
             aria-label={TASK_COPY.training.favorite}
+            aria-pressed={favorite.favorite}
             disabled={favorite.saving}
             onClick={() => void favorite.toggle()}
           >
@@ -107,84 +89,26 @@ export function TrainingTaskCard({
               className={cn(layout.training.actionIcon, favorite.favorite && 'fill-current')}
             />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              layout.training.actionButton,
-              tool === 'pencil' && layout.training.actionButtonActive,
-            )}
-            aria-label={TASK_COPY.training.pencil}
-            aria-pressed={tool === 'pencil'}
-            onClick={handlePencil}
-          >
-            <Pencil className={layout.training.actionIcon} />
-          </Button>
-          <div ref={eraserMenuRef} className={layout.training.eraserControl}>
+          {TRAINING_DRAWING_TOOLS.map(({ id, label, icon: Icon }) => (
             <Button
-              ref={eraserTriggerRef}
+              key={id}
               variant="ghost"
               size="icon"
               className={cn(
                 layout.training.actionButton,
-                tool.includes('eraser') && layout.training.actionButtonActive,
+                tool === id && layout.training.actionButtonActive,
               )}
-              aria-label={eraserLabel}
-              aria-pressed={tool.includes('eraser')}
-              aria-expanded={eraserMenuOpen}
-              aria-controls="training-eraser-menu"
-              aria-haspopup="menu"
-              onClick={toggleEraserMenu}
+              aria-label={label}
+              aria-pressed={tool === id}
+              onClick={() => drawing.toggleTool(id)}
             >
-              <span className={cn(eraserSelecting && layout.training.eraserTriggerIconHidden)}>
-                {tool === 'point-eraser' ? (
-                  <span aria-hidden="true" className={layout.training.pointEraserIcon} />
-                ) : (
-                  <Eraser className={layout.training.actionIcon} />
-                )}
-              </span>
+              {Icon ? (
+                <Icon className={layout.training.actionIcon} />
+              ) : (
+                <span aria-hidden="true" className={layout.training.pointEraserIcon} />
+              )}
             </Button>
-            {eraserMenuOpen ? (
-              <div
-                id="training-eraser-menu"
-                role="menu"
-                aria-label={TASK_COPY.training.eraserModes}
-                className={layout.training.eraserMenu}
-                onKeyDown={navigateEraserMenu}
-              >
-                <Button
-                  ref={strokeOptionRef}
-                  variant="ghost"
-                  size="icon"
-                  role="menuitemradio"
-                  aria-label={TASK_COPY.training.strokeEraser}
-                  aria-checked={tool === 'stroke-eraser'}
-                  className={cn(
-                    layout.training.eraserOption,
-                    tool === 'stroke-eraser' && layout.training.eraserOptionActive,
-                  )}
-                  onClick={() => void selectEraser('stroke-eraser')}
-                >
-                  <Eraser className={layout.training.actionIcon} />
-                </Button>
-                <Button
-                  ref={pointOptionRef}
-                  variant="ghost"
-                  size="icon"
-                  role="menuitemradio"
-                  aria-label={TASK_COPY.training.pointEraser}
-                  aria-checked={tool === 'point-eraser'}
-                  className={cn(
-                    layout.training.eraserOption,
-                    tool === 'point-eraser' && layout.training.eraserOptionActive,
-                  )}
-                  onClick={() => void selectEraser('point-eraser')}
-                >
-                  <span aria-hidden="true" className={layout.training.pointEraserIcon} />
-                </Button>
-              </div>
-            ) : null}
-          </div>
+          ))}
         </div>
       </div>
       <div

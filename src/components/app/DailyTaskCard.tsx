@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 
+import { AppCard } from '@/components/app/AppCard';
+import { Skeleton } from '@/components/ui/skeleton';
+import { layout } from '@/config/layout';
 import { Button } from '@/components/ui/button';
 import type { DailyTask } from '@/config/daily-tasks';
 import { COPY } from '@/config/onboarding-steps';
@@ -12,17 +15,33 @@ export function DailyTaskCard({ task }: { task: DailyTask }) {
   const [revealed, setRevealed] = useState(false);
 
   return (
-    <div className="border-border bg-card w-full space-y-2 rounded-2xl border p-4">
-      <p className="text-muted-foreground text-sm">{COPY.home.dailyTaskTitle}</p>
-      <p className="font-medium">{task.question}</p>
+    <AppCard>
+      <p className={layout.typography.description}>{COPY.home.dailyTaskTitle}</p>
+      <p className={layout.app.home.question}>{task.question}</p>
 
       {revealed ? (
-        <p className="text-muted-foreground text-sm">{`${COPY.home.dailyTaskAnswerPrefix}: ${task.answer}`}</p>
+        <p
+          className={layout.app.home.answer}
+        >{`${COPY.home.dailyTaskAnswerPrefix}: ${task.answer}`}</p>
       ) : (
-        <Button variant="outline" size="sm" onClick={() => setRevealed(true)}>
+        <Button
+          variant="outline"
+          className={layout.app.home.reveal}
+          onClick={() => setRevealed(true)}
+        >
           {COPY.home.dailyTaskReveal}
         </Button>
       )}
-    </div>
+    </AppCard>
+  );
+}
+
+export function DailyTaskCardSkeleton() {
+  return (
+    <AppCard>
+      <Skeleton className={layout.app.skeleton.caption} />
+      <Skeleton className={layout.app.skeleton.question} />
+      <Skeleton className={layout.app.skeleton.action} />
+    </AppCard>
   );
 }

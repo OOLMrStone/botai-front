@@ -27,7 +27,7 @@ export function TrainingShell({ tasks }: { tasks: TrainingTask[] }) {
   return (
     <div
       ref={shellRef}
-      className={cn(layout.training.shell, layout.gestureSurface)}
+      className={cn(layout.training.shell, layout.viewport.width, layout.gestureSurface)}
       onContextMenu={preventGestureContextMenuOutsideEditable}
     >
       <header className={layout.training.header}>

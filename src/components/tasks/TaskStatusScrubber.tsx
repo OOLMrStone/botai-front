@@ -5,6 +5,7 @@ import { CheckCheck } from 'lucide-react';
 import { layout } from '@/config/layout';
 import { TASK_COPY, type TaskStatus } from '@/config/tasks';
 import { useTaskScrubber } from '@/hooks/use-task-scrubber';
+import { preventGestureContextMenu } from '@/lib/gesture-surface';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -30,12 +31,14 @@ export function TaskStatusScrubber({
     scrubberRef,
     precise,
     previewIndex,
+    valueIndex,
     lensIndices,
     onKeyDown,
     onPointerDown,
     onPointerMove,
     onPointerUp,
     onPointerCancel,
+    onLostPointerCapture,
   } = useTaskScrubber({ taskCount: taskIds.length, currentIndex, onSelect });
 
   return (
@@ -46,14 +49,16 @@ export function TaskStatusScrubber({
         aria-label={TASK_COPY.training.navigation}
         aria-valuemin={1}
         aria-valuemax={taskIds.length}
-        aria-valuenow={currentIndex + 1}
+        aria-valuenow={valueIndex + 1}
         tabIndex={0}
-        className={cn(layout.training.scrubberTrack, layout.focusRing)}
+        className={cn(layout.training.scrubberTrack, layout.focusRing, layout.gestureSurface)}
         onKeyDown={onKeyDown}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerCancel}
+        onLostPointerCapture={onLostPointerCapture}
+        onContextMenu={preventGestureContextMenu}
       >
         {taskIds.map((id, index) => {
           const status = statuses[id] ?? 'unverified';

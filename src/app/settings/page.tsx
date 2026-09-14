@@ -6,9 +6,11 @@ import { useState } from 'react';
 
 import { ProfileEditFields } from '@/components/app/ProfileEditFields';
 import { ErrorNote } from '@/components/common/ErrorNote';
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { Button } from '@/components/ui/button';
 import { layout } from '@/config/layout';
 import { COPY } from '@/config/onboarding-steps';
+import { useLogout } from '@/hooks/use-logout';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useUserStats } from '@/hooks/use-user-stats';
 import { updateProfileSettings } from '@/lib/api/profile';
@@ -21,6 +23,7 @@ import { useProfileStore } from '@/stores/profile-store';
 export default function SettingsPage() {
   const router = useRouter();
   const status = useRequireAuth();
+  const { logout, pending: loggingOut, failed: logoutFailed } = useLogout();
   const user = useAuthStore((s) => s.user);
   const { stats, failed, retry } = useUserStats();
   const nameOverride = useProfileStore((s) => s.name);
@@ -70,12 +73,12 @@ export default function SettingsPage() {
         <button
           type="button"
           onClick={() => router.back()}
-          aria-label={COPY.settings.back}
+          aria-label={COPY.nav.back}
           className={layout.settings.backButton}
         >
           <ChevronLeft className={layout.settings.backIcon} />
         </button>
-        <h1 className={layout.typography.navigationTitle}>{COPY.settings.title}</h1>
+        <ScreenHeading variant="navigation" title={COPY.settings.title} />
       </header>
 
       <div className={cn(layout.scroll, layout.settings.content, layout.shell.padX)}>
@@ -87,11 +90,27 @@ export default function SettingsPage() {
           dailyMinutes={minutes}
           onDailyChange={setMinutesDraft}
         />
+        <div className={layout.settings.logoutSection}>
+          {logoutFailed ? <ErrorNote message={COPY.errors.logout} /> : null}
+          <Button
+            variant="ghost"
+            className={cn(layout.settings.logoutAction, layout.typography.controlTitle)}
+            disabled={saving || loggingOut}
+            onClick={logout}
+          >
+            {COPY.settings.logout}
+          </Button>
+        </div>
       </div>
 
       <div className={cn(layout.settings.footer, layout.shell.padX, layout.shell.padBottom)}>
         {saveFailed ? <ErrorNote message={COPY.errors.save} /> : null}
-        <Button className={layout.cta} size="lg" disabled={saving} onClick={handleSave}>
+        <Button
+          className={layout.cta}
+          size="lg"
+          disabled={saving || loggingOut}
+          onClick={handleSave}
+        >
           {COPY.settings.save}
         </Button>
       </div>

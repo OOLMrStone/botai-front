@@ -48,15 +48,6 @@ export function CommitmentSeal({ date, onSealChange }: CommitmentSealProps) {
       className={cn(layout.commitment.block, layout.gestureSurface)}
       onContextMenu={preventGestureContextMenu}
     >
-      <p
-        className={cn(
-          layout.commitment.hint,
-          isSealed ? layout.commitment.hintHidden : layout.commitment.hintVisible,
-        )}
-        aria-hidden={isSealed}
-      >
-        {isSealed ? '' : COPY.commitment.sealHint}
-      </p>
       <button
         type="button"
         aria-label={isSealed ? COPY.commitment.sealedPrefix : COPY.commitment.sealHint}
@@ -94,7 +85,7 @@ export function CommitmentSeal({ date, onSealChange }: CommitmentSealProps) {
         suppressHydrationWarning
         aria-live="polite"
       >
-        {isSealed ? `${COPY.commitment.sealedPrefix} ${date}` : ''}
+        {isSealed ? `${COPY.commitment.sealedPrefix} ${date}` : COPY.commitment.sealHint}
       </p>
     </div>
   );

@@ -31,8 +31,3 @@ export const TASK_DRAWING = {
   workspaceAutoScrollStepPx: 12,
   panPointerCount: 2,
 } as const;
-
-export const ERASER_MENU_MOTION = {
-  selectDurationMs: 280,
-  selectEasing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-} as const;

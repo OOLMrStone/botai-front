@@ -92,6 +92,7 @@ export const ROUTES = {
   done: '/register/done',
   home: '/home',
   tasks: '/tasks',
+  quizzes: '/quizzes',
   training: '/training',
   mockExams: '/mock-exams',
   profile: '/profile',
@@ -292,14 +293,16 @@ export const COPY = {
     title: 'С возвращением',
     subtitle: 'Войди, чтобы продолжить подготовку',
     action: 'Войти',
-    forgot: 'Забыли пароль?',
+    forgot: 'Забыл пароль?',
     noAccount: 'Ещё нет аккаунта? Начать',
     badCredentials: 'Неверная почта или пароль',
     error: 'Не получилось войти. Попробуй ещё раз',
   },
   // --- Раздел (app): нижняя навигация + хаб + задачи + профиль ---
   nav: {
+    back: 'Назад',
     home: 'Главная',
+    quizzes: 'Квизы',
     tasks: 'Задачи',
     mockExams: 'Пробники',
     profile: 'Профиль',
@@ -351,12 +354,11 @@ export const COPY = {
     dailyGoalTitle: 'Цель дня',
     dailyGoalUnit: 'мин',
     streakUnit: 'дней',
-    logout: 'Выйти',
   },
   settings: {
+    logout: 'Выйти',
     title: 'Настройки',
     save: 'Сохранить',
-    back: 'Назад',
   },
   // Ошибки запросов - один источник для всех экранов (плашка ErrorNote).
   errors: {

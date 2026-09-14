@@ -5,8 +5,12 @@ import { MOCK_EXAMS, MOCK_EXAM_COPY, MOCK_EXAM_LAYOUT } from '@/config/mock-exam
 
 export default function MockExamsPage() {
   return (
-    <ScreenShell className={MOCK_EXAM_LAYOUT.page}>
-      <ScreenHeading title={MOCK_EXAM_COPY.title} subtitle={MOCK_EXAM_COPY.subtitle} />
+    <ScreenShell bottomNavigation className={MOCK_EXAM_LAYOUT.page}>
+      <ScreenHeading
+        variant="app"
+        title={MOCK_EXAM_COPY.title}
+        subtitle={MOCK_EXAM_COPY.subtitle}
+      />
       <MockExamCatalog exams={MOCK_EXAMS} />
     </ScreenShell>
   );

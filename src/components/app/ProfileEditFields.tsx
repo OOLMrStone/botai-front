@@ -47,6 +47,7 @@ export function ProfileEditFields({
       <div className={layout.settings.fieldGroup}>
         <SectionHeading>{COPY.profile.dailyGoalTitle}</SectionHeading>
         <RadioGroup
+          aria-label={COPY.profile.dailyGoalTitle}
           value={dailyId}
           onValueChange={(next) => {
             const option = DAILY_GOAL_OPTIONS.find((item) => item.id === String(next));
@@ -67,7 +68,11 @@ export function ProfileEditFields({
 
       <div className={layout.settings.fieldGroup}>
         <SectionHeading>{COPY.profile.goalTitle}</SectionHeading>
-        <RadioGroup value={goalId} onValueChange={(next) => onGoalChange(String(next))}>
+        <RadioGroup
+          aria-label={COPY.profile.goalTitle}
+          value={goalId}
+          onValueChange={(next) => onGoalChange(String(next))}
+        >
           {GOAL_OPTIONS.map((option) => (
             <SelectableCard
               key={option.id}

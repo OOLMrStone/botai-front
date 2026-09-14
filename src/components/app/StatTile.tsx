@@ -1,5 +1,7 @@
 import type { ComponentType } from 'react';
 
+import { AppCard } from '@/components/app/AppCard';
+import { cn } from '@/lib/utils';
 import { layout } from '@/config/layout';
 
 interface StatTileProps {
@@ -11,12 +13,12 @@ interface StatTileProps {
 // Плитка сводки в «Обзоре» профиля: иконка + подпись + значение.
 export function StatTile({ icon: Icon, label, value }: StatTileProps) {
   return (
-    <div className="border-border bg-card rounded-2xl border p-4">
-      <div className={`mb-1 flex items-center gap-1.5 ${layout.typography.description}`}>
-        <Icon className="size-4 shrink-0" />
+    <AppCard className={layout.app.card.compact}>
+      <div className={cn(layout.app.profile.metricLabel, layout.typography.description)}>
+        <Icon className={layout.app.profile.metricIcon} />
         {label}
       </div>
-      <p className={`${layout.typography.value} leading-tight`}>{value}</p>
-    </div>
+      <p className={cn(layout.typography.value, layout.app.profile.metricValue)}>{value}</p>
+    </AppCard>
   );
 }
