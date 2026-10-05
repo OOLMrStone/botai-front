@@ -44,8 +44,26 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# claude / project docs (local only)
-.claude/
+# Private Claude settings stay local; only approved project instructions are tracked
+/.claude/*
+!/.claude/skills/
+/.claude/skills/**
 CLAUDE.md
 CLAUDE.local.md
-SCOPE.md
+
+# Exact project instruction allowlist
+!/.claude/skills/add-screen/
+!/.claude/skills/add-screen/SKILL.md
+!/.claude/skills/clean-code/
+!/.claude/skills/clean-code/SKILL.md
+!/.claude/skills/dependency-safety/
+!/.claude/skills/dependency-safety/SKILL.md
+!/.claude/skills/design-system/
+!/.claude/skills/design-system/SKILL.md
+!/.claude/skills/responsive-ui/
+!/.claude/skills/responsive-ui/SKILL.md
+!/.claude/skills/typography/
+!/.claude/skills/typography/SKILL.md
+!/.claude/skills/verify-ui/
+!/.claude/skills/verify-ui/SKILL.md
+!/SCOPE.md

@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 import { layout } from '@/config/layout';
 import { TASK_COPY } from '@/config/tasks';
@@ -13,35 +13,26 @@ interface TrainingReviewProps {
 export function TrainingReview({ taskCount, missing, onSelect }: TrainingReviewProps) {
   return (
     <section className={cn(layout.training.card, layout.training.reviewCard)}>
-      <h2 className={layout.training.cardTitle}>{TASK_COPY.review.title}</h2>
-      <div className={layout.training.reviewStats}>
+      <div className={layout.training.reviewHeader}>
+        <h2 className={layout.training.reviewTitle}>
+          {missing.length ? TASK_COPY.review.missing : TASK_COPY.review.complete}
+        </h2>
         <p className={layout.training.reviewStat}>
-          {TASK_COPY.review.answered(taskCount - missing.length)}
-        </p>
-        <p className={layout.training.reviewStat}>
-          {missing.length ? TASK_COPY.review.missing(missing.length) : TASK_COPY.review.complete}
+          {TASK_COPY.review.answered(taskCount - missing.length, taskCount)}
         </p>
       </div>
       {missing.length ? (
         <div className={layout.training.reviewList}>
           {missing.map((index) => (
-            <button
+            <Button
               key={index}
-              type="button"
-              className={cn(layout.training.reviewTask, layout.focusRing)}
+              variant="outline"
+              className={layout.training.reviewTask}
               aria-label={TASK_COPY.review.openTask(index + 1)}
               onClick={() => onSelect(index)}
             >
-              <span className={layout.training.reviewTaskText}>
-                <span className={layout.training.reviewTaskTitle}>
-                  {TASK_COPY.review.task(index + 1)}
-                </span>
-                <span className={layout.training.reviewTaskStatus}>
-                  {TASK_COPY.review.unanswered}
-                </span>
-              </span>
-              <ChevronRight aria-hidden="true" className={layout.training.reviewTaskIcon} />
-            </button>
+              {TASK_COPY.review.task(index + 1)}
+            </Button>
           ))}
         </div>
       ) : null}

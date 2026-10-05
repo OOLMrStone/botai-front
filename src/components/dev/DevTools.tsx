@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { DEMO_ACCOUNT, DEV_COPY, DEV_SCREENS } from '@/config/dev';
+import { DEMO_ACCOUNT, DEV_COPY, DEV_DEMO_TASK_PATH, DEV_SCREENS } from '@/config/dev';
 import { APP_ENV, IS_MOCK_API } from '@/config/env';
 import { ROUTES } from '@/config/onboarding-steps';
 import { PLAN_IDS, PLANS, type PlanId } from '@/config/plans';
+import { useMockExamDemoControls } from '@/hooks/use-mock-exam-demo-controls';
 import { loginUser } from '@/lib/api/auth';
 import { changePlan } from '@/lib/api/billing';
 import { normalizePlan } from '@/lib/plan';
@@ -46,6 +47,7 @@ function DevPanel({ onClose }: { onClose: () => void }) {
   const logout = useAuthStore((s) => s.logout);
   const resetOnboarding = useOnboardingStore((s) => s.reset);
   const resetProfile = useProfileStore((s) => s.reset);
+  const mockExamDemo = useMockExamDemoControls();
   const [note, setNote] = useState<string | null>(null);
 
   const plan = normalizePlan(user?.plan);
@@ -78,6 +80,11 @@ function DevPanel({ onClose }: { onClose: () => void }) {
   const handlePlan = (next: PlanId) =>
     run(async () => setUser(await changePlan(next)), DEV_COPY.planDone);
 
+  const handleOpenMockExam = () => {
+    mockExamDemo.prepare();
+    go(DEV_DEMO_TASK_PATH);
+  };
+
   const handleReset = () => {
     resetOnboarding();
     resetProfile();
@@ -95,10 +102,14 @@ function DevPanel({ onClose }: { onClose: () => void }) {
       <Section title={DEV_COPY.accountTitle}>
         <p className="text-muted-foreground">{user?.email ?? DEV_COPY.accountAnonymous}</p>
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={() => void handleLogin()}>
+          <Button size="compact" variant="outline" onClick={() => void handleLogin()}>
             {DEV_COPY.login}
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => void run(logout, DEV_COPY.logoutDone)}>
+          <Button
+            size="compact"
+            variant="ghost"
+            onClick={() => void run(logout, DEV_COPY.logoutDone)}
+          >
             {DEV_COPY.logout}
           </Button>
         </div>
@@ -109,7 +120,7 @@ function DevPanel({ onClose }: { onClose: () => void }) {
           {PLAN_IDS.map((id) => (
             <Button
               key={id}
-              size="sm"
+              size="compact"
               variant={id === plan ? 'default' : 'outline'}
               disabled={!user}
               onClick={() => void handlePlan(id)}
@@ -121,8 +132,23 @@ function DevPanel({ onClose }: { onClose: () => void }) {
       </Section>
 
       <Section title={DEV_COPY.resetTitle}>
-        <Button size="sm" variant="outline" onClick={handleReset}>
+        <Button size="compact" variant="outline" onClick={handleReset}>
           {DEV_COPY.resetAction}
+        </Button>
+      </Section>
+
+      <Section title={DEV_COPY.resetMockExamTitle}>
+        <div>
+          <Button size="compact" variant="outline" onClick={handleOpenMockExam}>
+            {DEV_COPY.openMockExamTask}
+          </Button>
+        </div>
+        <Button
+          size="compact"
+          variant="outline"
+          onClick={() => void run(mockExamDemo.reset, DEV_COPY.resetMockExamDone)}
+        >
+          {DEV_COPY.resetMockExamAction}
         </Button>
       </Section>
 

@@ -3,12 +3,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import {
-  MOCK_EXAM_PRECOMPLETED_ANSWERS,
-  type MockExamFilter,
-  type MockExamSort,
-} from '@/config/mock-exams';
-import type { TaskStatus } from '@/config/tasks';
+import type { MockExamFilter, MockExamSort } from '@/config/mock-exams';
+import type { TaskStatus, TrainingTask } from '@/config/tasks';
+import { createMockExamSession } from '@/lib/mock-exams';
+import { isTrainingAnswerCorrect } from '@/lib/task-training';
 
 export interface MockExamSession {
   examId: string;
@@ -31,35 +29,23 @@ interface MockExamsState {
   setSort: (sort: MockExamSort) => void;
   setFilter: (filter: MockExamFilter) => void;
   start: (examId: string) => void;
+  resetExam: (examId: string) => void;
   setCurrentIndex: (examId: string, currentIndex: number) => void;
   setAnswer: (examId: string, taskId: string, answer: string) => void;
+  checkAnswer: (examId: string, task: TrainingTask) => void;
   addAttachments: (examId: string, taskId: string, names: string[]) => void;
   removeAttachment: (examId: string, taskId: string, name: string) => void;
   check: (examId: string, statuses: Record<string, TaskStatus>, score: number) => void;
   complete: (examId: string, score: number) => void;
 }
 
-const PRECOMPLETED_RESULTS: Record<string, MockExamResult> = {
-  'variant-01': { score: 70, completedAt: '2026-07-28T12:00:00.000Z' },
-};
-
-const PRECOMPLETED_SESSION: MockExamSession = {
-  examId: 'variant-01',
-  currentIndex: 0,
-  answers: MOCK_EXAM_PRECOMPLETED_ANSWERS,
-  attachments: {},
-  statuses: Object.fromEntries(
-    Object.keys(MOCK_EXAM_PRECOMPLETED_ANSWERS).map((taskId) => [taskId, 'correct']),
-  ),
-};
-
 export const useMockExamsStore = create<MockExamsState>()(
   persist(
     (set) => ({
       sort: 'newest',
       filter: 'all',
-      sessions: { 'variant-01': PRECOMPLETED_SESSION },
-      results: PRECOMPLETED_RESULTS,
+      sessions: {},
+      results: {},
       setSort: (sort) => set({ sort }),
       setFilter: (filter) => set({ filter }),
       start: (examId) =>
@@ -68,16 +54,21 @@ export const useMockExamsStore = create<MockExamsState>()(
           return {
             sessions: {
               ...state.sessions,
-              [examId]: session
-                ? { ...session, currentIndex: 0 }
-                : {
-                    examId,
-                    currentIndex: 0,
-                    answers: {},
-                    attachments: {},
-                    statuses: {},
-                  },
+              [examId]: session ? { ...session, currentIndex: 0 } : createMockExamSession(examId),
             },
+          };
+        }),
+      resetExam: (examId) =>
+        set((state) => {
+          const results = { ...state.results };
+          delete results[examId];
+
+          return {
+            sessions: {
+              ...state.sessions,
+              [examId]: createMockExamSession(examId),
+            },
+            results,
           };
         }),
       setCurrentIndex: (examId, currentIndex) =>
@@ -99,6 +90,25 @@ export const useMockExamsStore = create<MockExamsState>()(
                 ...session,
                 answers: { ...session.answers, [taskId]: answer },
                 statuses: { ...session.statuses, [taskId]: 'unverified' },
+              },
+            },
+          };
+        }),
+      checkAnswer: (examId, task) =>
+        set((state) => {
+          const session = state.sessions[examId];
+          if (!session) return state;
+
+          const status = isTrainingAnswerCorrect(task, session.answers[task.id])
+            ? 'correct'
+            : 'incorrect';
+
+          return {
+            sessions: {
+              ...state.sessions,
+              [examId]: {
+                ...session,
+                statuses: { ...session.statuses, [task.id]: status },
               },
             },
           };
@@ -166,33 +176,6 @@ export const useMockExamsStore = create<MockExamsState>()(
     {
       name: 'botai-mock-exams',
       version: 1,
-      merge: (persisted, current) => {
-        const stored = persisted as Partial<MockExamsState>;
-        const storedPrecompleted = stored.sessions?.['variant-01'];
-        const precompletedSession = storedPrecompleted
-          ? {
-              ...PRECOMPLETED_SESSION,
-              ...storedPrecompleted,
-              answers: {
-                ...PRECOMPLETED_SESSION.answers,
-                ...storedPrecompleted.answers,
-              },
-              statuses: {
-                ...PRECOMPLETED_SESSION.statuses,
-                ...storedPrecompleted.statuses,
-              },
-            }
-          : PRECOMPLETED_SESSION;
-        return {
-          ...current,
-          ...stored,
-          sessions: {
-            ...stored.sessions,
-            'variant-01': precompletedSession,
-          },
-          results: { ...PRECOMPLETED_RESULTS, ...stored.results },
-        };
-      },
     },
   ),
 );

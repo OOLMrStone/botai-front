@@ -1,10 +1,12 @@
 import { Eraser, Pencil } from 'lucide-react';
 
+import { BRAND } from '@/config/brand';
+
 type ExamPart = 1 | 2;
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
-export type TaskStatus = 'unverified' | 'correct' | 'incorrect';
+export type TaskStatus = 'unverified' | 'correct' | 'incorrect' | 'partial';
 export type TaskHistoryStatus = 'in-progress' | 'correct';
 export type EraserTool = 'stroke-eraser' | 'point-eraser';
 export type DrawingTool = 'off' | 'pencil' | EraserTool;
@@ -15,7 +17,7 @@ export interface DrawingPoint {
 export interface DrawingStroke {
   id: string;
   points: DrawingPoint[];
-  coordinateSpace?: 'workspace';
+  coordinateSpace?: 'workspace' | 'width';
 }
 export const TASK_ANSWER_INPUT_ID = 'training-answer';
 export const TASK_DEFAULT_IMAGE_ASPECT_RATIO = 4 / 3;
@@ -147,6 +149,9 @@ export const EXAM_NUMBERS = EXAM_PARTS.flatMap(({ part, numbers }) =>
   })),
 );
 
+export const TASK_FAVORITES_DIRECT_LIMIT = 5;
+export const ALL_TASK_TOPICS = 'all';
+
 export const TASK_COPY = {
   close: 'Закрыть',
   views: [
@@ -167,9 +172,11 @@ export const TASK_COPY = {
   soon: 'Скоро',
   setup: {
     title: 'Настрой тренировку',
+    topics: 'Что решаем',
+    exam: (number: number, title: string) => `№${number} - ${title}`,
+    empty: 'Нет задач с такой сложностью - попробуй другой уровень',
     count: 'Количество задач',
     difficulty: 'Сложность',
-    difficultyHint: 'Двигай ползунок - подборка изменится автоматически',
     difficultyScale: {
       easy: 'Простые',
       balanced: 'Баланс',
@@ -210,12 +217,11 @@ export const TASK_COPY = {
   },
   review: {
     title: 'Проверь тренировку',
-    missing: (count: number) => `Без ответа: ${count}`,
-    answered: (count: number) => `Заполнено: ${count}`,
+    missing: 'Без ответа:',
+    answered: (count: number, total: number) => `${count} из ${total} с ответом`,
     complete: 'Все ответы заполнены',
     openTask: (number: number) => `Вернуться к заданию ${number}`,
     task: (number: number) => `Задание ${number}`,
-    unanswered: 'Без ответа',
     check: 'Проверить',
     continue: 'Продолжить тренировку',
   },
@@ -223,7 +229,7 @@ export const TASK_COPY = {
 
 const ORIGINAL_PROVENANCE: TaskProvenance = {
   kind: 'original',
-  author: 'BotAI',
+  author: BRAND.name,
 };
 
 export const TRAINING_TASKS: TrainingTask[] = [

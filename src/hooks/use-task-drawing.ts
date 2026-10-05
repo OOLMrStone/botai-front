@@ -36,7 +36,7 @@ export function useTaskDrawing(
   const strokesRef = useRef(strokes);
   const setDrawing = useTasksStore((state) => state.setDrawing);
   const commitDrawing = useTasksStore((state) => state.commitDrawing);
-  const markInProgress = useTasksStore((state) => state.markInProgress);
+  const finishDrawingGesture = useTasksStore((state) => state.finishDrawingGesture);
 
   useEffect(() => {
     strokesRef.current = strokes;
@@ -67,12 +67,18 @@ export function useTaskDrawing(
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     for (const stroke of strokesRef.current) {
+      const coordinateHeight =
+        stroke.coordinateSpace === 'width'
+          ? width
+          : stroke.coordinateSpace === 'workspace'
+            ? 1
+            : height;
       if (stroke.points.length === 1) {
         const point = stroke.points[0];
         ctx.beginPath();
         ctx.arc(
           point.x * width,
-          stroke.coordinateSpace === 'workspace' ? point.y : point.y * height,
+          point.y * coordinateHeight,
           TASK_DRAWING.lineWidth / 2,
           0,
           Math.PI * 2,
@@ -84,7 +90,7 @@ export function useTaskDrawing(
       ctx.beginPath();
       stroke.points.forEach((point, index) => {
         const x = point.x * width;
-        const y = stroke.coordinateSpace === 'workspace' ? point.y : point.y * height;
+        const y = point.y * coordinateHeight;
         if (index === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       });
@@ -100,8 +106,9 @@ export function useTaskDrawing(
       const dpr = Math.min(window.devicePixelRatio, TASK_DRAWING.dprCap);
       canvas.width = Math.round(rect.width * dpr);
       canvas.height = Math.round(rect.height * dpr);
-      if (strokesRef.current.some((stroke) => stroke.coordinateSpace !== 'workspace')) {
-        updateDrawing(migrateDrawingToWorkspace(strokesRef.current, rect.height));
+      if (strokesRef.current.some((stroke) => stroke.coordinateSpace !== 'width')) {
+        updateDrawing(migrateDrawingToWorkspace(strokesRef.current, rect.height, rect.width));
+        commitDrawing(taskId);
       }
       render();
     };
@@ -115,7 +122,7 @@ export function useTaskDrawing(
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
     return () => observer.disconnect();
-  }, [render, updateDrawing]);
+  }, [render, updateDrawing, commitDrawing, taskId]);
 
   useEffect(render, [render, strokes]);
 
@@ -123,7 +130,7 @@ export function useTaskDrawing(
     const rect = event.currentTarget.getBoundingClientRect();
     return {
       x: (event.clientX - rect.left) / rect.width,
-      y: event.clientY - rect.top,
+      y: (event.clientY - rect.top) / rect.width,
     };
   };
 
@@ -141,9 +148,12 @@ export function useTaskDrawing(
     return points.reduce((sum, clientY) => sum + clientY, 0) / points.length;
   };
 
-  const cancelDrawing = () => {
+  const discardDrawing = () => {
     const baseline = gestureBaseline.current;
-    if (baseline) updateDrawing(baseline);
+    if (baseline) {
+      updateDrawing(baseline);
+      finishDrawingGesture(taskId);
+    }
     drawing.current = false;
     activePointerId.current = null;
     activeStroke.current = null;
@@ -151,7 +161,7 @@ export function useTaskDrawing(
   };
 
   const beginMultiTouch = () => {
-    cancelDrawing();
+    discardDrawing();
     multiTouchActive.current = true;
     lastTouchCenterY.current = touchCenterY();
   };
@@ -172,11 +182,11 @@ export function useTaskDrawing(
     gestureBaseline.current = strokesRef.current;
     const point = pointFor(event);
     if (tool === 'pencil') {
-      ensureWritingSpace(point.y);
+      ensureWritingSpace(point.y * event.currentTarget.clientWidth);
       activeStroke.current = {
         id: createClientId(),
         points: [point],
-        coordinateSpace: 'workspace',
+        coordinateSpace: 'width',
       };
       updateDrawing([...strokesRef.current, activeStroke.current]);
     } else eraseAt(point);
@@ -205,7 +215,7 @@ export function useTaskDrawing(
       drawingPointDistance(previousPoint ?? point, point, width) < TASK_DRAWING.pointMinDistancePx
     )
       return;
-    ensureWritingSpace(point.y);
+    ensureWritingSpace(point.y * event.currentTarget.clientWidth);
     scrollAtWritingEdge(event.clientY);
     stroke.points.push(point);
     updateDrawing([
@@ -230,6 +240,8 @@ export function useTaskDrawing(
     return true;
   };
 
+  // Потеря capture и системная отмена тоже завершают нанесённые изменения.
+  // Откат нужен только при явном переходе к прокрутке двумя пальцами.
   const end = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     if (releaseTouch(event)) return;
     if (activePointerId.current !== event.pointerId) return;
@@ -237,19 +249,19 @@ export function useTaskDrawing(
     drawing.current = false;
     activePointerId.current = null;
     activeStroke.current = null;
-    if (gestureBaseline.current !== strokesRef.current) markInProgress(taskId);
     gestureBaseline.current = null;
     commitDrawing(taskId);
   };
 
-  const cancel = (event: ReactPointerEvent<HTMLCanvasElement>) => {
-    if (releaseTouch(event)) return;
-    if (activePointerId.current !== event.pointerId) return;
-    cancelDrawing();
-  };
+  useEffect(
+    () => () => {
+      if (drawing.current) commitDrawing(taskId);
+    },
+    [commitDrawing, taskId],
+  );
 
   const toggleTool = (nextTool: Exclude<DrawingTool, 'off'>) =>
     setTool((current) => (current === nextTool ? 'off' : nextTool));
 
-  return { canvasRef, tool, toggleTool, start, move, end, cancel };
+  return { canvasRef, tool, toggleTool, start, move, end };
 }

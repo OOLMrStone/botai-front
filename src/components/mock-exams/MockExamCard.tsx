@@ -7,23 +7,40 @@ interface MockExamCardProps {
   result: MockExamResult | undefined;
   session: MockExamSession | undefined;
   onOpen: () => void;
+  opening?: boolean;
+  disabled?: boolean;
 }
 
-export function MockExamCard({ exam, result, session, onOpen }: MockExamCardProps) {
+export function MockExamCard({
+  exam,
+  result,
+  session,
+  onOpen,
+  opening = false,
+  disabled = false,
+}: MockExamCardProps) {
   const inProgress = Boolean(session) && !result;
   const status = result
     ? MOCK_EXAM_COPY.solved
     : inProgress
       ? MOCK_EXAM_COPY.inProgress
       : MOCK_EXAM_COPY.notStarted;
-  const action = result
-    ? MOCK_EXAM_COPY.details
-    : inProgress
-      ? MOCK_EXAM_COPY.continue
-      : MOCK_EXAM_COPY.solve;
+  const action = opening
+    ? MOCK_EXAM_COPY.opening
+    : result
+      ? MOCK_EXAM_COPY.details
+      : inProgress
+        ? MOCK_EXAM_COPY.continue
+        : MOCK_EXAM_COPY.solve;
 
   return (
-    <button type="button" className={MOCK_EXAM_LAYOUT.card} onClick={onOpen}>
+    <button
+      type="button"
+      className={MOCK_EXAM_LAYOUT.card}
+      onClick={onOpen}
+      disabled={disabled}
+      aria-busy={opening}
+    >
       <div className={MOCK_EXAM_LAYOUT.cardMeta}>
         <span>{exam.dateLabel}</span>
         <span className={MOCK_EXAM_LAYOUT.cardStatus}>{status}</span>
@@ -34,7 +51,9 @@ export function MockExamCard({ exam, result, session, onOpen }: MockExamCardProp
           <p className={MOCK_EXAM_LAYOUT.cardResult}>
             {result ? MOCK_EXAM_COPY.score(result.score) : MOCK_EXAM_COPY.scorePending}
           </p>
-          <p className={MOCK_EXAM_LAYOUT.cardHint}>{action}</p>
+          <p className={MOCK_EXAM_LAYOUT.cardHint} aria-live="polite">
+            {action}
+          </p>
         </div>
         <ChevronRight aria-hidden="true" className={MOCK_EXAM_LAYOUT.cardChevron} />
       </div>

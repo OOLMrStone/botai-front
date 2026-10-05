@@ -18,8 +18,11 @@ export const IS_MOCK_API =
   (process.env.NEXT_PUBLIC_API_MOCK ?? (APP_ENV === 'prod' ? '0' : '1')) === '1';
 
 // Dev-панель (переключение тарифа, сброс состояния, прыжки по экранам).
-export const DEV_TOOLS_ENABLED = APP_ENV !== 'prod';
+export const DEV_TOOLS_ENABLED = APP_ENV !== 'prod' && IS_MOCK_API;
 
 // Адрес реального бэкенда для прокси /api/* (читается только на сервере,
 // в next.config). В деве это localhost:8080 - `./gradlew bootRun`.
 export const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:8080';
+
+// Локальные адреса предпросмотра для загрузки dev-ресурсов Next.
+export const DEV_ALLOWED_ORIGINS = ['127.0.0.1', '192.168.0.29'];

@@ -1,5 +1,6 @@
 import { TIMINGS } from '@/config/constants';
-import { sleep } from '@/lib/api/client';
+import { sleep, apiFetch } from '@/lib/api/client';
+import { invalidateResources } from '@/lib/cached-resource';
 
 export interface OnboardingPayload {
   goal: string | null;
@@ -21,9 +22,15 @@ export async function buildCourse(_payload: OnboardingPayload): Promise<BuildCou
   return { courseId: 'mock-course', topicsCount: 24 };
 }
 
-export async function saveOnboarding(_payload: OnboardingPayload): Promise<{ ok: true }> {
-  await sleep(TIMINGS.mockLatencyMs);
-
-  // TODO: PATCH /onboarding — сохранить ответы онбординга.
-  return { ok: true };
+export async function saveOnboarding(payload: OnboardingPayload): Promise<void> {
+  await apiFetch('/api/onboarding', {
+    method: 'PATCH',
+    json: {
+      goalId: payload.goal,
+      levelId: payload.level,
+      dailyGoalMinutes: payload.dailyGoalMinutes,
+      notificationsEnabled: payload.notificationsEnabled,
+    },
+  });
+  invalidateResources();
 }

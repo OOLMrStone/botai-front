@@ -1,27 +1,20 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 
-import { DevToolsSlot } from '@/components/dev/DevToolsSlot';
-import { layout } from '@/config/layout';
-import { cn } from '@/lib/utils';
+import { BRAND } from '@/config/brand';
 
 import './globals.css';
 import 'katex/dist/katex.min.css';
 
-const geistSans = Geist({
-  variable: '--font-sans',
-  subsets: ['latin'],
+const productFont = localFont({
+  variable: '--font-product',
+  src: '../assets/fonts/onest-variable.ttf',
+  weight: '100 900',
+  preload: true,
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
-
-export const metadata: Metadata = {
-  title: 'botai - подготовка к ЕГЭ по профмату',
-  description: 'Готовимся к ЕГЭ по профильной математике по чуть-чуть каждый день.',
-};
+export const metadata: Metadata = BRAND.metadata;
 
 // Мобайл-фёрст: подгоняем под device-width, viewport-fit=cover открывает
 // safe-area-insets (чёлка, домашняя полоса) - экран не лезет под аппаратные зоны.
@@ -37,11 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="bg-muted/30">
-        <div className={cn(layout.viewport.width, layout.viewport.frame)}>{children}</div>
-        <DevToolsSlot />
-      </body>
+    <html lang="ru" className={`${productFont.variable} h-full antialiased`}>
+      <body className="bg-muted/30">{children}</body>
     </html>
   );
 }

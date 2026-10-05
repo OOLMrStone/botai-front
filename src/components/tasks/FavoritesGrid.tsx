@@ -1,12 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { layout } from '@/config/layout';
-import { TASK_COPY, type TrainingTask } from '@/config/tasks';
+import { TASK_COPY } from '@/config/tasks';
+import type { Task } from '@/lib/api/learning-types';
 import { cn } from '@/lib/utils';
 
 interface Props {
-  tasks: TrainingTask[];
+  tasks: Task[];
   onOpenAll: () => void;
-  onOpenTask: (task: TrainingTask) => void;
+  onOpenTask: (task: Task) => void;
 }
 
 export function FavoritesGrid({ tasks, onOpenAll, onOpenTask }: Props) {
@@ -16,6 +17,7 @@ export function FavoritesGrid({ tasks, onOpenAll, onOpenTask }: Props) {
     <div className={layout.tasks.grid}>
       <Button
         variant="outline"
+        size="card"
         className={cn(layout.tasks.favoriteAll, layout.tasks.card)}
         onClick={onOpenAll}
       >
@@ -25,6 +27,7 @@ export function FavoritesGrid({ tasks, onOpenAll, onOpenTask }: Props) {
         <Button
           key={task.id}
           variant="outline"
+          size="card"
           className={cn(layout.tasks.favoriteCard, layout.tasks.card)}
           onClick={() => onOpenTask(task)}
         >

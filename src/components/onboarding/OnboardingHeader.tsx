@@ -36,6 +36,7 @@ export function OnboardingHeader({ steps }: OnboardingHeaderProps) {
       </button>
 
       <Progress value={progress} className={layout.flowHeader.progress} />
+      <span aria-hidden="true" />
     </header>
   );
 }

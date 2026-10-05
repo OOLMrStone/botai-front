@@ -5,6 +5,7 @@ import type {
   TaskStatus,
   TrainingTask,
 } from '@/config/tasks';
+import { isValidShortAnswer, normalizeShortAnswer } from '@/lib/validation';
 import { allocateDifficultyCounts, difficultiesAt } from '@/lib/task-difficulty';
 
 const DIFFICULTY_ORDER: Record<Difficulty, number> = { easy: 0, medium: 1, hard: 2 };
@@ -69,8 +70,11 @@ export function taskProgress(tasks: TrainingTask[], history: Record<string, Task
   return Math.round((correct / tasks.length) * 100);
 }
 
-function normalizedNumber(answer: string) {
-  return Number(answer.trim().replace(',', '.'));
+export function isTrainingAnswerCorrect(task: TrainingTask, answer: string | undefined) {
+  if (!isValidShortAnswer(answer)) return false;
+
+  const normalized = normalizeShortAnswer(answer);
+  return task.acceptedAnswers.some((accepted) => normalizeShortAnswer(accepted) === normalized);
 }
 
 export function checkTrainingAnswers({
@@ -88,10 +92,9 @@ export function checkTrainingAnswers({
     if ((statuses[taskId] ?? 'unverified') !== 'unverified') continue;
     const task = taskMap.get(taskId);
     const rawAnswer = answers[taskId];
-    if (!task || !rawAnswer?.trim()) continue;
+    if (!task || !isValidShortAnswer(rawAnswer)) continue;
 
-    const normalized = normalizedNumber(rawAnswer);
-    const correct = task.acceptedAnswers.some((answer) => normalizedNumber(answer) === normalized);
+    const correct = isTrainingAnswerCorrect(task, rawAnswer);
     const status = correct ? 'correct' : 'incorrect';
     statuses[taskId] = status;
     history[taskId] =

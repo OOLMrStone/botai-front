@@ -8,6 +8,7 @@ import { layout } from '@/config/layout';
 
 interface ResultScreenProps {
   title: string;
+  pending?: boolean;
   subtitle?: string;
   actionLabel: string;
   onAction: () => void;
@@ -18,6 +19,7 @@ interface ResultScreenProps {
 // В тексте поддерживается ручной перенос строки через \n (whitespace-pre-line).
 export function ResultScreen({
   title,
+  pending = false,
   subtitle,
   actionLabel,
   onAction,
@@ -27,7 +29,7 @@ export function ResultScreen({
     <ScreenShell
       center
       footer={
-        <Button className={layout.cta} size="lg" onClick={onAction}>
+        <Button className={layout.cta} size="default" disabled={pending} onClick={onAction}>
           {actionLabel}
         </Button>
       }

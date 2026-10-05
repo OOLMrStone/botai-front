@@ -1,6 +1,8 @@
 // Данные для тестирования приложения. Одно место и для мок-бэкенда (он заводит
 // этот аккаунт), и для dev-панели (она им логинится).
 
+import { MOCK_EXAM_DEMO } from '@/config/mock-exam-demo';
+import { mockExamPath } from '@/config/mock-exams';
 import {
   ONBOARDING_STEPS,
   onboardingPath,
@@ -22,7 +24,7 @@ export const DEV_COPY = {
   open: 'Открыть dev-панель',
   close: 'Закрыть',
   envTitle: 'Сборка',
-  apiMock: 'мок-бэкенд',
+  apiMock: 'локальный API',
   apiReal: 'реальный бэкенд',
   accountTitle: 'Аккаунт',
   accountAnonymous: 'сессии нет',
@@ -33,6 +35,10 @@ export const DEV_COPY = {
   resetTitle: 'Состояние',
   resetAction: 'Сбросить онбординг и профиль',
   resetDone: 'Сброшено',
+  resetMockExamTitle: 'Пробник №1',
+  resetMockExamAction: 'Сбросить пробник №1',
+  openMockExamTask: 'Открыть задание 13',
+  resetMockExamDone: 'Пробник №1 сброшен: ответы, фото, рисунки и результат удалены',
   loginDone: 'Вошли тестовым аккаунтом',
   logoutDone: 'Сессия закрыта',
   planDone: 'Тариф переключён',
@@ -51,3 +57,5 @@ export const DEV_SCREENS: DevScreen[] = [
   ...REGISTER_STEPS.map((slug) => ({ label: slug, href: registerPath(slug) })),
   ...Object.entries(ROUTES).map(([label, href]) => ({ label, href })),
 ];
+
+export const DEV_DEMO_TASK_PATH = `${mockExamPath(MOCK_EXAM_DEMO.examId)}?${MOCK_EXAM_DEMO.taskQueryKey}=${MOCK_EXAM_DEMO.taskNumber}`;

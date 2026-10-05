@@ -11,11 +11,11 @@ import { COPY } from '@/config/onboarding-steps';
 
 // Карточка задачи дня: условие и ответ по кнопке. Ответ прячем, чтобы сначала
 // подумать - в этом весь смысл задачи дня.
-export function DailyTaskCard({ task }: { task: DailyTask }) {
+export function DailyTaskCard({ task, className }: { task: DailyTask; className?: string }) {
   const [revealed, setRevealed] = useState(false);
 
   return (
-    <AppCard>
+    <AppCard className={className}>
       <p className={layout.typography.description}>{COPY.home.dailyTaskTitle}</p>
       <p className={layout.app.home.question}>{task.question}</p>
 
@@ -36,9 +36,9 @@ export function DailyTaskCard({ task }: { task: DailyTask }) {
   );
 }
 
-export function DailyTaskCardSkeleton() {
+export function DailyTaskCardSkeleton({ className }: { className?: string }) {
   return (
-    <AppCard>
+    <AppCard className={className}>
       <Skeleton className={layout.app.skeleton.caption} />
       <Skeleton className={layout.app.skeleton.question} />
       <Skeleton className={layout.app.skeleton.action} />

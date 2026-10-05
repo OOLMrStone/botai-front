@@ -1,4 +1,6 @@
 import { TIMINGS } from '@/config/constants';
+import { IS_MOCK_API } from '@/config/env';
+import { LEARNING_COPY as C } from '@/config/integration';
 import { ApiError, apiFetch, sleep } from '@/lib/api/client';
 
 export type OAuthProvider = 'yandex' | 'google' | 'vk';
@@ -26,9 +28,11 @@ export interface User {
   // Тариф. Реальный бэкенд его пока не отдаёт - тогда считаем бесплатным
   // (lib/plan.normalizePlan), мок отдаёт всегда.
   plan?: string;
+  emailVerified?: boolean;
 }
 
 export async function oauthSignIn(provider: OAuthProvider): Promise<User> {
+  if (!IS_MOCK_API) throw new ApiError(503, C.oauthUnavailable);
   await sleep(TIMINGS.mockLatencyMs);
 
   // TODO: реальный OAuth-редирект (Яндекс / Google / ВК) - база на бэкенде уже есть.
@@ -72,3 +76,8 @@ export async function fetchCurrentUser(): Promise<User | null> {
 export async function logoutUser(): Promise<void> {
   await apiFetch<void>('/api/auth/logout', { method: 'POST' });
 }
+
+export const requestEmailVerification = (email: string) =>
+  apiFetch<void>('/api/auth/email/verify-request', { json: { email } });
+export const verifyEmail = (token: string) =>
+  apiFetch<void>('/api/auth/email/verify', { json: { token } });

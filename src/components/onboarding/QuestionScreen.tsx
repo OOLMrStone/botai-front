@@ -31,7 +31,12 @@ export function QuestionScreen({
   return (
     <ScreenShell
       footer={
-        <Button className={layout.cta} size="lg" disabled={value === null} onClick={onContinue}>
+        <Button
+          className={layout.cta}
+          size="default"
+          disabled={value === null}
+          onClick={onContinue}
+        >
           {actionLabel}
         </Button>
       }

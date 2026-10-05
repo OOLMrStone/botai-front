@@ -1,22 +1,10 @@
-'use client';
+import type { Metadata } from 'next';
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { Storefront } from '@/components/storefront/Storefront';
+import { STOREFRONT } from '@/config/storefront';
 
-import { onboardingPath, ROUTES } from '@/config/onboarding-steps';
-import { useAuthStore } from '@/stores/auth-store';
+export const metadata: Metadata = STOREFRONT.metadata;
 
-// Точка входа: если сессия жива (кука SESSION валидна) - сразу на главную,
-// иначе - в онбординг.
 export default function Home() {
-  const router = useRouter();
-  const refresh = useAuthStore((s) => s.refresh);
-
-  useEffect(() => {
-    refresh()
-      .then((user) => router.replace(user ? ROUTES.home : onboardingPath('welcome')))
-      .catch(() => router.replace(onboardingPath('welcome')));
-  }, [refresh, router]);
-
-  return null;
+  return <Storefront />;
 }

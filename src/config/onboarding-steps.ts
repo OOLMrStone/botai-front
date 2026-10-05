@@ -30,6 +30,8 @@ import {
   YoutubeIcon,
 } from '@/components/onboarding/brand-icons';
 import { AGE_LIMITS, PASSWORD_MIN_LENGTH } from '@/lib/validation';
+import { IS_MOCK_API } from '@/config/env';
+import { BRAND } from '@/config/brand';
 
 export type OnboardingSlug =
   | 'welcome'
@@ -85,6 +87,8 @@ export const registerPath = (slug: RegisterSlug) => `/register/${slug}`;
 
 // Роуты вне нумерованных сегментов: развилки, отдельные экраны и раздел (app).
 export const ROUTES = {
+  storefront: '/',
+  studentEntry: '/learn',
   login: '/login',
   lesson: '/lesson',
   streak: '/streak',
@@ -94,10 +98,14 @@ export const ROUTES = {
   tasks: '/tasks',
   quizzes: '/quizzes',
   training: '/training',
+  trainingSetup: '/training/setup',
   mockExams: '/mock-exams',
+  lemurWalk: '/lemur-walk',
   profile: '/profile',
   settings: '/settings',
 } as const;
+
+export const ONBOARDING_DESTINATION = IS_MOCK_API ? ROUTES.lesson : ROUTES.saveProgress;
 
 // --- Варианты вопросов -------------------------------------------------------
 
@@ -196,7 +204,7 @@ export const COPY = {
     secondary: 'У меня уже есть аккаунт',
   },
   intro: {
-    title: 'Привет! Я botai',
+    title: `Привет! Я ${BRAND.mascotName}`,
     subtitle: 'Помогу разобраться во всём, будем ботать вместе!',
     action: 'Дальше',
   },
@@ -216,8 +224,16 @@ export const COPY = {
     action: 'Продолжить',
   },
   goalResult: {
-    title: 'Отлично!\nПо статистике с botai 84% достигают цели',
+    title: `Отлично!\nПо статистике с ${BRAND.name} 84% достигают цели`,
     action: 'Дальше',
+  },
+  goalChart: {
+    title: 'Путь к цели',
+    accessibleLabel: `С ${BRAND.name} до цели быстрее`,
+    withBrand: `С ${BRAND.name}`,
+    alone: 'Сам по себе',
+    now: 'Сейчас',
+    exam: 'ЕГЭ',
   },
   building: {
     title: 'Строим курс…',
@@ -275,7 +291,7 @@ export const COPY = {
     action: 'Продолжить',
   },
   ready: {
-    title: 'Вот твой первый урок',
+    title: IS_MOCK_API ? 'Вот твой первый урок' : 'Всё готово к подготовке',
     subtitle: 'Всё готово. Начнём?',
     action: 'Окей',
   },
@@ -311,7 +327,8 @@ export const COPY = {
     greeting: 'Привет',
     tagline: 'Готов ботать сегодня?',
     streakUnit: 'дней в ударе',
-    xpUnit: 'XP',
+    hoursUnit: 'ч',
+    studyTimeLabel: 'На этой неделе',
     dailyGoalTitle: 'Цель дня',
     dailyGoalUnit: 'мин',
     dailyGoalDone: 'Цель дня выполнена - красавчик!',
@@ -319,7 +336,7 @@ export const COPY = {
     continueSubtitle: 'Первый урок уже ждёт',
     continueAction: 'Поехали',
     continueTrainingTitle: 'Продолжить тренировку',
-    continueTrainingSubtitle: 'Твои ответы сохранены',
+    continueTrainingSubtitle: 'Продолжи с того же места',
     dailyTaskTitle: 'Задача дня',
     dailyTaskReveal: 'Показать ответ',
     dailyTaskAnswerPrefix: 'Ответ',
@@ -344,7 +361,6 @@ export const COPY = {
     settingsRow: 'Настройки',
     overviewTitle: 'Обзор',
     overviewStreak: 'Стрик',
-    overviewXp: 'Опыт',
     overviewGoal: 'Цель',
     overviewDailyGoal: 'Цель дня',
     streakWeekTitle: 'Неделя в ударе',
@@ -362,6 +378,7 @@ export const COPY = {
   },
   // Ошибки запросов - один источник для всех экранов (плашка ErrorNote).
   errors: {
+    session: 'Не удалось проверить вход. Попробуй ещё раз',
     retry: 'Повторить',
     stats: 'Не удалось загрузить данные',
     tasks: 'Не удалось загрузить задачи',
@@ -393,8 +410,10 @@ export const COPY = {
       loginCta: 'Уже есть аккаунт? Войти',
     },
     done: {
-      title: 'Готово!',
-      subtitle: 'Профиль создан, прогресс сохранён',
+      title: IS_MOCK_API ? 'Готово!' : 'Твой план готов',
+      subtitle: IS_MOCK_API
+        ? 'Профиль создан, прогресс сохранён'
+        : 'Сохраним его и начнём подготовку',
       action: 'К обучению',
     },
   },

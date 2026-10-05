@@ -13,7 +13,7 @@ interface StatTileProps {
 // Плитка сводки в «Обзоре» профиля: иконка + подпись + значение.
 export function StatTile({ icon: Icon, label, value }: StatTileProps) {
   return (
-    <AppCard className={layout.app.card.compact}>
+    <AppCard className={cn(layout.app.card.compact, layout.app.profile.card)}>
       <div className={cn(layout.app.profile.metricLabel, layout.typography.description)}>
         <Icon className={layout.app.profile.metricIcon} />
         {label}

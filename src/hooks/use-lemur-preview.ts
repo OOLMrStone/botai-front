@@ -1,0 +1,140 @@
+'use client';
+
+import { useState, useSyncExternalStore } from 'react';
+
+import { LEMUR_COPY, LEMUR_PLAYBACK } from '@/config/lemur-copy';
+import type { LemurAnimation } from '@/config/lemur-media';
+import { QUIZ_MOTION } from '@/config/quiz-motion';
+import { useLemurReactionQueue } from '@/hooks/use-lemur-reaction-queue';
+import { useLemurVideo } from '@/hooks/use-lemur-video';
+
+function subscribeToMotionPreference(onChange: () => void) {
+  const preference = window.matchMedia(QUIZ_MOTION.reducedMotionQuery);
+  preference.addEventListener('change', onChange);
+
+  return () => preference.removeEventListener('change', onChange);
+}
+
+function getMotionPreference() {
+  return window.matchMedia(QUIZ_MOTION.reducedMotionQuery).matches;
+}
+
+function getServerMotionPreference() {
+  return true;
+}
+
+export function useLemurPreview(animation: LemurAnimation) {
+  const reducedMotion = useSyncExternalStore(
+    subscribeToMotionPreference,
+    getMotionPreference,
+    getServerMotionPreference,
+  );
+  const [pauseOverride, setPauseOverride] = useState<boolean | null>(null);
+  const [slowed, setSlowed] = useState(false);
+  const [reactionPhase, setReactionPhase] = useState<'idle' | 'queued' | 'playing'>('idle');
+  const [reactionError, setReactionError] = useState('');
+  const [reactionPaused, setReactionPaused] = useState(false);
+  const [phaseIndex, setPhaseIndex] = useState(0);
+  const [idleStartAt, setIdleStartAt] = useState<number>(LEMUR_PLAYBACK.start);
+
+  const reaction = animation.reaction;
+  const clip = reaction?.phases?.[phaseIndex];
+  const reactionSource = clip?.video ?? reaction?.video;
+  const reacting = reactionPhase === 'playing';
+  const queued = reactionPhase === 'queued';
+  const reactionBusy = reactionPhase !== 'idle';
+  const paused = reactionBusy ? reactionPaused : (pauseOverride ?? reducedMotion);
+  const playbackRate = slowed ? LEMUR_PLAYBACK.slow : LEMUR_PLAYBACK.normal;
+  const source = reacting && reactionSource ? reactionSource : animation.video;
+  const returnAt = reaction?.cycleDuration
+    ? ((clip?.offset ?? 0) + (reaction.duration ?? 0)) % reaction.cycleDuration
+    : LEMUR_PLAYBACK.start;
+  const prepared =
+    queued && reactionSource
+      ? { source: reactionSource }
+      : reacting
+        ? { source: animation.video, startAt: returnAt }
+        : undefined;
+  const video = useLemurVideo({
+    source,
+    startAt: reacting ? LEMUR_PLAYBACK.start : idleStartAt,
+    prepared,
+    paused,
+    playbackRate,
+    loop: !reacting && animation.loop,
+    loopFrom: reacting ? undefined : animation.loopFrom,
+    onFinish: reacting
+      ? () => {
+          setIdleStartAt(returnAt);
+          setReactionPhase('idle');
+        }
+      : undefined,
+    onError: (message) => {
+      if (!reactionBusy) return;
+      setReactionError(message);
+      setReactionPhase('idle');
+    },
+  });
+  useLemurReactionQueue(video.ref, queued, video.ready, reaction, (time) => {
+    if (reaction?.phases && reaction.syncPeriod) {
+      setPhaseIndex(Math.round(time / reaction.syncPeriod) % reaction.phases.length);
+    }
+    setReactionPhase('playing');
+  });
+
+  function react() {
+    if (!reaction || reactionBusy || !video.ready) return;
+
+    if (reaction.phases && reaction.syncPeriod) {
+      const time = video.ref.current?.currentTime ?? LEMUR_PLAYBACK.start;
+      const index = Math.ceil((time - (reaction.syncTolerance ?? 0)) / reaction.syncPeriod);
+      setPhaseIndex(Math.max(0, index) % reaction.phases.length);
+    }
+    setReactionPaused(false);
+    setReactionError('');
+    setReactionPhase(reaction.syncPeriod ? 'queued' : 'playing');
+  }
+
+  function togglePause() {
+    if (video.ended) {
+      video.replay();
+      setPauseOverride(false);
+      return;
+    }
+
+    if (!video.ready || video.requiresInteraction || paused) {
+      video.start();
+      if (reactionBusy) setReactionPaused(false);
+      else setPauseOverride(false);
+      return;
+    }
+
+    if (reactionBusy) {
+      setReactionPaused(!paused);
+      return;
+    }
+
+    setPauseOverride(!paused);
+  }
+
+  return {
+    firstRef: video.firstRef,
+    secondRef: video.secondRef,
+    activeSlot: video.activeSlot,
+    error: reactionError || video.error,
+    subtitle: queued ? (reaction?.pendingLabel ?? animation.subtitle) : animation.subtitle,
+    reactionBusy: reactionBusy || !video.ready,
+    react,
+    pauseLabel:
+      !video.ready || video.requiresInteraction
+        ? LEMUR_COPY.start
+        : video.ended
+          ? LEMUR_COPY.replay
+          : paused
+            ? LEMUR_COPY.resume
+            : LEMUR_COPY.pause,
+    speedLabel: slowed ? LEMUR_COPY.normal : LEMUR_COPY.slow,
+    togglePause,
+    toggleSpeed: () => setSlowed((value) => !value),
+  };
+}

@@ -5,6 +5,8 @@ import { useState } from 'react';
 
 import type { ComponentType } from 'react';
 
+import { IS_MOCK_API } from '@/config/env';
+import { layout } from '@/config/layout';
 import { Button } from '@/components/ui/button';
 import { GoogleIcon, VkIcon, YandexIcon } from '@/components/onboarding/brand-icons';
 import { ROUTES } from '@/config/onboarding-steps';
@@ -41,17 +43,17 @@ export function OAuthButtons({ redirectTo = ROUTES.done }: OAuthButtonsProps) {
   };
 
   return (
-    <div className="space-y-2">
+    <div className={layout.oauth.group}>
       {PROVIDERS.map(({ id, label, Icon }) => (
         <Button
           key={id}
           variant="outline"
-          className="h-11 w-full justify-center gap-3 text-base"
-          size="lg"
-          disabled={pending !== null}
+          className={layout.oauth.button}
+          size="default"
+          disabled={!IS_MOCK_API || pending !== null}
           onClick={() => handleSignIn(id)}
         >
-          <Icon className="size-5 shrink-0" />
+          <Icon className={layout.oauth.icon} />
           <span>{label}</span>
         </Button>
       ))}

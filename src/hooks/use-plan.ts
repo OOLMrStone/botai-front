@@ -1,17 +1,13 @@
 'use client';
-
 import { PLANS, type FeatureId, type Plan } from '@/config/plans';
-import { hasFeature, normalizePlan } from '@/lib/plan';
-import { useAuthStore } from '@/stores/auth-store';
-
-// Тариф текущего пользователя. Истина - на бэкенде (приходит вместе с юзером),
-// стор авторизации лишь кэширует её.
+import { useAsyncData } from '@/hooks/use-async-data';
+import { profileResource } from '@/lib/profile-resource';
+import { normalizePlan } from '@/lib/plan';
 export function usePlan(): Plan {
-  const plan = useAuthStore((s) => s.user?.plan);
-  return PLANS[normalizePlan(plan)];
+  const { data } = useAsyncData(profileResource);
+  return PLANS[normalizePlan(data?.plan)];
 }
-
-// Единственный способ гейтить платное в UI.
 export function useHasFeature(feature: FeatureId): boolean {
-  return hasFeature(usePlan().id, feature);
+  const { data } = useAsyncData(profileResource);
+  return Boolean(data?.features.includes(feature));
 }

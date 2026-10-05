@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 
+import { KEYBOARD_VIEWPORT } from '@/config/constants';
+
 export function useKeyboardViewport() {
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -12,12 +14,19 @@ export function useKeyboardViewport() {
     const syncViewport = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
+        const editing = document.activeElement?.matches(KEYBOARD_VIEWPORT.editableSelector);
+        document.documentElement.toggleAttribute(
+          KEYBOARD_VIEWPORT.keyboardAttribute,
+          Boolean(
+            editing && window.innerHeight - viewport.height > KEYBOARD_VIEWPORT.minimumOcclusionPx,
+          ),
+        );
         document.documentElement.style.setProperty(
-          '--training-viewport-height',
+          KEYBOARD_VIEWPORT.heightProperty,
           `${viewport.height}px`,
         );
         document.documentElement.style.setProperty(
-          '--training-viewport-offset-top',
+          KEYBOARD_VIEWPORT.offsetProperty,
           `${viewport.offsetTop}px`,
         );
       });
@@ -26,12 +35,17 @@ export function useKeyboardViewport() {
     syncViewport();
     viewport.addEventListener('resize', syncViewport);
     viewport.addEventListener('scroll', syncViewport);
+    document.addEventListener('focusin', syncViewport);
+    document.addEventListener('focusout', syncViewport);
     return () => {
       cancelAnimationFrame(frame);
-      document.documentElement.style.removeProperty('--training-viewport-height');
-      document.documentElement.style.removeProperty('--training-viewport-offset-top');
+      document.documentElement.style.removeProperty(KEYBOARD_VIEWPORT.heightProperty);
+      document.documentElement.style.removeProperty(KEYBOARD_VIEWPORT.offsetProperty);
       viewport.removeEventListener('resize', syncViewport);
       viewport.removeEventListener('scroll', syncViewport);
+      document.removeEventListener('focusin', syncViewport);
+      document.removeEventListener('focusout', syncViewport);
+      document.documentElement.removeAttribute(KEYBOARD_VIEWPORT.keyboardAttribute);
     };
   }, []);
 }

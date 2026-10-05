@@ -38,6 +38,7 @@ export function TaskCatalogTabs({ view, onChange }: Props) {
         <Button
           key={item.id}
           variant="ghost"
+          size="segment"
           aria-pressed={view === item.id}
           className={layout.tasks.tabButton}
           onClick={() => onChange(item.id)}

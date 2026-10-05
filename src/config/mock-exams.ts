@@ -14,7 +14,7 @@ export interface MockExam {
   date: string;
   dateLabel: string;
   tasks: MockExamTaskRef[];
-  provenance: { kind: 'official'; author: 'ФИПИ'; source: string };
+  provenance: { kind: 'official' | 'original'; author?: string; source?: string };
 }
 
 const PROVENANCE: TrainingTask['provenance'] = { kind: 'official', author: 'ФИПИ' };
@@ -50,7 +50,7 @@ export const MOCK_EXAM_TASKS: TrainingTask[] = [
       text(
         'Четырёхугольник ABCD вписан в окружность. Угол ABC равен 103°, угол CAD равен 42°. Найдите угол ABD. Ответ дайте в градусах',
       ),
-      image('/tasks/mock-exam/task-01-diagram.png', 'Четырёхугольник ABCD в окружности', 1.14),
+      image('/tasks/mock-exam/task-01-diagram.svg', 'Четырёхугольник ABCD в окружности', 480 / 420),
     ],
     ['61'],
   ),
@@ -59,9 +59,9 @@ export const MOCK_EXAM_TASKS: TrainingTask[] = [
     [
       text('На координатной плоскости изображены векторы a и b. Найдите их скалярное произведение'),
       image(
-        '/tasks/mock-exam/task-02-vectors.png',
+        '/tasks/mock-exam/task-02-vectors.svg',
         'Векторы a и b на координатной плоскости',
-        1.26,
+        480 / 390,
       ),
     ],
     ['12'],
@@ -72,7 +72,7 @@ export const MOCK_EXAM_TASKS: TrainingTask[] = [
       text(
         'Одна цилиндрическая кружка вдвое выше второй, зато вторая в полтора раза шире. Найдите отношение объёма второй кружки к объёму первой',
       ),
-      image('/tasks/mock-exam/task-03-cylinders.png', 'Две цилиндрические кружки', 1.51),
+      image('/tasks/mock-exam/task-03-cylinders.svg', 'Две цилиндрические кружки', 480 / 320),
     ],
     ['1,125', '1.125'],
   ),
@@ -209,10 +209,6 @@ export const MOCK_EXAM_TASKS: TrainingTask[] = [
   ]),
 ];
 
-export const MOCK_EXAM_PRECOMPLETED_ANSWERS = Object.fromEntries(
-  MOCK_EXAM_TASKS.slice(0, 12).map((item) => [item.id, item.acceptedAnswers[0] ?? '']),
-);
-
 const REFS: MockExamTaskRef[] = MOCK_EXAM_TASKS.map((item) => ({
   taskId: item.id,
   responseType: item.examPart === 1 ? 'answer' : 'attachment',
@@ -234,7 +230,6 @@ export const MOCK_EXAMS: MockExam[] = [
 
 export const MOCK_EXAM_COPY = {
   title: 'Пробники',
-  subtitle: 'Полный вариант в режиме экзамена',
   sortLabel: 'Сортировка пробников',
   sortOptions: [
     { id: 'newest', label: 'Сначала новые' },
@@ -255,6 +250,7 @@ export const MOCK_EXAM_COPY = {
   score: (score: number) => `${score} баллов`,
   scorePending: 'Баллов ещё нет',
   solve: 'Решать',
+  opening: 'Открываем...',
   continue: 'Продолжить',
   details: 'Подробнее',
   view: 'Посмотреть пробник',
@@ -263,7 +259,7 @@ export const MOCK_EXAM_COPY = {
   detailsResult: 'Результат',
   detailsTasks: 'Заданий в варианте',
   exit: 'Сохранить и выйти',
-  attach: 'Прикрепить решение',
+  attach: 'Прикрепить',
   attachments: 'Прикреплённые файлы',
   removeAttachment: (name: string) => `Открепить ${name}`,
   check: 'Проверить',
@@ -279,33 +275,34 @@ export const MOCK_EXAM_CATALOG_PATH = '/mock-exams';
 export const MOCK_EXAM_SORT_ID = 'mock-exam-sort';
 export const MOCK_EXAM_FILE_ACCEPT = 'image/*,.pdf';
 export const MOCK_EXAM_LAYOUT = {
-  page: 'mx-auto w-full max-w-2xl gap-5',
+  page: 'w-full gap-5',
   toolbar: 'relative z-30 grid grid-cols-[minmax(0,1fr)_4rem] gap-2',
-  sort: 'border-border bg-background h-11 w-full min-w-0 rounded-xl border px-3 text-sm font-medium sm:w-auto',
+  sort: 'border-border bg-background h-11 w-full min-w-0 rounded-control border px-3 text-sm font-medium sm:w-auto',
   sortRoot: 'relative min-w-0',
   sortTrigger:
-    'border-border bg-background flex h-12 w-full items-center justify-between rounded-2xl border px-4 text-left text-base font-medium transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none',
+    'border-border bg-background flex h-12 w-full items-center justify-between rounded-control border px-4 text-left text-base font-medium transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none',
   sortChevron:
     'size-4 shrink-0 transition-transform duration-[var(--task-control-motion-duration)] motion-reduce:transition-none',
   sortChevronOpen: 'rotate-180',
   sortMenu:
-    'border-border bg-popover absolute inset-x-0 top-full z-40 mt-2 overflow-hidden rounded-2xl border p-1.5 shadow-lg animate-in fade-in slide-in-from-top-1 duration-[var(--task-control-motion-duration)] motion-reduce:animate-none',
+    'border-border bg-popover absolute inset-x-0 top-full z-40 mt-2 max-h-[min(16rem,50svh)] overflow-y-auto rounded-card border p-1.5 shadow-lg animate-in fade-in slide-in-from-top-1 duration-[var(--task-control-motion-duration)] motion-reduce:animate-none',
   sortOption:
-    'flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium outline-none transition-colors hover:bg-muted focus-visible:bg-muted',
+    'flex min-h-11 w-full items-center gap-3 rounded-[calc(var(--radius-card)-0.375rem)] px-3 text-left text-sm font-medium outline-none transition-colors hover:bg-muted focus-visible:bg-muted',
   sortCheck: 'size-4 shrink-0',
   sortCheckPlaceholder: 'size-4 shrink-0',
   filterTrigger:
-    'border-border bg-background relative flex h-12 w-16 items-center justify-center gap-1.5 rounded-2xl border transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none',
+    'border-border bg-background relative flex h-12 w-16 items-center justify-center gap-1.5 rounded-control border transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none',
   filterIcon: 'size-[1.125rem] shrink-0',
   filterIndicator:
     'absolute top-0 right-0 size-2.5 rounded-full bg-attention ring-2 ring-background',
-  list: 'space-y-3',
-  card: 'border-border bg-card group flex h-40 w-full min-w-0 flex-col rounded-3xl border p-5 text-left shadow-[0_1px_0_color-mix(in_oklch,var(--foreground)_6%,transparent)] outline-none transition-[background-color,border-color,transform] duration-[var(--task-control-motion-duration)] hover:bg-muted/25 focus-visible:ring-2 focus-visible:ring-ring/40 active:translate-y-px motion-reduce:transition-none motion-reduce:active:translate-y-0',
+  listFrame: '-mx-6 flex min-h-0 flex-1 flex-col border-t border-border',
+  list: 'space-y-3 px-6 pt-4 desktop:grid desktop:grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] desktop:content-start desktop:gap-4 desktop:space-y-0 landscape-short:grid landscape-short:grid-cols-2 landscape-short:content-start landscape-short:gap-3 landscape-short:space-y-0',
+  card: 'border-border bg-card group flex h-40 w-full min-w-0 flex-col rounded-card border p-5 text-left shadow-[0_1px_0_color-mix(in_oklch,var(--foreground)_6%,transparent)] outline-none transition-[background-color,border-color,transform] duration-[var(--task-control-motion-duration)] hover:bg-muted/25 focus-visible:ring-2 focus-visible:ring-ring/40 active:translate-y-px motion-reduce:transition-none motion-reduce:active:translate-y-0',
   cardMeta:
     'flex min-h-5 items-start justify-between gap-3 text-sm leading-5 text-muted-foreground',
   cardStatus: 'shrink-0 text-right',
   cardBody: 'mt-4 flex min-h-0 flex-1 min-w-0 items-end justify-between gap-4',
-  cardTitle: 'min-w-0 text-xl font-semibold tracking-tight',
+  cardTitle: 'min-w-0 text-xl font-semibold',
   cardResult: 'mt-1 text-base font-medium tabular-nums',
   cardHint: 'text-muted-foreground mt-1 text-sm',
   emptyFilter:
@@ -315,7 +312,7 @@ export const MOCK_EXAM_LAYOUT = {
   cardAction: 'mt-auto h-11 w-full text-base',
   details: 'space-y-5',
   detailsGrid: 'grid grid-cols-2 gap-3',
-  detailsMetric: 'bg-muted/55 rounded-2xl p-4',
+  detailsMetric: 'bg-muted/55 rounded-card p-4',
   detailsTaskMetric: 'col-span-2',
   detailsLabel: 'text-sm text-muted-foreground',
   detailsValue: 'mt-1 text-lg font-semibold tabular-nums',

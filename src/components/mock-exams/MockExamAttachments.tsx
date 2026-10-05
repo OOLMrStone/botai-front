@@ -1,13 +1,16 @@
 'use client';
 
 import { X } from 'lucide-react';
-import { useRef } from 'react';
 
-import { Button } from '@/components/ui/button';
+import { FileUploadButton } from '@/components/common/FileUploadButton';
 import { MOCK_EXAM_COPY, MOCK_EXAM_FILE_ACCEPT, MOCK_EXAM_LAYOUT } from '@/config/mock-exams';
 
 interface MockExamAttachmentsProps {
-  onAdd: (names: string[]) => void;
+  onAdd: (files: File[]) => void;
+  disabled?: boolean;
+  label?: string;
+  accept?: string;
+  multiple?: boolean;
 }
 
 export function MockExamAttachmentStrip({
@@ -38,25 +41,21 @@ export function MockExamAttachmentStrip({
   );
 }
 
-export function MockExamAttachments({ onAdd }: MockExamAttachmentsProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-
+export function MockExamAttachments({
+  onAdd,
+  disabled = false,
+  label = MOCK_EXAM_COPY.attach,
+  accept = MOCK_EXAM_FILE_ACCEPT,
+  multiple = true,
+}: MockExamAttachmentsProps) {
   return (
-    <>
-      <Button className={MOCK_EXAM_LAYOUT.footerAction} onClick={() => inputRef.current?.click()}>
-        {MOCK_EXAM_COPY.attach}
-      </Button>
-      <input
-        ref={inputRef}
-        type="file"
-        multiple
-        accept={MOCK_EXAM_FILE_ACCEPT}
-        hidden
-        onChange={(event) => {
-          onAdd(Array.from(event.currentTarget.files ?? [], (file) => file.name));
-          event.currentTarget.value = '';
-        }}
-      />
-    </>
+    <FileUploadButton
+      onAdd={onAdd}
+      disabled={disabled}
+      label={label}
+      accept={accept}
+      multiple={multiple}
+      className={MOCK_EXAM_LAYOUT.footerAction}
+    />
   );
 }

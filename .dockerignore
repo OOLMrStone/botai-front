@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.env*
+.claude
+.codex
+SCOPE.md
+AGENTS.md
+research
+docs
+*.log
+
+.dev-data
+artifacts
+*.md
+*.tsbuildinfo

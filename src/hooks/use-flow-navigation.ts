@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import {
+  ONBOARDING_DESTINATION,
   nextOnboardingSlug,
   nextRegisterSlug,
   onboardingPath,
@@ -37,7 +38,7 @@ function useStepFlow(nextHref: string) {
 
 export function useOnboardingFlow(current: OnboardingSlug) {
   const next = nextOnboardingSlug(current);
-  return useStepFlow(next ? onboardingPath(next) : ROUTES.lesson);
+  return useStepFlow(next ? onboardingPath(next) : ONBOARDING_DESTINATION);
 }
 
 export function useRegisterFlow(current: RegisterSlug) {

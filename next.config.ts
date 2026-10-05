@@ -1,8 +1,11 @@
 import type { NextConfig } from 'next';
 
-import { BACKEND_URL, DEV_TOOLS_ENABLED, IS_MOCK_API } from './src/config/env';
+import { BACKEND_URL, DEV_ALLOWED_ORIGINS, DEV_TOOLS_ENABLED, IS_MOCK_API } from './src/config/env';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  devIndicators: false,
+  images: { unoptimized: true },
   // В проде модуль dev-панели подменяется пустой заглушкой: её код и тестовые
   // данные не попадают в бандл вообще, а не просто «не грузятся».
   turbopack: DEV_TOOLS_ENABLED
@@ -19,7 +22,7 @@ const nextConfig: NextConfig = {
       beforeFiles: [{ source: '/api/:path*', destination: `${BACKEND_URL}/api/:path*` }],
     };
   },
-  allowedDevOrigins: ['192.168.0.29'],
+  allowedDevOrigins: DEV_ALLOWED_ORIGINS,
 };
 
 export default nextConfig;

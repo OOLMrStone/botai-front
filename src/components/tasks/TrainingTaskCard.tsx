@@ -8,6 +8,7 @@ import {
   TRAINING_DRAWING_TOOLS,
   type TaskStatus,
   type TrainingTask,
+  type TaskBlock,
 } from '@/config/tasks';
 import { useDrawingWorkspace } from '@/hooks/use-drawing-workspace';
 import { useGestureSurfaceGuard } from '@/hooks/use-gesture-surface-guard';
@@ -19,7 +20,12 @@ import { preventGestureContextMenu } from '@/lib/gesture-surface';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 
 interface TrainingTaskCardProps {
-  task: TrainingTask;
+  task: Pick<TrainingTask, 'id' | 'content' | 'difficulty'>;
+  drawingKey?: string;
+  isFavourite?: boolean;
+  solution?: TaskBlock[];
+  canReveal?: boolean;
+  locked?: boolean;
   favoriteTaskId?: string;
   position: number;
   status: TaskStatus;
@@ -30,6 +36,11 @@ interface TrainingTaskCardProps {
 
 export function TrainingTaskCard({
   task,
+  drawingKey = task.id,
+  isFavourite = false,
+  solution = [],
+  canReveal = false,
+  locked = false,
   favoriteTaskId,
   position,
   status,
@@ -37,7 +48,7 @@ export function TrainingTaskCard({
   solutionRevealed,
   onToggleSolution,
 }: TrainingTaskCardProps) {
-  const favorite = useTaskFavorite(favoriteTaskId ?? task.id);
+  const favorite = useTaskFavorite(favoriteTaskId ?? task.id, isFavourite);
   const {
     viewportRef: workspaceViewportRef,
     contentRef: workspaceContentRef,
@@ -45,10 +56,15 @@ export function TrainingTaskCard({
     ensureWritingSpace,
     scrollAtWritingEdge,
     panWorkspaceBy,
-  } = useDrawingWorkspace(task.id);
-  const drawing = useTaskDrawing(task.id, ensureWritingSpace, scrollAtWritingEdge, panWorkspaceBy);
-  const { canvasRef, tool, start, move, end, cancel } = drawing;
-  const drawingToolActive = tool !== 'off';
+  } = useDrawingWorkspace(drawingKey);
+  const drawing = useTaskDrawing(
+    drawingKey,
+    ensureWritingSpace,
+    scrollAtWritingEdge,
+    panWorkspaceBy,
+  );
+  const { canvasRef, tool, start, move, end } = drawing;
+  const drawingToolActive = !locked && tool !== 'off';
   useGestureSurfaceGuard(canvasRef, {
     enabled: drawingToolActive,
     preventTouchDefaults: true,
@@ -78,7 +94,7 @@ export function TrainingTaskCard({
         <div className={layout.training.actions}>
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-compact"
             className={layout.training.actionButton}
             aria-label={TASK_COPY.training.favorite}
             aria-pressed={favorite.favorite}
@@ -93,13 +109,14 @@ export function TrainingTaskCard({
             <Button
               key={id}
               variant="ghost"
-              size="icon"
+              size="icon-compact"
               className={cn(
                 layout.training.actionButton,
                 tool === id && layout.training.actionButtonActive,
               )}
               aria-label={label}
               aria-pressed={tool === id}
+              disabled={locked}
               onClick={() => drawing.toggleTool(id)}
             >
               {Icon ? (
@@ -128,7 +145,7 @@ export function TrainingTaskCard({
         >
           <div ref={workspaceContentRef} className={layout.training.drawingContent}>
             <TaskBlockRenderer blocks={task.content} />
-            {status !== 'unverified' && task.solution.length > 0 ? (
+            {canReveal || (status !== 'unverified' && solution.length > 0) ? (
               <Button
                 variant="ghost"
                 className={layout.training.solutionButton}
@@ -139,7 +156,7 @@ export function TrainingTaskCard({
             ) : null}
             {solutionRevealed ? (
               <div className={layout.training.solution}>
-                <TaskBlockRenderer blocks={task.solution} />
+                <TaskBlockRenderer blocks={solution} />
               </div>
             ) : null}
           </div>
@@ -149,13 +166,13 @@ export function TrainingTaskCard({
             onPointerDown={handleDrawingStart}
             onPointerMove={move}
             onPointerUp={end}
-            onPointerCancel={cancel}
-            onLostPointerCapture={cancel}
+            onPointerCancel={end}
+            onLostPointerCapture={end}
             onContextMenu={preventGestureContextMenu}
             className={cn(
               layout.training.drawingCanvas,
               layout.gestureSurface,
-              tool === 'off'
+              !drawingToolActive
                 ? layout.training.drawingCanvasIdle
                 : layout.training.drawingCanvasActive,
             )}

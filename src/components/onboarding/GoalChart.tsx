@@ -1,3 +1,7 @@
+import { BrandText } from '@/components/onboarding/BrandText';
+import { layout } from '@/config/layout';
+import { COPY } from '@/config/onboarding-steps';
+
 // Мини-график «с botai vs сам»: статичные линии, поверх - шторка .goal-wipe и
 // флажок .goal-flag. Оба анимируемых слоя - отдельные элементы поверх графика,
 // а не элементы внутри <svg>: WebKit не даёт содержимому svg собственный слой,
@@ -5,15 +9,15 @@
 // Цвета - из CSS-переменных темы, чтобы работало и в тёмной.
 export function GoalChart() {
   return (
-    <div className="border-border bg-card w-full rounded-2xl border p-4">
-      <p className="text-muted-foreground mb-1 text-sm">Путь к цели</p>
+    <div className={layout.surface.chart}>
+      <p className="text-muted-foreground mb-1 text-sm">{COPY.goalChart.title}</p>
 
       <div className="relative overflow-hidden">
         <svg
           viewBox="0 0 306 150"
           className="w-full"
           role="img"
-          aria-label="С botai до цели быстрее"
+          aria-label={COPY.goalChart.accessibleLabel}
         >
           <line
             x1="12"
@@ -39,17 +43,19 @@ export function GoalChart() {
             style={{ stroke: 'var(--foreground)' }}
           />
 
-          <text x="196" y="20" fontSize="11" fontWeight="600" style={{ fill: 'var(--foreground)' }}>
-            С botai
-          </text>
+          <foreignObject {...layout.goalChart.brandLabel}>
+            <div className={layout.goalChart.brandLabelClass}>
+              <BrandText text={COPY.goalChart.withBrand} />
+            </div>
+          </foreignObject>
           <text x="150" y="98" fontSize="11" style={{ fill: 'var(--muted-foreground)' }}>
-            Сам по себе
+            {COPY.goalChart.alone}
           </text>
           <text x="12" y="147" fontSize="10" style={{ fill: 'var(--muted-foreground)' }}>
-            Сейчас
+            {COPY.goalChart.now}
           </text>
           <text x="266" y="147" fontSize="10" style={{ fill: 'var(--muted-foreground)' }}>
-            ЕГЭ
+            {COPY.goalChart.exam}
           </text>
         </svg>
 

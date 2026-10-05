@@ -3,6 +3,8 @@
 import { useState } from 'react';
 
 import {
+  ALL_TASK_TOPICS,
+  TASK_COPY,
   TASK_DIFFICULTY_SLIDER,
   type TaskCount,
   type TrainingSettings,
@@ -14,7 +16,18 @@ import {
   difficultyLevelFromSelection,
 } from '@/lib/task-difficulty';
 
-export function useTrainingSetup(initial: TrainingSettings, tasks: TrainingTask[]) {
+export function useTrainingSetup(
+  initial: TrainingSettings,
+  tasks: TrainingTask[],
+  topics: readonly { id: string; title: string }[] = [],
+) {
+  const [topicId, setTopicId] = useState<string>(ALL_TASK_TOPICS);
+  const selectedTasks =
+    topicId === ALL_TASK_TOPICS ? tasks : tasks.filter((task) => task.topicIds.includes(topicId));
+  const topicOptions = [
+    { id: ALL_TASK_TOPICS, title: TASK_COPY.allTasks },
+    ...topics.filter((topic) => tasks.some((task) => task.topicIds.includes(topic.id))),
+  ];
   const initialLevel =
     initial.difficultyLevel ?? difficultyLevelFromSelection(initial.difficulties);
   const [settings, setSettings] = useState<TrainingSettings>({
@@ -32,9 +45,13 @@ export function useTrainingSetup(initial: TrainingSettings, tasks: TrainingTask[
     }));
 
   const difficultyLevel = settings.difficultyLevel ?? TASK_DIFFICULTY_SLIDER.defaultValue;
-  const canStart = tasks.some((task) => settings.difficulties.includes(task.difficulty));
+  const canStart = selectedTasks.some((task) => settings.difficulties.includes(task.difficulty));
 
   return {
+    topicId,
+    setTopicId,
+    selectedTasks,
+    topicOptions,
     settings,
     difficultyLevel,
     difficultyLabelKey: difficultyLabelKey(difficultyLevel),

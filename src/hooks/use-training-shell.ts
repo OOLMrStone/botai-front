@@ -1,98 +1,76 @@
 'use client';
-
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-
-import { ROUTES } from '@/config/onboarding-steps';
-import { TASK_SOLVED_DATE_FORMAT, type TrainingTask } from '@/config/tasks';
+import { useAttemptActivity } from '@/hooks/use-attempt-activity';
+import { useAttempt } from '@/hooks/use-attempt';
 import { useKeyboardViewport } from '@/hooks/use-keyboard-viewport';
-import { saveFavoriteTask } from '@/lib/api/tasks';
-import { useTasksStore } from '@/stores/tasks-store';
-
-export function useTrainingShell(tasks: TrainingTask[]) {
+import { useTaskKeyboardNavigation } from '@/hooks/use-task-keyboard-navigation';
+import { ROUTES } from '@/config/onboarding-steps';
+import { itemAnswered, itemStatus } from '@/lib/attempt';
+import { fetchSolution } from '@/lib/api/learning';
+import type { Solution } from '@/lib/api/learning-types';
+import { LEARNING_COPY as C } from '@/config/integration';
+export function useTrainingShell(id: string) {
   const router = useRouter();
-  const [exitDialogOpen, setExitDialogOpen] = useState(false);
-  const session = useTasksStore((state) => state.session);
-  const solvedAt = useTasksStore((state) => state.solvedAt);
-  const setCurrentIndex = useTasksStore((state) => state.setCurrentIndex);
-  const setAnswer = useTasksStore((state) => state.setAnswer);
-  const checkAnswers = useTasksStore((state) => state.checkAnswers);
-  const toggleSolution = useTasksStore((state) => state.toggleSolution);
+  const training = useAttempt(id);
+  const attempt = training.attempt;
+  const [solutions, setSolutions] = useState<Record<string, Solution>>({});
+  const [revealed, setRevealed] = useState<string[]>([]);
+  const [revealError, setRevealError] = useState<string | null>(null);
+  useAttemptActivity(id, Boolean(attempt));
+  const currentIndex = attempt?.currentIndex ?? 0;
+  const reviewIndex = attempt?.items.length ?? 0;
   useKeyboardViewport();
-
-  const reviewIndex = tasks.length;
-  const review = session?.currentIndex === reviewIndex;
-  const task = session ? tasks[session.currentIndex] : undefined;
-  const taskId = task?.id;
-  const solvedDate =
-    taskId && solvedAt[taskId]
-      ? TASK_SOLVED_DATE_FORMAT.format(new Date(solvedAt[taskId]))
-      : undefined;
-  const status = taskId ? (session?.statuses[taskId] ?? 'unverified') : 'unverified';
-  const unverified =
-    session?.taskIds.some((id) => (session.statuses[id] ?? 'unverified') === 'unverified') ?? false;
-  const allCorrect = session?.taskIds.every((id) => session.statuses[id] === 'correct') ?? false;
-  const missing =
-    session?.taskIds.flatMap((id, index) => (session.answers[id]?.trim() ? [] : [index])) ?? [];
-
-  const leaveTraining = () => {
-    useTasksStore.getState().prepareSessionExit();
-    router.push(ROUTES.tasks);
-  };
-
-  const exit = () => {
-    if (
-      session?.source === 'favorites' &&
-      session.taskIds.some((id) => session.statuses[id] === 'correct')
-    ) {
-      setExitDialogOpen(true);
+  useTaskKeyboardNavigation({
+    currentIndex,
+    lastIndex: reviewIndex,
+    enabled: Boolean(attempt) && !training.busy,
+    onSelect: (index) => {
+      void training.select(index);
+    },
+  });
+  const item = attempt?.items[currentIndex];
+  const statuses = Object.fromEntries(
+    (attempt?.items ?? []).map((item) => [item.id, itemStatus(item)]),
+  );
+  const answeredTaskIds = (attempt?.items ?? [])
+    .filter((item) => itemAnswered({ ...item, answer: training.answers[item.id] ?? item.answer }))
+    .map((item) => item.id);
+  const missing = (attempt?.items ?? []).flatMap((item, index) =>
+    answeredTaskIds.includes(item.id) ? [] : [index],
+  );
+  const toggleSolution = async (itemId: string) => {
+    if (!attempt) return;
+    setRevealError(null);
+    if (revealed.includes(itemId)) {
+      setRevealed((items) => items.filter((id) => id !== itemId));
       return;
     }
-    leaveTraining();
-  };
-
-  const finishFavoriteExit = async (remove: boolean) => {
-    if (!session) return;
-    if (remove) {
-      const state = useTasksStore.getState();
-      const previous = state.favorites;
-      const correct = session.taskIds.filter((id) => session.statuses[id] === 'correct');
-      state.removeCorrectFavorites();
-      try {
-        await Promise.all(correct.map((id) => saveFavoriteTask(id, false)));
-      } catch {
-        useTasksStore.getState().setFavorites(previous);
-        return;
-      }
+    try {
+      const solution = solutions[itemId] ?? (await fetchSolution(attempt.id, itemId));
+      setSolutions((current) => ({ ...current, [itemId]: solution }));
+      setRevealed((items) => [...items, itemId]);
+    } catch (cause) {
+      setRevealError(cause instanceof Error ? cause.message : C.loadError);
     }
-    leaveTraining();
   };
-
-  const continueTraining = () => {
-    const state = useTasksStore.getState();
-    state.prepareSessionExit();
-    useTasksStore.getState().requestSetup();
-    router.push(ROUTES.tasks);
+  const exit = async () => {
+    const saved = await training.save();
+    if (saved) router.push(ROUTES.home);
   };
-
   return {
-    session,
-    solvedDate,
+    ...training,
+    item,
+    currentIndex,
     reviewIndex,
-    review,
-    task,
-    status,
-    unverified,
-    allCorrect,
+    review: currentIndex === reviewIndex,
+    statuses,
+    answeredTaskIds,
     missing,
-    exitDialogOpen,
-    setExitDialogOpen,
-    setCurrentIndex,
-    setAnswer,
-    checkAnswers,
+    solutions,
+    revealed,
+    revealError,
     toggleSolution,
     exit,
-    finishFavoriteExit,
-    continueTraining,
   };
 }

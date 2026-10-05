@@ -1,5 +1,7 @@
 'use client';
 
+import { isNavigationKeyBlocked } from '@/lib/task-keyboard';
+
 import type { KeyboardEvent, PointerEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -57,7 +59,7 @@ export function useTaskScrubber({ taskCount, currentIndex, onSelect }: ScrubberI
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (!taskCount) return;
+    if (!taskCount || anchor.current || isNavigationKeyBlocked(event.nativeEvent)) return;
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
 

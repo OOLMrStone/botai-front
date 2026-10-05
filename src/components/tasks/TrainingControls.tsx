@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { AnswerInput } from '@/components/tasks/AnswerInput';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,9 @@ import type { TrainingSession } from '@/stores/tasks-store';
 
 interface TrainingControlsProps {
   session: TrainingSession;
+  busy?: boolean;
+  editingBusy?: boolean;
+  locked?: boolean;
   taskId: string | undefined;
   taskCount: number;
   review: boolean;
@@ -23,6 +26,9 @@ interface TrainingControlsProps {
 
 export function TrainingControls({
   session,
+  busy = false,
+  editingBusy = false,
+  locked = false,
   taskId,
   taskCount,
   review,
@@ -38,7 +44,7 @@ export function TrainingControls({
   if (review) {
     return (
       <div className={layout.training.reviewActions}>
-        <Button className={layout.cta} disabled={!unverified} onClick={onCheck}>
+        <Button className={layout.cta} disabled={!unverified || busy} onClick={onCheck}>
           {TASK_COPY.review.check}
         </Button>
         <Button
@@ -61,13 +67,16 @@ export function TrainingControls({
         size="icon"
         className={layout.training.controlButton}
         aria-label={TASK_COPY.training.previous}
-        disabled={session.currentIndex === 0}
+        disabled={session.currentIndex === 0 || busy}
         onClick={() => onSelect(session.currentIndex - 1)}
       >
         <ChevronLeft />
       </Button>
       <AnswerInput
         id={TASK_ANSWER_INPUT_ID}
+        answerKey={taskId}
+        disabled={editingBusy}
+        readOnly={locked}
         value={session.answers[taskId] ?? ''}
         validationState={
           status === 'correct' ? 'success' : status === 'incorrect' ? 'error' : 'neutral'
@@ -76,8 +85,14 @@ export function TrainingControls({
         onValueChange={(answer) => onAnswer(taskId, answer)}
       />
       {session.currentIndex === taskCount - 1 ? (
-        <Button className={layout.training.reviewButton} onClick={() => onSelect(reviewIndex)}>
-          {TASK_COPY.training.toReview}
+        <Button
+          variant="outline"
+          size="icon"
+          className={layout.training.controlButton}
+          aria-label={TASK_COPY.training.toReview}
+          onClick={() => onSelect(reviewIndex)}
+        >
+          <CheckCheck />
         </Button>
       ) : (
         <Button

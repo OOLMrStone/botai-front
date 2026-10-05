@@ -17,3 +17,9 @@ export const APP_TABS: AppTab[] = [
   { href: ROUTES.mockExams, label: COPY.nav.mockExams, icon: ClipboardCheck },
   { href: ROUTES.profile, label: COPY.nav.profile, icon: UserRound },
 ];
+
+export const LEARNING_COPY = {
+  navigation: 'Учебные разделы',
+  course: 'ЕГЭ · Профильная математика',
+  storefront: 'На главную сайта',
+} as const;

@@ -20,15 +20,18 @@ export function useDrawingWorkspace(taskId: string) {
   const requiredHeight = useCallback(() => {
     const viewportHeight = viewportRef.current?.clientHeight ?? 0;
     const contentHeight = contentRef.current?.scrollHeight ?? 0;
-    const drawingHeight = drawingBottom(strokesRef.current);
+    const drawingHeight = drawingBottom(strokesRef.current, viewportRef.current?.clientWidth ?? 0);
 
-    return Math.min(
-      TASK_DRAWING.workspaceMaxHeightPx,
-      Math.ceil(
-        Math.max(
-          viewportHeight,
-          contentHeight + TASK_DRAWING.workspaceBottomSpacePx,
-          drawingHeight + TASK_DRAWING.workspaceBottomSpacePx,
+    return Math.max(
+      Math.ceil(drawingHeight + TASK_DRAWING.workspaceBottomSpacePx),
+      Math.min(
+        TASK_DRAWING.workspaceMaxHeightPx,
+        Math.ceil(
+          Math.max(
+            viewportHeight,
+            contentHeight + TASK_DRAWING.workspaceBottomSpacePx,
+            drawingHeight + TASK_DRAWING.workspaceBottomSpacePx,
+          ),
         ),
       ),
     );
@@ -79,11 +82,14 @@ export function useDrawingWorkspace(taskId: string) {
   const ensureWritingSpace = useCallback((pointY: number) => {
     if (heightRef.current - pointY > TASK_DRAWING.workspaceGrowthThresholdPx) return;
 
-    const next = Math.min(
-      TASK_DRAWING.workspaceMaxHeightPx,
-      Math.max(
-        heightRef.current + TASK_DRAWING.workspaceGrowthStepPx,
-        pointY + TASK_DRAWING.workspaceBottomSpacePx,
+    const next = Math.max(
+      heightRef.current,
+      Math.min(
+        TASK_DRAWING.workspaceMaxHeightPx,
+        Math.max(
+          heightRef.current + TASK_DRAWING.workspaceGrowthStepPx,
+          pointY + TASK_DRAWING.workspaceBottomSpacePx,
+        ),
       ),
     );
     if (next === heightRef.current) return;

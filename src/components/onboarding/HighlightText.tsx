@@ -1,3 +1,5 @@
+import { BrandText } from '@/components/onboarding/BrandText';
+
 interface HighlightTextProps {
   text: string;
 }
@@ -9,15 +11,16 @@ export function HighlightText({ text }: HighlightTextProps) {
   let lastIndex = 0;
 
   for (const [key, match] of [...text.matchAll(/\*(.+?)\*/g)].entries()) {
-    if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index));
+    if (match.index > lastIndex)
+      parts.push(<BrandText key={`plain-${key}`} text={text.slice(lastIndex, match.index)} />);
     parts.push(
       <span key={key} className="italic">
-        {match[1]}
+        <BrandText text={match[1]} />
       </span>,
     );
     lastIndex = match.index + match[0].length;
   }
-  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
+  if (lastIndex < text.length) parts.push(<BrandText key="tail" text={text.slice(lastIndex)} />);
 
   return <>{parts}</>;
 }

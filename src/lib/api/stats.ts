@@ -1,24 +1,30 @@
-// Пост-логин статистика для хаба и профиля. Сейчас мок (мгновенный) - позже
-// реальный GET с бэкенда (прогресс/стрик/XP хранятся на сервере, не в
-// onboarding-store, который сбрасывается после регистрации). Кэш «на сессию»
-// живёт в use-user-stats, чтобы не тянуть на каждом переходе.
-export interface UserStats {
-  streakDays: number;
+import { apiFetch } from '@/lib/api/client';
+import { fetchProfile } from '@/lib/api/profile';
+export interface Stats {
   xp: number;
+  streakDays: number;
   dailyGoalMinutes: number;
   dailyProgressMinutes: number;
-  goalId: string; // id из GOAL_OPTIONS
-  levelId: string; // id из LEVEL_OPTIONS
+  date: string;
+  timeZone: string;
+  week: { date: string; qualified: boolean; minutes: number }[];
+  resumeAttempt: string | null;
 }
-
+export interface UserStats extends Stats {
+  totalStudyMinutes: number;
+  goalId: string;
+  levelId: string;
+}
 export async function fetchUserStats(): Promise<UserStats> {
-  // TODO: реальный запрос статистики пользователя с бэкенда.
+  const [stats, profile] = await Promise.all([apiFetch<Stats>('/api/stats'), fetchProfile()]);
   return {
-    streakDays: 7,
-    xp: 120,
-    dailyGoalMinutes: 30,
-    dailyProgressMinutes: 12,
-    goalId: 'good-plus',
-    levelId: 'middle',
+    ...stats,
+    totalStudyMinutes: stats.week.reduce((minutes, day) => minutes + day.minutes, 0),
+    goalId: profile.goalId ?? '',
+    levelId: profile.levelId ?? '',
   };
 }
+export const sendActivity = (attemptId: string, seconds: number) =>
+  apiFetch<Stats>('/api/activity-events', {
+    json: { id: crypto.randomUUID(), attemptId, seconds },
+  });

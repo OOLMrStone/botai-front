@@ -1,3 +1,4 @@
+import { layout } from '@/config/layout';
 import { Sparkles } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -12,14 +13,7 @@ export function MascotPlaceholder({ className, size = 'lg' }: MascotPlaceholderP
   const box = size === 'lg' ? 'size-32' : 'size-20';
 
   return (
-    <div
-      className={cn(
-        'border-border bg-muted text-muted-foreground flex items-center justify-center rounded-3xl border-2 border-dashed',
-        box,
-        className,
-      )}
-      aria-hidden="true"
-    >
+    <div className={cn(layout.surface.mascot, box, className)} aria-hidden="true">
       <Sparkles className="size-1/3" />
     </div>
   );

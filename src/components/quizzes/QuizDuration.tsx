@@ -1,5 +1,5 @@
 import { RangeSlider } from '@/components/common/RangeSlider';
-import { layout } from '@/config/layout';
+import { FormSection } from '@/components/common/FormSection';
 import { QUIZ_COPY, QUIZ_LENGTHS, QUIZ_DURATION_SLIDER } from '@/config/quiz';
 import { useQuizStore } from '@/stores/quiz-store';
 
@@ -10,8 +10,7 @@ export function QuizDuration() {
   const option = QUIZ_LENGTHS[index];
 
   return (
-    <section className={layout.quiz.stack}>
-      <h2 className={layout.quiz.label}>{QUIZ_COPY.duration}</h2>
+    <FormSection title={QUIZ_COPY.duration}>
       <RangeSlider
         {...QUIZ_DURATION_SLIDER}
         value={index}
@@ -20,6 +19,6 @@ export function QuizDuration() {
         scale={QUIZ_LENGTHS.map((item) => item.description)}
         onChange={(value) => setLength(QUIZ_LENGTHS[value].id)}
       />
-    </section>
+    </FormSection>
   );
 }

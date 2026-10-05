@@ -10,3 +10,7 @@ export const AUTH_COOKIE = {
 export const AUTH_HEADER = {
   xsrf: 'X-XSRF-TOKEN',
 } as const;
+
+export const AUTH_ENDPOINT = {
+  csrf: '/api/auth/csrf',
+} as const;

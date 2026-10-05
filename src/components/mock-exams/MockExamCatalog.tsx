@@ -1,7 +1,6 @@
 'use client';
 
 import { Check, ChevronDown, ListFilter } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { MockExamCard } from '@/components/mock-exams/MockExamCard';
@@ -10,26 +9,21 @@ import { layout } from '@/config/layout';
 import {
   MOCK_EXAM_COPY,
   MOCK_EXAM_LAYOUT,
-  mockExamPath,
-  type MockExam,
   type MockExamFilter,
   type MockExamSort,
 } from '@/config/mock-exams';
+import { useServerExams } from '@/hooks/use-server-exams';
+import { ErrorNote } from '@/components/common/ErrorNote';
+import { Button } from '@/components/ui/button';
+import { LEARNING_COPY as C } from '@/config/integration';
 import { useMockExamSortMenu } from '@/hooks/use-mock-exam-sort-menu';
 import { filterMockExams, sortMockExams } from '@/lib/mock-exams';
 import { cn } from '@/lib/utils';
-import { useMockExamsStore } from '@/stores/mock-exams-store';
 
-export function MockExamCatalog({ exams }: { exams: MockExam[] }) {
-  const router = useRouter();
+export function MockExamCatalog() {
+  const navigation = useServerExams();
+  const { exams, sort, filter, sessions, results, setSort, setFilter } = navigation;
   const [detailsExamId, setDetailsExamId] = useState<string>();
-  const sort = useMockExamsStore((state) => state.sort);
-  const filter = useMockExamsStore((state) => state.filter);
-  const sessions = useMockExamsStore((state) => state.sessions);
-  const results = useMockExamsStore((state) => state.results);
-  const setSort = useMockExamsStore((state) => state.setSort);
-  const setFilter = useMockExamsStore((state) => state.setFilter);
-  const start = useMockExamsStore((state) => state.start);
   const visibleExams = filterMockExams(sortMockExams(exams, sort, results), filter, results);
   const detailsExam = exams.find((exam) => exam.id === detailsExamId);
   const {
@@ -53,6 +47,11 @@ export function MockExamCatalog({ exams }: { exams: MockExam[] }) {
 
   return (
     <>
+      {navigation.failed ? <ErrorNote message={C.loadError} onRetry={navigation.retry} /> : null}
+      {navigation.error ? <ErrorNote message={navigation.error} /> : null}
+      {!navigation.data && !navigation.failed ? (
+        <p className={layout.typography.description}>{C.loading}</p>
+      ) : null}
       <div className={MOCK_EXAM_LAYOUT.toolbar}>
         <div ref={sortRootRef} className={MOCK_EXAM_LAYOUT.sortRoot}>
           <button
@@ -166,26 +165,39 @@ export function MockExamCatalog({ exams }: { exams: MockExam[] }) {
           ) : null}
         </div>
       </div>
-      <div className={cn(layout.scroll, MOCK_EXAM_LAYOUT.list)}>
-        {visibleExams.map((exam) => (
-          <MockExamCard
-            key={exam.id}
-            exam={exam}
-            result={results[exam.id]}
-            session={sessions[exam.id]}
-            onOpen={() => {
-              if (results[exam.id]) {
-                setDetailsExamId(exam.id);
-                return;
-              }
-              start(exam.id);
-              router.push(mockExamPath(exam.id));
-            }}
-          />
-        ))}
-        {visibleExams.length === 0 ? (
-          <p className={MOCK_EXAM_LAYOUT.emptyFilter}>{MOCK_EXAM_COPY.emptyFilter}</p>
-        ) : null}
+      <div className={MOCK_EXAM_LAYOUT.listFrame}>
+        <div className={cn(layout.scroll, MOCK_EXAM_LAYOUT.list)}>
+          {visibleExams.map((exam) => (
+            <MockExamCard
+              key={exam.id}
+              exam={exam}
+              result={results[exam.id]}
+              session={sessions[exam.id]}
+              opening={navigation.openingExamId === exam.id}
+              disabled={navigation.pending}
+              onOpen={() => {
+                if (results[exam.id]) {
+                  setDetailsExamId(exam.id);
+                  return;
+                }
+                navigation.openExam(exam.id);
+              }}
+            />
+          ))}
+          {exams.map((exam) => (
+            <Button
+              key={exam.id}
+              variant="outline"
+              disabled={navigation.pending}
+              onClick={() => void navigation.openExam(exam.id, true)}
+            >
+              {C.newAttempt} · {exam.title}
+            </Button>
+          ))}
+          {visibleExams.length === 0 ? (
+            <p className={MOCK_EXAM_LAYOUT.emptyFilter}>{MOCK_EXAM_COPY.emptyFilter}</p>
+          ) : null}
+        </div>
       </div>
       <MockExamDetails
         exam={detailsExam}
@@ -193,8 +205,7 @@ export function MockExamCatalog({ exams }: { exams: MockExam[] }) {
         onClose={() => setDetailsExamId(undefined)}
         onView={() => {
           if (!detailsExam) return;
-          start(detailsExam.id);
-          router.push(mockExamPath(detailsExam.id));
+          navigation.openExam(detailsExam.id);
         }}
       />
     </>

@@ -19,6 +19,8 @@ interface OnboardingState {
   notificationsEnabled: boolean;
   hearAboutUs: string | null;
   registration: RegistrationData;
+  needsProfileSave: boolean;
+  requireProfileSave: () => void;
 
   setGoal: (goal: string) => void;
   setLevel: (level: string) => void;
@@ -46,7 +48,9 @@ export const useOnboardingStore = create<OnboardingState>()(
       notificationsEnabled: false,
       hearAboutUs: null,
       registration: emptyRegistration,
+      needsProfileSave: false,
 
+      requireProfileSave: () => set({ needsProfileSave: true }),
       setGoal: (goal) => set({ goal }),
       setLevel: (level) => set({ level }),
       setDailyGoal: (dailyGoalMinutes) => set({ dailyGoalMinutes }),
@@ -62,6 +66,7 @@ export const useOnboardingStore = create<OnboardingState>()(
           notificationsEnabled: false,
           hearAboutUs: null,
           registration: emptyRegistration,
+          needsProfileSave: false,
         }),
     }),
     {

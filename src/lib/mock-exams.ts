@@ -1,5 +1,5 @@
 import type { MockExam, MockExamFilter, MockExamSort } from '@/config/mock-exams';
-import type { MockExamResult } from '@/stores/mock-exams-store';
+import type { MockExamResult, MockExamSession } from '@/stores/mock-exams-store';
 
 export function sortMockExams(
   exams: MockExam[],
@@ -31,4 +31,8 @@ export function filterMockExams(
 export function mockExamScore(correctAnswers: number, totalTasks: number) {
   if (totalTasks === 0) return 0;
   return Math.round((correctAnswers / totalTasks) * 100);
+}
+
+export function createMockExamSession(examId: string): MockExamSession {
+  return { examId, currentIndex: 0, answers: {}, attachments: {}, statuses: {} };
 }

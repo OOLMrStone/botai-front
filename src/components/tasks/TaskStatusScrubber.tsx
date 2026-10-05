@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 
 interface Props {
   taskIds: string[];
-  answers: Record<string, string>;
+  answeredTaskIds: string[];
   statuses: Record<string, TaskStatus>;
   currentIndex: number;
   reviewActive: boolean;
@@ -20,7 +20,7 @@ interface Props {
 
 export function TaskStatusScrubber({
   taskIds,
-  answers,
+  answeredTaskIds,
   statuses,
   currentIndex,
   reviewActive,
@@ -62,7 +62,7 @@ export function TaskStatusScrubber({
       >
         {taskIds.map((id, index) => {
           const status = statuses[id] ?? 'unverified';
-          const answered = Boolean(answers[id]?.trim());
+          const answered = answeredTaskIds.includes(id);
           return (
             <span
               key={id}
@@ -70,6 +70,7 @@ export function TaskStatusScrubber({
                 layout.training.scrubberSegment,
                 status === 'correct' && layout.training.segmentCorrect,
                 status === 'incorrect' && layout.training.segmentIncorrect,
+                status === 'partial' && layout.training.segmentAnswered,
                 status === 'unverified' && answered && layout.training.segmentAnswered,
                 status === 'unverified' && !answered && layout.training.segmentEmpty,
                 !reviewActive && currentIndex === index && layout.training.segmentCurrent,
@@ -87,7 +88,7 @@ export function TaskStatusScrubber({
               const selected = index === previewIndex;
               const taskId = taskIds[index];
               const status = statuses[taskId] ?? 'unverified';
-              const answered = Boolean(answers[taskId]?.trim());
+              const answered = answeredTaskIds.includes(taskId);
               const visualStatus =
                 status === 'unverified' ? (answered ? 'answered' : 'empty') : status;
 

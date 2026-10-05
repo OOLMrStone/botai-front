@@ -4,6 +4,7 @@
 export const TIMINGS = {
   courseBuildMs: 3500,
   mockLatencyMs: 600,
+  apiRequestTimeoutMs: 10000,
 } as const;
 
 export const COMMITMENT_SEAL = {
@@ -30,4 +31,17 @@ export const TASK_DRAWING = {
   workspaceAutoScrollEdgePx: 56,
   workspaceAutoScrollStepPx: 12,
   panPointerCount: 2,
+} as const;
+
+export const KEYBOARD_VIEWPORT = {
+  minimumOcclusionPx: 100,
+  editableSelector: 'input:not([type="file"]), textarea, [contenteditable="true"]',
+  heightProperty: '--training-viewport-height',
+  offsetProperty: '--training-viewport-offset-top',
+  keyboardAttribute: 'data-training-keyboard',
+} as const;
+
+export const API_ERROR_COPY = {
+  request: 'Не получилось связаться с сервером. Попробуй ещё раз',
+  timeout: 'Сервер долго не отвечает. Попробуй ещё раз',
 } as const;

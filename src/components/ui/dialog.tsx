@@ -40,7 +40,7 @@ export function DialogSheet({
         <Dialog.Backdrop ref={backdropRef} className={layout.sheet.overlay} />
         <Dialog.Popup
           ref={popupRef}
-          className={cn(layout.sheet.root, layout.viewport.width, className)}
+          className={cn(layout.sheet.root, layout.sheet.width, className)}
         >
           {swipeToClose ? (
             <button
@@ -56,21 +56,19 @@ export function DialogSheet({
           <div className={layout.sheet.header}>
             <Dialog.Title className={layout.sheet.title}>{title}</Dialog.Title>
             <div className={layout.sheet.headerActions}>
-              {!swipeToClose ? (
-                <Dialog.Close
-                  render={
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className={layout.sheet.close}
-                      aria-label={closeLabel}
-                    />
-                  }
-                >
-                  <X aria-hidden="true" className={layout.sheet.icon} />
-                </Dialog.Close>
-              ) : null}
+              <Dialog.Close
+                render={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-compact"
+                    className={cn(layout.sheet.close, swipeToClose && layout.sheet.desktopClose)}
+                    aria-label={closeLabel}
+                  />
+                }
+              >
+                <X aria-hidden="true" className={layout.sheet.icon} />
+              </Dialog.Close>
             </div>
           </div>
           {children}
