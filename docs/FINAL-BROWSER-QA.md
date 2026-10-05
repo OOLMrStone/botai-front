@@ -20,20 +20,23 @@ Independent CUA browser2 verified frontend13000 against real backend18082, Postg
 
 Screenshots are actual browser captures under docs/integration-screenshots. Broad multiattemptHOME/AI16 acceptance remains INTEGRATION-EVIDENCE.md; it was not redundantly repeated here. Initial admin emptycopy and rawHTTP transport fallback were sent to frontend owner; emptycopy fixed/retested. Playwrightfill datetime-local did not emit Reactstatechange; native setValue did, so the initial apparent datefailure is not a current reproduced product defect.
 
-## Limits and final production gate
-
-- Commitmentseal1400ms physical hold remains unverified: supported CUA exposes no timed pointer/keyhold. Question selections and registration/save actions were realUI; direct registration/ready URLs bypassed only that old gesture. No complete seal-to-ready claim.
-- UI proves student/foreign-object denial; exact underlying403/404 HTTP codes are not exposed by this CUA surface. Backend security tests cover codes separately.
-- During source edits dev HMR briefly produced duplicate editingDrawings errors, subsequently fixed. Final console gate uses fresh tabs to exclude those stale logs and expected transport-outage errors.
-- Original dev127 email-render issue is closed by final production evidence below; no hostname substitution was used in final verification.
-- Final local production127.0.0.1:13000 PASS: fresh tab UIsecondlogin→HOME→catalog→same94ddAttempt restores43210 andstroke. Fresh UIregistration→Mailpit delivery→exact generated127 URL withunconsumedtoken renders→explicitconfirm→Почта подтверждена. Fresh console warning/error list empty. Screenshots final-prod-local-attempt.jpg / final-prod-local-verified.jpg. Runtime finalsource digest dff3…/478files.
-- Stage productionlocalhost23000 intermediate checkpoint: tunnel repaired; actualUI Prologin and HOME show separately named collection/exam CTA. Existing #2 Attempt2e06e120-6b69-4360-9048-fbeb3e671136 opened; UIanswer321 acknowledged saved. Postreload sessioncheck then failed with retryable entranceerror, so persistedreload/cleanfinalstage gate is not PASS. Screenshot stage-session-transport-checkpoint.jpg is a transportfailure checkpoint, not acceptedAttemptproof. No new stageemailfixture created.
-- Coordinator authorized a subsequent securitydependency update and320long-HOME-label fix after sourcefreeze. Priorfeaturematrix/localproductiondigestdff3 evidence remains valid for those tested versions. Both finalversion origins must receive narrowlogin/HOME/catalog/persistedAttempt/generatedfresh-email/console repeat after runtime version-ready;320 labelclipping included. Browser2 tabs4(localroot)/7(stageAttempt) markedhandoff. No paidAI mathematical quality claim.
-
 ## Final patched image gate
 
-Source `b63975290568371e0bded79a5f34a99c550037d59d3c1360fc9e9f32004c8f61` (478 paths), Next16.3.8. Both production images healthy and complete same-origin API smoke PASS; production dependency audit0. Independent native Safari repeat PASS: login/HOME/catalog, exact local Attempt94dd0188-5c60-479f-be08-e21d54d63e47 with prior stroke + answer54321 saved/full reload, exact stage Attempt2e06e120-6b69-4360-9048-fbeb3e671136 with answer654 saved/full reload; session bootstrap without error. Local ADMIN list contains actual rows: final-patched-local-admin-safari.png
+Exact source `b63975290568371e0bded79a5f34a99c550037d59d3c1360fc9e9f32004c8f61` (478 paths), Next16.3.8; both production images healthy, same-origin API smoke PASS and production dependency audit0
 
-Remaining UI gates: fresh unconsumed generated verification URL on both origins; fresh console; 320px all20-number HOME action visible truncation/full accessible label and distinct collection/exam labels. Private0600 fixture artifact: `../botai-back/runtime/evidence/final-ui-mail-links.json` (email/password/verificationUrl, values not copied). Runtime confirmed tokens unconsumed and valid for nearly24h
+| Narrow final gate | Actual result |
+|---|---|
+| Local and stage sessions/persistence | Independent native Safari PASS: login/HOME/catalog; local Attempt94dd0188-5c60-479f-be08-e21d54d63e47 with prior stroke + answer54321 saved/full reload; stage Attempt2e06e120-6b69-4360-9048-fbeb3e671136 with answer654 saved/full reload; bootstrap without error |
+| Product admin | Actual local ADMIN rows; final-patched-local-admin-safari.png |
+| Fresh generated email URLs | Both exact origins, previously unconsumed tokens: confirmation page rendered, explicit UI click → «Почта подтверждена». No hostname substitution. Screenshots final-patched-{local,stage}-email-safari.png |
+| Fresh console error gate | Stage after Clear log + reload: Errors empty; local HOME after Clear log + reload: no error counter/messages. One earlier stage error counter had unknown origin; no claim of error-free entire interaction. Local1 warning counter reappears, but native AX and All panel expose no text; no claim that all warnings are resolved. Screenshots final-patched-{local,stage}-console-safari.png |
+| 320px HOME accessibility | Responsive Design Mode exact320×568. AX button includes full «Продолжить подборку №1, 2, …, 20» (all20 numbers explicitly), separate «Продолжить пробник» and template title. Ordinary API-created fixtures: traininga1179ffd-c7f8-4b08-80cc-b47af9b331cb, exam551c57fc-50d7-418b-bba4-d34ac5661733; no userstate injection |
+| 320px visible truncation | **NOT VERIFIED**: native scroll/raise returned noWindowsAvailable; find shortcut did not scroll the responsive canvas. final-patched-home320-safari.png proves viewport/top layout only, not clipped action. Existing broad responsive checks remain valid; this final delta needs visual inspection |
 
-After the user allowed a short exclusive Safari window, standard Show features for web developers was enabled for QA: original0, temporary1. Restoration to0 is **PENDING**. The existing private Safari window requires Touch ID; native input became blocked by LocalAuthenticationRemoteService. No credential entry, protected-tab access or bypass occurred. Coordinator requested user cancellation of that system prompt; all further UI actions stopped pending acknowledgement. Next: use a new ordinary QA window, complete only the three gates, logout/close own window, restore Develop0. User Chrome/Adminer unchanged. Final updated UI PASS is not claimed
+Safari QA setup restored: original Show features for web developers0 → temporary1 → verified0; inspector closed and Responsive Design Mode exited before leaving own ordinary QA window open. QA password was not saved. Old locked private window, user's Chrome/Adminer, user test@test and all existing fixtures unchanged. No paid AI
+
+## Limits
+
+- Supported CUA cannot automate the physical1400ms commitment hold; selections/registration/awaited onboarding persistence were tested through actual UI with direct next route bypassing only that gesture
+- UI proves role/foreign-object denial; exact HTTP403/404 covered separately by backend tests
+- Current unclosed evidence limits: final320 action clipping above and unreadable local Safari warning. No product failure inferred from native control limitations
