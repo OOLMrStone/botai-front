@@ -49,9 +49,52 @@ export const DEFAULT_TRAINING_SETTINGS: TrainingSettings = {
   difficultyLevel: TASK_DIFFICULTY_SLIDER.defaultValue,
 };
 
+export type TaskRun =
+  | { type: 'text'; value: string }
+  | { type: 'latex'; value: string }
+  | {
+      type: 'formula';
+      src: string;
+      alt?: string;
+      width: number;
+      height: number;
+      heightEm?: number;
+      baselineEm?: number;
+    };
+
+export interface TaskSource {
+  provider: string;
+  sourceUrl: string;
+  originalPublisher: { name: string; url?: string | null } | null;
+  originalReferences: {
+    publisher: string | null;
+    label: string;
+    url: string | null;
+    year: number | null;
+    examNumber: number | null;
+  }[];
+}
+
+export const TASK_CONTENT = {
+  formulaHeightEm: 1,
+  formulaAlignment: 'middle',
+  sourceHosts: ['3.shkolkovo.online'],
+  providerLabels: { shkolkovo: 'Школково' } as Record<string, string>,
+  sourceLabel: 'Источник',
+  sourceSeparator: ' · ',
+  formulaAlt: 'Формула',
+  solutionLabel: 'Решение',
+  selfReview: 'Открыть ответ и решение без оценки',
+};
+const TASK_MEDIA_ID = '[0-9a-f-]{36}';
+export const TASK_MEDIA_PATTERN = new RegExp(
+  `^/(?:tasks/[a-zA-Z0-9._-]+\\.(?:svg|png|jpe?g|webp)|api/(?:catalog-media/${TASK_MEDIA_ID}|daily-task/solution-media/${TASK_MEDIA_ID}|attempts/${TASK_MEDIA_ID}/items/${TASK_MEDIA_ID}/solution-media/${TASK_MEDIA_ID}))$`,
+);
+
 export type TaskBlock =
   | { type: 'text'; value: string }
   | { type: 'latex'; value: string }
+  | { type: 'paragraph'; runs: TaskRun[] }
   | {
       type: 'image';
       src: string;

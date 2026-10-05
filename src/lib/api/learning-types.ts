@@ -1,4 +1,4 @@
-import type { Difficulty, DrawingStroke, TaskBlock } from '@/config/tasks';
+import type { Difficulty, DrawingStroke, TaskBlock, TaskSource } from '@/config/tasks';
 
 export interface Page<T> {
   items: T[];
@@ -34,7 +34,8 @@ export interface Task {
   progressStatus: 'unstarted' | 'in-progress' | 'solved';
   gradingCapability: GradingCapability;
   isDemo: boolean;
-  sourceYear: number;
+  sourceYear: number | null;
+  sources?: TaskSource[];
 }
 export interface GradeResult {
   isGraded: boolean;
@@ -157,6 +158,8 @@ export interface AttemptPatch {
   items?: { id: string; answer?: string; drawing?: DrawingStroke[] }[];
 }
 export interface Solution {
-  referenceAnswer: string;
+  referenceAnswer: string | null;
   referenceSolution: string | null;
+  referenceAnswerContent?: TaskBlock[];
+  referenceContent?: TaskBlock[];
 }

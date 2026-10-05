@@ -29,7 +29,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "test:design": "node --test scripts/test-design-system.mjs scripts/test-work-3-behavior.mjs scripts/test-typography.mjs scripts/test-brand.mjs scripts/test-attempt-persistence.mjs scripts/test-onboarding-completion.mjs"
+    "test:design": "node --test scripts/test-design-system.mjs scripts/test-work-3-behavior.mjs scripts/test-typography.mjs scripts/test-brand.mjs scripts/test-attempt-persistence.mjs scripts/test-onboarding-completion.mjs scripts/test-content-import.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

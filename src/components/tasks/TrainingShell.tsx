@@ -10,7 +10,8 @@ import { ErrorNote } from '@/components/common/ErrorNote';
 import { MockExamAttachments } from '@/components/mock-exams/MockExamAttachments';
 import { Button } from '@/components/ui/button';
 import { layout } from '@/config/layout';
-import { TASK_COPY } from '@/config/tasks';
+import { TASK_COPY, TASK_CONTENT } from '@/config/tasks';
+import { solutionBlocks } from '@/lib/task-content';
 import { LEARNING_COPY as C, INTEGRATION } from '@/config/integration';
 import { useTrainingShell } from '@/hooks/use-training-shell';
 import { itemLocked } from '@/lib/attempt';
@@ -91,19 +92,20 @@ export function TrainingShell({ attemptId }: { attemptId: string }) {
             isFavourite={item.task.isFavourite}
             position={training.currentIndex + 1}
             status={training.statuses[item.id]}
-            locked={locked}
+            locked={locked || training.revealBusy}
             solutionRevealed={training.revealed.includes(item.id)}
-            canReveal={Boolean(item.result?.isGraded || item.submission?.result?.isGraded)}
-            solution={
-              solution
-                ? [
-                    { type: 'text', value: `${C.referenceAnswer}: ${solution.referenceAnswer}` },
-                    ...(solution.referenceSolution
-                      ? [{ type: 'text' as const, value: solution.referenceSolution }]
-                      : []),
-                  ]
-                : []
+            canReveal={Boolean(
+              item.result?.isGraded ||
+              item.submission?.result?.isGraded ||
+              (item.task.part === 2 && item.task.gradingCapability === 'unsupported'),
+            )}
+            revealBusy={training.busy}
+            revealLabel={
+              item.task.part === 2 && item.task.gradingCapability === 'unsupported'
+                ? TASK_CONTENT.selfReview
+                : undefined
             }
+            solution={solution ? solutionBlocks(solution) : []}
             onToggleSolution={() => void training.toggleSolution(item.id)}
           />
         ) : null}

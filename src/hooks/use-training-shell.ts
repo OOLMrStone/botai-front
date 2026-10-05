@@ -7,16 +7,20 @@ import { useKeyboardViewport } from '@/hooks/use-keyboard-viewport';
 import { useTaskKeyboardNavigation } from '@/hooks/use-task-keyboard-navigation';
 import { ROUTES } from '@/config/onboarding-steps';
 import { itemAnswered, itemStatus } from '@/lib/attempt';
-import { fetchSolution } from '@/lib/api/learning';
+import { fetchSolution, revealSolution } from '@/lib/api/learning';
 import type { Solution } from '@/lib/api/learning-types';
+import { solutionInputKey } from '@/lib/task-content';
 import { LEARNING_COPY as C } from '@/config/integration';
 export function useTrainingShell(id: string) {
   const router = useRouter();
   const training = useAttempt(id);
   const attempt = training.attempt;
-  const [solutions, setSolutions] = useState<Record<string, Solution>>({});
+  const [cachedSolutions, setSolutions] = useState<
+    Record<string, { value: Solution; inputKey: string }>
+  >({});
   const [revealed, setRevealed] = useState<string[]>([]);
   const [revealError, setRevealError] = useState<string | null>(null);
+  const [revealBusy, setRevealBusy] = useState(false);
   useAttemptActivity(id, Boolean(attempt));
   const currentIndex = attempt?.currentIndex ?? 0;
   const reviewIndex = attempt?.items.length ?? 0;
@@ -39,19 +43,46 @@ export function useTrainingShell(id: string) {
   const missing = (attempt?.items ?? []).flatMap((item, index) =>
     answeredTaskIds.includes(item.id) ? [] : [index],
   );
+  const solutions = Object.fromEntries(
+    (attempt?.items ?? []).flatMap((item) => {
+      const cached = cachedSolutions[item.id];
+      return !training.unsaved && !training.busy && cached?.inputKey === solutionInputKey(item)
+        ? [[item.id, cached.value]]
+        : [];
+    }),
+  );
+  const visibleRevealed = revealed.filter((id) => Boolean(solutions[id]));
   const toggleSolution = async (itemId: string) => {
     if (!attempt) return;
     setRevealError(null);
-    if (revealed.includes(itemId)) {
+    if (visibleRevealed.includes(itemId)) {
       setRevealed((items) => items.filter((id) => id !== itemId));
       return;
     }
+    setRevealBusy(true);
     try {
-      const solution = solutions[itemId] ?? (await fetchSolution(attempt.id, itemId));
-      setSolutions((current) => ({ ...current, [itemId]: solution }));
-      setRevealed((items) => [...items, itemId]);
+      const saved = await training.save();
+      const item = saved?.items.find((item) => item.id === itemId);
+      if (!saved || !item) return;
+      const unsupported = item.task.part === 2 && item.task.gradingCapability === 'unsupported';
+      const solution = unsupported
+        ? await revealSolution(
+            saved.id,
+            itemId,
+            item.answerRevision,
+            item.submission?.id ?? null,
+            item.submission?.revision ?? null,
+          )
+        : await fetchSolution(saved.id, itemId);
+      setSolutions((current) => ({
+        ...current,
+        [itemId]: { value: solution, inputKey: solutionInputKey(item) },
+      }));
+      setRevealed((items) => [...items.filter((id) => id !== itemId), itemId]);
     } catch (cause) {
       setRevealError(cause instanceof Error ? cause.message : C.loadError);
+    } finally {
+      setRevealBusy(false);
     }
   };
   const exit = async () => {
@@ -68,7 +99,10 @@ export function useTrainingShell(id: string) {
     answeredTaskIds,
     missing,
     solutions,
-    revealed,
+    revealed: visibleRevealed,
+    busy: training.busy || revealBusy,
+    editingBusy: training.editingBusy || revealBusy,
+    revealBusy,
     revealError,
     toggleSolution,
     exit,

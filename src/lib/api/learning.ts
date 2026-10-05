@@ -57,6 +57,16 @@ export const cancelSubmission = (id: string) =>
   apiFetch<Submission>(`/api/submissions/${id}/cancel`, { method: 'POST' });
 export const fetchSolution = (attemptId: string, itemId: string) =>
   apiFetch<Solution>(`/api/attempts/${attemptId}/items/${itemId}/solution`);
+export const revealSolution = (
+  attemptId: string,
+  itemId: string,
+  expectedAnswerRevision: number,
+  expectedSubmissionId: string | null,
+  expectedSubmissionRevision: number | null,
+) =>
+  apiFetch<Solution>(`/api/attempts/${attemptId}/items/${itemId}/solution-reveal`, {
+    json: { expectedAnswerRevision, expectedSubmissionId, expectedSubmissionRevision },
+  });
 
 export async function collectPages<T>(load: (cursor?: string) => Promise<Page<T>>): Promise<T[]> {
   const items: T[] = [];

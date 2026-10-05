@@ -1,6 +1,7 @@
 import { Bookmark } from 'lucide-react';
 
 import { TaskBlockRenderer } from '@/components/tasks/TaskBlockRenderer';
+import { TaskSources } from '@/components/tasks/TaskSources';
 import { Button } from '@/components/ui/button';
 import { layout } from '@/config/layout';
 import {
@@ -9,6 +10,7 @@ import {
   type TaskStatus,
   type TrainingTask,
   type TaskBlock,
+  type TaskSource,
 } from '@/config/tasks';
 import { useDrawingWorkspace } from '@/hooks/use-drawing-workspace';
 import { useGestureSurfaceGuard } from '@/hooks/use-gesture-surface-guard';
@@ -20,11 +22,13 @@ import { preventGestureContextMenu } from '@/lib/gesture-surface';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 
 interface TrainingTaskCardProps {
-  task: Pick<TrainingTask, 'id' | 'content' | 'difficulty'>;
+  task: Pick<TrainingTask, 'id' | 'content' | 'difficulty'> & { sources?: TaskSource[] };
   drawingKey?: string;
   isFavourite?: boolean;
   solution?: TaskBlock[];
   canReveal?: boolean;
+  revealBusy?: boolean;
+  revealLabel?: string;
   locked?: boolean;
   favoriteTaskId?: string;
   position: number;
@@ -40,6 +44,8 @@ export function TrainingTaskCard({
   isFavourite = false,
   solution = [],
   canReveal = false,
+  revealBusy = false,
+  revealLabel = TASK_COPY.training.solution,
   locked = false,
   favoriteTaskId,
   position,
@@ -128,6 +134,7 @@ export function TrainingTaskCard({
           ))}
         </div>
       </div>
+      <TaskSources sources={task.sources} />
       <div
         ref={workspaceViewportRef}
         role="region"
@@ -150,8 +157,9 @@ export function TrainingTaskCard({
                 variant="ghost"
                 className={layout.training.solutionButton}
                 onClick={onToggleSolution}
+                disabled={revealBusy}
               >
-                {solutionRevealed ? TASK_COPY.training.hideSolution : TASK_COPY.training.solution}
+                {solutionRevealed ? TASK_COPY.training.hideSolution : revealLabel}
               </Button>
             ) : null}
             {solutionRevealed ? (
