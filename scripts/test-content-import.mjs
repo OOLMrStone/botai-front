@@ -85,25 +85,41 @@ test('exact rich answer and solution take precedence without falling back to nul
   assert.equal(blocks[3], explanation);
   assert.ok(!JSON.stringify(blocks).includes('lossy'));
 });
-test('source labels escape markup and only the approved canonical origin becomes a link', () => {
+test('sources show only escaped original labels and proven primary-origin links', () => {
   const { TaskSources } = load('@/components/tasks/TaskSources');
   const source = {
     provider: 'shkolkovo',
     sourceUrl: 'https://3.shkolkovo.online/catalog/203/185802',
-    originalPublisher: null,
-    originalReferences: [{ label: '<script>origin</script>' }],
+    originalPublisher: { name: 'ФИПИ', url: 'https://fipi.ru/ege' },
+    originalReferences: [{ label: '<script>origin</script>', url: null }],
   };
   const html = renderToStaticMarkup(React.createElement(TaskSources, { sources: [source] }));
   assert.match(html, /&lt;script&gt;origin/);
   assert.match(html, /rel="noreferrer noopener"/);
-  assert.match(html, /Школково/);
+  assert.match(html, /https:\/\/fipi.ru\/ege/);
+  assert.doesNotMatch(html, /Школково|shkolkovo/);
   const rejected = renderToStaticMarkup(
     React.createElement(TaskSources, {
-      sources: [{ ...source, sourceUrl: 'https://example.test/phishing' }],
+      sources: [
+        {
+          originalPublisher: null,
+          originalReferences: [{ label: 'ЕГЭ 2024', url: source.sourceUrl }],
+        },
+      ],
     }),
   );
-  assert.doesNotMatch(rejected, /<a /);
+  assert.match(rejected, /ЕГЭ 2024/);
+  assert.doesNotMatch(rejected, /<a |Школково|shkolkovo/);
+  assert.equal(
+    renderToStaticMarkup(
+      React.createElement(TaskSources, {
+        sources: [{ ...source, originalPublisher: null, originalReferences: [] }],
+      }),
+    ),
+    '',
+  );
 });
+
 function hookSetup() {
   const harness = hookHarness();
   const calls = [];

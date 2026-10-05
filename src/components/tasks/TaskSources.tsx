@@ -3,40 +3,42 @@ import { layout } from '@/config/layout';
 import { taskSourceUrl } from '@/lib/task-content';
 
 export function TaskSources({ sources }: { sources?: TaskSource[] }) {
-  if (!sources?.length) return null;
+  const origins = (sources ?? []).flatMap((source) => [
+    ...(source.originalPublisher
+      ? [{ label: source.originalPublisher.name, url: source.originalPublisher.url }]
+      : []),
+    ...source.originalReferences,
+  ]);
+  const distinct = origins.filter(
+    (origin, index) =>
+      origin.label && origins.findIndex((candidate) => candidate.label === origin.label) === index,
+  );
+  if (!distinct.length) return null;
   return (
     <div className={layout.training.sourceMeta}>
-      {sources.map((source, index) => {
-        const url = taskSourceUrl(source.sourceUrl);
-        const label = Object.hasOwn(TASK_CONTENT.providerLabels, source.provider)
-          ? TASK_CONTENT.providerLabels[source.provider]
-          : source.provider;
-        const references = [
-          ...new Set([
-            ...(source.originalPublisher ? [source.originalPublisher.name] : []),
-            ...source.originalReferences.map((reference) => reference.label),
-          ]),
-        ].join(TASK_CONTENT.sourceSeparator);
-        return (
-          <p key={index}>
-            {TASK_CONTENT.sourceLabel}
-            {TASK_CONTENT.sourceSeparator}
-            {url ? (
-              <a
-                className={layout.training.sourceLink}
-                href={url}
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                {label}
-              </a>
-            ) : (
-              label
-            )}
-            {references ? `${TASK_CONTENT.sourceSeparator}${references}` : ''}
-          </p>
-        );
-      })}
+      <p>
+        {TASK_CONTENT.sourceLabel}
+        {distinct.map((origin, index) => {
+          const url = origin.url ? taskSourceUrl(origin.url) : null;
+          return (
+            <span key={index}>
+              {TASK_CONTENT.sourceSeparator}
+              {url ? (
+                <a
+                  className={layout.training.sourceLink}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  {origin.label}
+                </a>
+              ) : (
+                origin.label
+              )}
+            </span>
+          );
+        })}
+      </p>
     </div>
   );
 }

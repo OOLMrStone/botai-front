@@ -63,8 +63,6 @@ export type TaskRun =
     };
 
 export interface TaskSource {
-  provider: string;
-  sourceUrl: string;
   originalPublisher: { name: string; url?: string | null } | null;
   originalReferences: {
     publisher: string | null;
@@ -78,8 +76,7 @@ export interface TaskSource {
 export const TASK_CONTENT = {
   formulaHeightEm: 1,
   formulaAlignment: 'middle',
-  sourceHosts: ['3.shkolkovo.online'],
-  providerLabels: { shkolkovo: 'Школково' } as Record<string, string>,
+  sourceHosts: ['fipi.ru', 'doc.fipi.ru', 'statgrad.org'],
   sourceLabel: 'Источник',
   sourceSeparator: ' · ',
   formulaAlt: 'Формула',
