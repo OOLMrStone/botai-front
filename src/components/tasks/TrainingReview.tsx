@@ -1,41 +1,71 @@
-import { Button } from '@/components/ui/button';
+import { ChevronRight } from 'lucide-react';
 
+import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { layout } from '@/config/layout';
-import { TASK_COPY } from '@/config/tasks';
+import { TRAINING_REVIEW_COPY, TRAINING_REVIEW_STATES } from '@/config/training-review';
 import { cn } from '@/lib/utils';
 
 interface TrainingReviewProps {
-  taskCount: number;
-  missing: number[];
+  items: {
+    id: string;
+    index: number;
+    examNumber: number;
+    state: keyof typeof TRAINING_REVIEW_STATES;
+  }[];
+  completed: boolean;
+  description: string;
+  readyCount: number;
+  gradedCount: number;
   onSelect: (index: number) => void;
 }
 
-export function TrainingReview({ taskCount, missing, onSelect }: TrainingReviewProps) {
+export function TrainingReview({
+  items,
+  completed,
+  description,
+  readyCount,
+  gradedCount,
+  onSelect,
+}: TrainingReviewProps) {
   return (
     <section className={cn(layout.training.card, layout.training.reviewCard)}>
-      <div className={layout.training.reviewHeader}>
-        <h2 className={layout.training.reviewTitle}>
-          {missing.length ? TASK_COPY.review.missing : TASK_COPY.review.complete}
-        </h2>
+      <div className={layout.training.reviewContent}>
+        <ScreenHeading
+          variant="app"
+          title={completed ? TRAINING_REVIEW_COPY.result : TRAINING_REVIEW_COPY.title}
+          subtitle={description}
+        />
         <p className={layout.training.reviewStat}>
-          {TASK_COPY.review.answered(taskCount - missing.length, taskCount)}
+          {gradedCount
+            ? TRAINING_REVIEW_COPY.checkedCount(gradedCount, items.length)
+            : TRAINING_REVIEW_COPY.readyCount(readyCount, items.length)}
         </p>
-      </div>
-      {missing.length ? (
         <div className={layout.training.reviewList}>
-          {missing.map((index) => (
-            <Button
-              key={index}
-              variant="outline"
-              className={layout.training.reviewTask}
-              aria-label={TASK_COPY.review.openTask(index + 1)}
-              onClick={() => onSelect(index)}
-            >
-              {TASK_COPY.review.task(index + 1)}
-            </Button>
-          ))}
+          {items.map(({ id, index, examNumber, state }) => {
+            const { label, icon: Icon, className } = TRAINING_REVIEW_STATES[state];
+            return (
+              <button
+                key={id}
+                type="button"
+                className={cn(layout.training.reviewTask, layout.focusRing)}
+                onClick={() => onSelect(index)}
+              >
+                <span className={layout.training.reviewPosition}>{index + 1}</span>
+                <span className={layout.training.reviewTaskText}>
+                  <span className={layout.typography.controlTitle}>
+                    {TRAINING_REVIEW_COPY.task(examNumber)}
+                  </span>
+                  <span className={cn(layout.training.reviewState, className)}>
+                    <Icon className={layout.training.reviewStateIcon} aria-hidden="true" />
+                    {label}
+                  </span>
+                </span>
+                <ChevronRight className={layout.training.actionIcon} aria-hidden="true" />
+              </button>
+            );
+          })}
         </div>
-      ) : null}
+      </div>
     </section>
   );
 }

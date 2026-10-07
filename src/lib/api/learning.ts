@@ -1,4 +1,5 @@
 import { apiFetch } from '@/lib/api/client';
+import { ATTEMPT_ENDPOINTS } from '@/config/attempts';
 import type {
   Attempt,
   AttemptPatch,
@@ -28,8 +29,15 @@ export const createExamAttempt = (id: string, key: string) =>
 export const fetchAttempt = (id: string) => apiFetch<Attempt>(`/api/attempts/${id}`);
 export const patchAttempt = (id: string, json: AttemptPatch) =>
   apiFetch<Attempt>(`/api/attempts/${id}`, { method: 'PATCH', json });
-export const checkAttempt = (id: string, revision: number, key: string) =>
-  apiFetch<Attempt>(`/api/attempts/${id}/checks`, { json: { revision }, headers: keyHeader(key) });
+export const deleteAttempt = (id: string) =>
+  apiFetch<void>(`/api/attempts/${id}`, { method: 'DELETE' });
+export const recordAttemptExit = (id: string, eventId: string) =>
+  apiFetch<void>(ATTEMPT_ENDPOINTS.exit(id), { json: { eventId }, keepalive: true });
+export const checkAttempt = (id: string, revision: number, key: string, itemIds: string[]) =>
+  apiFetch<Attempt>(`/api/attempts/${id}/checks`, {
+    json: { revision, itemIds },
+    headers: keyHeader(key),
+  });
 export const createSubmission = (
   attemptId: string,
   attemptItemId: string,

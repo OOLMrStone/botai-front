@@ -27,7 +27,8 @@ export function AppNavigation() {
         </Link>
         <p className={layout.bottomNav.caption}>{LEARNING_COPY.course}</p>
       </div>
-      {APP_TABS.map(({ href, label, icon: Icon }) => {
+      {APP_TABS.map((tab) => {
+        const { href, label, icon: Icon } = tab;
         const active = pathname === href || pathname.startsWith(`${href}/`);
 
         return (

@@ -3,6 +3,7 @@
 
 import { MOCK_EXAM_DEMO } from '@/config/mock-exam-demo';
 import { mockExamPath } from '@/config/mock-exams';
+import { IS_MOCK_API } from '@/config/env';
 import {
   ONBOARDING_STEPS,
   onboardingPath,
@@ -24,7 +25,7 @@ export const DEV_COPY = {
   open: 'Открыть dev-панель',
   close: 'Закрыть',
   envTitle: 'Сборка',
-  apiMock: 'локальный API',
+  apiMock: 'мок API',
   apiReal: 'реальный бэкенд',
   accountTitle: 'Аккаунт',
   accountAnonymous: 'сессии нет',
@@ -33,8 +34,8 @@ export const DEV_COPY = {
   planTitle: 'Тариф',
   screensTitle: 'Экраны',
   resetTitle: 'Состояние',
-  resetAction: 'Сбросить онбординг и профиль',
-  resetDone: 'Сброшено',
+  resetAction: IS_MOCK_API ? 'Сбросить онбординг и профиль' : 'Сбросить черновик онбординга',
+  resetDone: IS_MOCK_API ? 'Сброшено' : 'Черновик онбординга сброшен',
   resetMockExamTitle: 'Пробник №1',
   resetMockExamAction: 'Сбросить пробник №1',
   openMockExamTask: 'Открыть задание 13',
@@ -42,7 +43,7 @@ export const DEV_COPY = {
   loginDone: 'Вошли тестовым аккаунтом',
   logoutDone: 'Сессия закрыта',
   planDone: 'Тариф переключён',
-  actionFailed: 'Не получилось - смотри консоль',
+  actionFailed: 'Не получилось выполнить действие',
 } as const;
 
 export interface DevScreen {
@@ -52,10 +53,12 @@ export interface DevScreen {
 
 // Список экранов для быстрых прыжков. Выводится из тех же конфигов, что и сам
 // флоу, - новый шаг появляется здесь сам.
+const MOCK_ONLY_SCREENS = new Set<string>([ROUTES.lesson, ROUTES.streak]);
+
 export const DEV_SCREENS: DevScreen[] = [
   ...ONBOARDING_STEPS.map((slug) => ({ label: slug, href: onboardingPath(slug) })),
   ...REGISTER_STEPS.map((slug) => ({ label: slug, href: registerPath(slug) })),
   ...Object.entries(ROUTES).map(([label, href]) => ({ label, href })),
-];
+].filter((screen) => IS_MOCK_API || !MOCK_ONLY_SCREENS.has(screen.href));
 
 export const DEV_DEMO_TASK_PATH = `${mockExamPath(MOCK_EXAM_DEMO.examId)}?${MOCK_EXAM_DEMO.taskQueryKey}=${MOCK_EXAM_DEMO.taskNumber}`;

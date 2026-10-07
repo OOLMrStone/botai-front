@@ -33,24 +33,20 @@ export function hangPose(time, motion) {
     gesture,
     heart: motion.mode === 'heart' ? animationChannel(time, motion.heart) : 0,
     curl: curlAt(bodyTime, motion),
-    headCurl: curlAt(bodyTime - motion.headLag, motion),
   };
 }
 
-function limbSvg(limb, colors, motion, art, pawOnly = false) {
+function limbSvg(limb, colors, motion, art) {
   const sample = (t) => quadraticPoint([limb.root, limb.bend, limb.end], t);
   const radius = (t) =>
-    (pawOnly ? art.pawMaskScale : 1) *
     quadraticPoint(
       limb.radii.map((r) => [r]),
       t,
     )[0];
 
   return (
-    (pawOnly
-      ? ''
-      : path(ribbon(sample, radius, 0, 1, motion.samples, true), colors.body) +
-        ellipse(limb.root, [limb.radii[0], limb.radii[0]], colors.body)) +
+    path(ribbon(sample, radius, 0, 1, motion.samples, true), colors.body) +
+    ellipse(limb.root, [limb.radii[0], limb.radii[0]], colors.body) +
     (limb.hand
       ? ''
       : path(
@@ -135,7 +131,7 @@ function headSvg(pose, art, base) {
   const mouth = frontalMouthSvg(head, colors, pose.gesture);
 
   return group(
-    `translate(${pair(art.head.center.map((value, index) => value + art.head.curlOffset[index] * pose.headCurl))}) rotate(${number(art.head.tilt + pose.head + pose.headCurl * art.head.curlTilt)}) scale(${art.head.scale}) translate(${-art.head.origin[0]} ${-art.head.origin[1]})`,
+    `translate(${pair(art.head.center)}) rotate(${number(art.head.tilt + pose.head)}) scale(${art.head.scale}) translate(${-art.head.origin[0]} ${-art.head.origin[1]})`,
     lemurHeadLayers(head, colors) + eyes + mouth,
   );
 }
@@ -143,26 +139,12 @@ function headSvg(pose, art, base) {
 export function lemurHangSvg(time, art, motion, base) {
   const pose = hangPose(time, motion);
   const colors = base.colors;
-  const bodyTime = time + (motion.bodyOffset ?? 0);
-  const legs = art.legs.map((leg) => ({
-    ...leg,
-    bend: mixPoint(leg.bend, leg.curlBend, pose.curl),
-    end: mixPoint(leg.end, leg.curlEnd, pose.curl),
-  }));
+  const legs = art.legs;
   const arms = art.arms.map((arm) => ({
     ...arm,
     hand: true,
-    root: mixPoint(arm.root, arm.curlRoot, pose.curl),
-    bend: mixPoint(
-      mixPoint(arm.bend, arm.curlBend, curlAt(bodyTime - arm.delay, motion)),
-      arm.heartBend,
-      pose.gesture,
-    ),
-    end: mixPoint(
-      mixPoint(arm.end, arm.curlEnd, curlAt(bodyTime - arm.delay, motion)),
-      arm.heartEnd,
-      pose.gesture,
-    ),
+    bend: mixPoint(arm.bend, arm.heartBend, pose.gesture),
+    end: mixPoint(arm.end, arm.heartEnd, pose.gesture),
   }));
   const heart = group(
     `translate(${pair(art.heart.center)}) scale(${number(pose.heart)})`,
@@ -181,9 +163,9 @@ export function lemurHangSvg(time, art, motion, base) {
     ) +
     limbSvg(legs[0], colors, motion, art) +
     limbSvg(arms[0], colors, motion, art) +
+    limbSvg(legs[1], colors, motion, art) +
     path(morphPath(art.body.path, art.body.curledPath, pose.curl), colors.body) +
     path(morphPath(art.body.belly, art.body.curledBelly, pose.curl), 'url(#cream)') +
-    `<defs><clipPath id="body-contour">${path(morphPath(art.body.path, art.body.curledPath, pose.curl), colors.white)}</clipPath></defs><g clip-path="url(#body-contour)">${limbSvg(legs[1], colors, motion, art, true)}</g>` +
     limbSvg(arms[1], colors, motion, art) +
     headSvg(pose, art, base) +
     heart +

@@ -1,3 +1,4 @@
+import { paywallLayout } from '@/config/paywall-layout';
 import { appLayout } from '@/config/app-layout';
 
 export const UI_RADIUS_ROLES = ['control', 'tile', 'card', 'panel'] as const;
@@ -19,20 +20,55 @@ const displayNumber = 'text-6xl font-bold tabular-nums';
 const compactHeadingSubtitle = 'text-base text-muted-foreground';
 
 export const layout = {
+  disabledAction: {
+    hiddenDescription: 'sr-only',
+    positioner: 'z-[70] outline-none',
+    popup:
+      'max-w-[min(18rem,calc(100svw-2rem))] origin-[var(--transform-origin)] rounded-tile border border-border bg-background px-4 py-3 text-center shadow-lg outline-none transition-[transform,opacity] duration-150 data-[starting-style]:translate-y-1 data-[starting-style]:opacity-0 data-[ending-style]:translate-y-1 data-[ending-style]:opacity-0 motion-reduce:transition-none',
+    description: 'text-sm leading-relaxed text-foreground',
+  },
+  paywall: paywallLayout,
+  billingPeriod: {
+    root: 'relative isolate grid grid-cols-2 rounded-control bg-muted p-1',
+    indicator:
+      'pointer-events-none absolute inset-y-1 left-1 w-[calc((100%-0.5rem)/2)] rounded-control bg-background shadow-sm transition-transform duration-[var(--task-control-motion-duration)] ease-out motion-reduce:transition-none',
+    season: 'translate-x-full',
+    button:
+      'relative flex min-h-11 items-center justify-center rounded-control px-5 text-sm font-medium text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring',
+    selected: 'text-foreground',
+  },
   integration: {
     stack: 'flex min-w-0 flex-col gap-4',
     feedback:
-      'flex max-h-[25svh] min-w-0 flex-col gap-2 overflow-y-auto border-t border-border px-4 py-3',
+      'flex max-h-[min(28svh,16rem)] min-w-0 shrink-0 flex-col gap-2 overflow-y-auto overscroll-contain border-t border-border px-4 py-2',
+    feedbackDetails: 'group min-w-0',
+    feedbackSummary:
+      'flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-tile outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden',
+    feedbackStatus: 'flex min-h-7 min-w-0 items-center gap-2 text-sm font-medium',
+    feedbackIcon: 'size-4 shrink-0',
+    feedbackDisclosure: 'flex shrink-0 items-center gap-2 text-sm text-muted-foreground',
+    feedbackChevron:
+      'size-4 shrink-0 transition-transform duration-[var(--task-control-motion-duration)] group-open:rotate-180 motion-reduce:transition-none',
+    feedbackBody:
+      'space-y-3 pb-2 text-sm leading-relaxed whitespace-pre-line break-words text-muted-foreground',
+    feedbackError: 'space-y-2 border-t border-border pt-3',
+    feedbackErrorTitle: 'font-medium text-foreground',
+    feedbackActions: 'flex flex-wrap gap-2',
     cardArea: 'flex min-h-0 flex-1 flex-col overflow-y-auto',
     raw: 'max-h-64 overflow-auto whitespace-pre-wrap break-words text-sm',
     photos: 'flex shrink-0 gap-2 overflow-x-auto px-4 py-2',
-    photo: 'flex shrink-0 flex-col gap-2',
-    preview: 'h-20 w-20 rounded-tile object-cover',
-    summary: 'flex flex-wrap items-center justify-between gap-2 px-4 py-2',
-    unfinished: 'flex min-w-0 flex-col gap-4 xl:col-start-1 xl:row-start-1 xl:row-span-2',
+    photo: 'flex shrink-0 items-center gap-1 rounded-tile bg-muted/60 p-1',
+    preview: 'size-14 rounded-control object-cover',
+    notice: 'shrink-0 px-4 py-1 text-sm text-muted-foreground',
+    timer: 'inline-flex items-center gap-1.5 text-sm font-medium tabular-nums text-foreground',
+    timerIcon: 'size-4 text-muted-foreground',
+    summary: 'grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-4 py-2',
+    summaryLeading: 'min-w-0 justify-self-start',
+    summaryStatus: 'max-w-[40vw] text-center text-xs text-muted-foreground',
+    summaryPosition:
+      'min-w-0 justify-self-end text-right text-xs tabular-nums text-muted-foreground',
     filters: 'grid grid-cols-1 gap-3 sm:grid-cols-2',
     avatarImage: 'h-full w-full rounded-full object-cover',
-    attemptActionText: 'min-w-0 truncate',
   },
   storefront: {
     root: 'min-h-svh bg-[var(--sf-paper)] text-[var(--sf-ink)] selection:bg-[var(--sf-pale)]',
@@ -52,8 +88,6 @@ export const layout = {
       'block min-h-11 min-w-0 max-w-40 content-center truncate text-sm font-medium text-[var(--sf-ink)] focus-visible:outline-2 focus-visible:outline-offset-4',
     sessionError: 'mx-auto max-w-7xl px-5 pt-4',
     trial: 'flex flex-wrap gap-x-2 gap-y-1 text-xs text-[var(--sf-muted)]',
-    trialBanner: 'mt-8 flex flex-wrap items-baseline gap-x-4 gap-y-2 border-b border-black/15 pb-6',
-    trialTitle: 'text-2xl font-semibold',
     navActions: 'flex min-w-0 items-center gap-3',
     navCta: 'hidden xl:inline-flex',
     menuButton:
@@ -63,14 +97,17 @@ export const layout = {
     mobileMenu:
       'mx-auto flex max-h-[calc(100svh-5rem-env(safe-area-inset-top))] max-w-7xl flex-col overflow-y-auto border-t border-black/8 pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pl-[max(2rem,env(safe-area-inset-left))] sm:pr-[max(2rem,env(safe-area-inset-right))] xl:hidden',
     skip: 'sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-tile focus:bg-white focus:p-4',
-    hero: 'grid items-center gap-10 py-[clamp(2.75rem,6vw,5.5rem)] lg:grid-cols-[1.25fr_1fr] lg:gap-12',
+    hero: 'grid items-center gap-10 py-[clamp(2.75rem,6vw,5.5rem)] lg:gap-12',
+    heroWithMascot: 'lg:grid-cols-[1.25fr_1fr]',
     heroContent: 'flex min-w-0 flex-col items-start gap-6',
+    heroContentSolo: 'mx-auto w-full max-w-3xl items-center text-center',
     eyebrow: 'text-xs font-semibold uppercase text-[var(--sf-muted)]',
     heroDescription: 'max-w-xl text-lg leading-relaxed text-[var(--sf-muted)]',
     heroActions: 'flex w-full flex-col items-start gap-3 pt-1 sm:w-auto',
+    heroActionsSolo: 'items-center',
     helper: 'text-sm leading-relaxed text-[var(--sf-muted)]',
     heroArt:
-      'relative isolate flex aspect-square w-full max-w-lg flex-col justify-between justify-self-center overflow-hidden rounded-panel border-2 border-[var(--sf-orange)] bg-[var(--sf-paper)] p-7 sm:p-9',
+      'relative isolate flex aspect-square w-full max-w-lg flex-col justify-between justify-self-center overflow-hidden rounded-panel bg-[var(--sf-pale)] p-7 sm:p-9',
     artTitle: 'relative z-10 text-2xl font-semibold leading-tight whitespace-pre-line',
     heroImage: 'absolute inset-x-0 bottom-[6%] w-full mix-blend-multiply',
     actionOrange: 'bg-[var(--sf-orange)] text-[var(--sf-ink)] hover:bg-[var(--sf-orange)]',
@@ -93,32 +130,26 @@ export const layout = {
     exampleLabel: 'mb-3 text-xs text-[var(--sf-muted)]',
     exampleIcon: 'size-10 stroke-1 text-[var(--sf-muted)]',
     exampleNote: 'max-w-md text-sm leading-relaxed text-[var(--sf-muted)]',
-    comparison:
-      'mt-3 overflow-x-auto rounded-card border border-black/10 outline-none focus-visible:ring-2 focus-visible:ring-[var(--sf-orange)] md:mt-9',
-    comparisonHint: 'mt-8 text-sm text-[var(--sf-muted)] md:hidden',
-    table:
-      'w-full min-w-[44rem] border-collapse text-left text-sm [&_tr:last-child>*]:border-b-0 [&_tr>*:nth-child(2)]:bg-[var(--sf-pale)]/60',
-    tableCell: 'w-1/4 border-b border-black/10 px-6 py-6 align-top leading-relaxed',
-    tableHeading: 'bg-[var(--sf-warm)] text-base font-semibold',
-    tableRowLabel: 'font-medium text-[var(--sf-muted)]',
-    pricingToolbar: 'mt-9 flex flex-wrap items-center justify-between gap-5',
-    freePractice: 'flex items-center gap-2 text-sm font-medium',
-    periods: 'flex max-w-full gap-1 rounded-control border border-black/10 bg-white p-1',
-    periodButton: 'text-[var(--sf-muted)] hover:bg-[var(--sf-pale)]',
-    periodSelected: 'bg-[var(--sf-ink)] text-white hover:bg-[var(--sf-ink)] hover:text-white',
-    pricingGrid: 'mt-7 grid gap-4 lg:grid-cols-3',
-    priceRecommended: 'border-[var(--sf-ink)] bg-white ring-1 ring-[var(--sf-ink)]',
-    priceHeading: 'flex min-h-16 flex-col gap-2',
-    priceRecommendation: 'text-xs font-medium text-[var(--sf-muted)]',
-    priceAmount: 'flex flex-col gap-1',
-    priceValue: 'text-4xl font-bold leading-tight tabular-nums',
-    priceQuota:
-      'grid w-full grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 text-sm leading-relaxed',
-    quotaValue: 'text-3xl font-semibold tabular-nums',
-    priceAction: 'mt-auto w-full',
-    pricingNote: 'mt-5 text-sm text-[var(--sf-muted)]',
+    pricingToolbar: 'mt-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between',
+    pricingBenefits: 'flex flex-col gap-3',
+    freePractice: 'flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium',
+    trialBenefit: 'flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground',
+    trialStatus: 'rounded-control bg-brand-soft px-2 py-0.5 text-xs font-medium text-foreground',
+    periods: 'w-full shrink-0 md:w-64',
+    pricingGrid: 'mt-9 grid gap-7 lg:grid-cols-3 lg:gap-5',
+    priceRecommended: 'border-foreground',
+    priceBadge:
+      'absolute top-0 left-5 -translate-y-1/2 rounded-control bg-primary px-3 py-1 text-xs font-medium text-primary-foreground',
+    priceHeading: 'flex min-h-14 flex-col justify-center',
+    priceAmount: 'flex min-h-16 flex-wrap items-baseline gap-x-2 gap-y-1',
+    priceValue: 'text-4xl font-semibold leading-tight proportional-nums',
+    priceUnit: 'text-sm text-muted-foreground',
+    priceQuota: 'flex items-center gap-2 border-t border-border pt-5 text-base font-medium',
+    priceDetails: 'text-sm leading-relaxed text-muted-foreground',
+    priceAction: 'mt-1 w-full',
+    pricingNote: 'mt-6 max-w-3xl text-sm leading-relaxed text-muted-foreground',
     priceCard:
-      'flex flex-col items-start gap-7 rounded-card border border-black/10 bg-[var(--sf-paper)] p-6 xl:p-8',
+      'relative flex min-w-0 flex-col gap-5 rounded-card border-[1.5px] border-border bg-background px-6 pt-7 pb-6 xl:px-7',
     faqGrid: 'grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16',
     faq: 'border-b border-black/10 py-4 first:pt-0',
     faqSummary:
@@ -138,7 +169,42 @@ export const layout = {
       'mt-9 flex flex-wrap items-center justify-between gap-2 border-t border-black/10 pt-6 text-xs leading-relaxed text-[var(--sf-muted)]',
   },
 
+  legal: {
+    container:
+      'mx-auto w-full max-w-3xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] sm:pl-[max(2rem,env(safe-area-inset-left))] sm:pr-[max(2rem,env(safe-area-inset-right))]',
+    header:
+      'flex flex-wrap items-center justify-between gap-4 border-b border-black/10 pt-[max(1rem,env(safe-area-inset-top))] pb-4',
+    main: 'flex flex-col gap-10 py-[clamp(2rem,5vw,4rem)] pb-[max(3rem,env(safe-area-inset-bottom))] break-words',
+    intro: 'flex flex-col gap-4',
+    section: 'flex flex-col gap-4',
+    paragraph: 'whitespace-pre-line text-base leading-relaxed',
+    list: 'flex flex-col divide-y divide-black/10',
+    item: 'flex flex-col gap-2 py-6',
+    documentLink:
+      'text-lg font-medium underline decoration-black/20 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4',
+    links: 'flex flex-col items-start',
+    footerLink:
+      'inline-flex min-h-11 max-w-xs items-center text-sm leading-relaxed underline decoration-black/20 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4',
+    authNotice: 'text-center text-xs leading-relaxed text-muted-foreground',
+    noticeLink:
+      'text-foreground underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4',
+  },
+
   app: appLayout,
+  embeddedBo: {
+    stage:
+      'relative mx-auto aspect-square h-[clamp(7rem,27svh,17rem)] max-h-full w-auto shrink overflow-visible',
+    layer: 'absolute inset-0 size-full object-contain',
+    sources: 'pointer-events-none absolute size-px overflow-hidden opacity-0',
+    squareSurface: 'size-[min(100cqw,100cqh)]',
+    wideSurface: 'h-[min(100cqh,calc(100cqw*2/3))] w-[min(100cqw,calc(100cqh*3/2))]',
+    start:
+      'absolute inset-0 z-10 cursor-pointer rounded-tile outline-none focus-visible:ring-2 focus-visible:ring-ring',
+    onboardingRoot: 'flex h-svh flex-col',
+    onboardingMain: 'flex min-h-0 flex-1 flex-col',
+    // Опора y=0 в исходном viewBox [0,-70,620,620] находится на 11,29% высоты.
+    hanging: 'absolute inset-0 size-full -translate-y-[11.29%]',
+  },
   lemurPreview: {
     root: 'flex h-svh min-h-0 flex-col bg-white text-foreground dark:bg-[#242529]',
     shell:
@@ -173,19 +239,18 @@ export const layout = {
     score: `${displayNumber} text-amber-500`,
     unit: 'text-lg font-semibold text-amber-500',
   },
-  goalChart: {
-    brandLabel: { x: 196, y: 4, width: 90, height: 24 },
-    brandLabelClass: 'text-foreground text-xs font-medium',
-  },
   surface: {
     illustration:
       'bg-muted text-muted-foreground flex size-20 items-center justify-center rounded-card',
     centeredSummary: 'border-border w-full space-y-1 rounded-card border p-4 text-center',
     streakSummary: 'border-border w-full space-y-3 rounded-card border p-4',
-    chart: 'border-border bg-card w-full rounded-card border p-4',
-    mascot:
-      'border-border bg-muted text-muted-foreground flex items-center justify-center rounded-card border-2 border-dashed',
+    mascot: 'h-auto w-[clamp(7rem,20svh,11rem)] shrink-0 object-contain',
     streakDay: 'flex size-8 items-center justify-center rounded-full',
+  },
+  mascotPlaceholder: {
+    root: 'border-border bg-muted text-muted-foreground flex shrink-0 items-center justify-center rounded-card border-2 border-dashed',
+    icon: 'size-1/3',
+    sizes: { md: 'size-20', lg: 'size-[clamp(6rem,18svh,8rem)]' },
   },
   control: {
     input: 'h-12 rounded-control',
@@ -199,9 +264,28 @@ export const layout = {
     },
   },
   auth: {
-    forgot: 'text-muted-foreground font-normal',
+    registerLayout: 'flex h-svh min-h-0 flex-col',
+    registerMain: 'flex min-h-0 flex-1 flex-col desktop:justify-center',
+    registrationShell:
+      'desktop:m-auto desktop:w-full desktop:max-w-lg desktop:flex-none desktop:min-h-[34rem] desktop:max-h-[calc(100svh-5rem)]',
+    registerFooter: 'flex flex-col gap-3 px-6 pb-[max(1rem,env(safe-area-inset-bottom))]',
+    shell: 'pt-[clamp(1.5rem,6svh,4rem)]',
+    footer: 'flex flex-col gap-3',
+    form: 'flex flex-col gap-4',
+    field: 'flex flex-col gap-2',
+    divider: 'flex items-center gap-3 text-sm text-muted-foreground',
+    dividerLine: 'h-px flex-1 bg-border',
+  },
+  emailVerification: {
+    root: 'mx-auto flex w-full max-w-sm flex-col items-center gap-6',
+    icon: 'bg-muted text-muted-foreground flex size-14 items-center justify-center rounded-card',
+    iconGlyph: 'size-6',
+    actions: 'flex w-full flex-col gap-3',
   },
   oauth: {
+    wrapper: 'flex flex-col gap-4',
+    before: 'order-first',
+    after: 'order-last',
     group: 'space-y-2',
     button: 'w-full justify-center gap-3',
     icon: 'size-5 shrink-0',
@@ -230,10 +314,12 @@ export const layout = {
     progress: 'min-w-0',
   },
   errorNote: {
-    root: 'border-destructive/40 bg-destructive/5 text-destructive flex min-w-0 shrink-0 flex-wrap items-center gap-2 rounded-tile border p-3 text-sm',
-    icon: 'size-4 shrink-0',
-    message: 'min-w-0 flex-1 wrap-anywhere',
-    retry: 'text-destructive min-h-11 shrink-0 px-3 text-base',
+    root: 'grid min-w-0 shrink-0 grid-cols-[1.25rem_minmax(0,1fr)] items-start gap-x-3 gap-y-3 rounded-card bg-muted/60 p-4 text-left text-sm',
+    icon: 'mt-0.5 size-5 shrink-0 text-destructive',
+    message: 'min-w-0 break-words leading-relaxed text-foreground',
+    retry: 'col-start-2 justify-self-start',
+    screen: 'flex w-full max-w-sm flex-col items-center gap-6 text-center',
+    screenIcon: 'size-10 text-muted-foreground',
   },
   sheet: {
     width: 'mx-auto w-full max-w-md desktop:max-w-xl landscape-short:max-w-xl',
@@ -256,6 +342,8 @@ export const layout = {
     active:
       'text-foreground font-medium desktop:bg-muted desktop:inset-ring desktop:inset-ring-border landscape-short:rounded-tile landscape-short:bg-muted',
     idle: 'text-muted-foreground',
+    soonContent: 'flex max-w-sm flex-col items-center gap-6',
+    soonArt: 'size-16 text-muted-foreground',
     brand:
       'hidden desktop:mb-6 desktop:flex desktop:flex-col desktop:gap-3 desktop:px-4 landscape-short:hidden',
     brandLink: 'w-fit rounded-tile outline-none focus-visible:ring-2 focus-visible:ring-ring',
@@ -371,6 +459,12 @@ export const layout = {
     title: 'outline-none text-balance whitespace-pre-line wrap-anywhere',
     subtitle: 'text-balance whitespace-pre-line wrap-anywhere',
     variants: {
+      offer: {
+        title:
+          'text-[clamp(1.625rem,7.5vw,2rem)] font-semibold leading-tight [@media(max-height:620px)]:text-[1.625rem] [@media(max-height:540px)]:pr-7 [@media(max-height:540px)]:text-[1.375rem] lg:text-4xl lg:pr-0',
+        subtitle:
+          'text-base leading-normal text-muted-foreground [@media(max-height:620px)]:text-sm [@media(max-height:540px)]:text-sm lg:text-base',
+      },
       landingHero: {
         title: 'text-[clamp(2.75rem,5.3vw,4.5rem)] font-semibold leading-[1.04] ',
         subtitle: 'text-lg leading-relaxed text-[var(--sf-muted)]',
@@ -448,6 +542,11 @@ export const layout = {
     content: 'w-full',
     catalogScroll: '[overflow-anchor:none]',
     catalogStack: 'space-y-5',
+    catalogActions: 'flex flex-wrap items-center justify-between gap-3',
+    catalogSecondary:
+      'inline-flex min-h-11 items-center gap-2 rounded-control px-3 text-sm font-medium text-muted-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring',
+    historyLabel: 'hidden sm:inline',
+    catalogBuilder: 'gap-2',
     tabs: 'sticky top-0 z-40 grid h-14 grid-cols-3 rounded-tile bg-muted p-1',
     tabsIndicator:
       'pointer-events-none absolute inset-y-1 left-1 z-10 w-[calc((100%_-_0.5rem)/3)] rounded-[calc(var(--radius-tile)-0.25rem)] bg-foreground transition-transform duration-[var(--task-tab-motion-duration)] ease-out motion-reduce:transition-none',
@@ -459,56 +558,107 @@ export const layout = {
     tabButton:
       'relative z-20 h-12 rounded-[calc(var(--radius-tile)-0.25rem)] bg-transparent px-1 text-base font-medium hover:bg-transparent',
     tabLabel: 'text-muted-foreground',
-    grid: 'grid grid-cols-2 gap-3 [overflow-anchor:none] desktop:grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] desktop:gap-4',
-    card: 'relative isolate min-h-32 min-w-0 rounded-card border border-transparent text-left',
+    grid: 'grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 [overflow-anchor:none] desktop:grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] desktop:gap-4',
+    card: 'relative isolate whitespace-normal font-normal min-h-20 min-[480px]:min-h-36 min-w-0 rounded-card border border-transparent text-left transition-[transform,opacity] active:translate-y-px motion-reduce:transition-none disabled:pointer-events-none',
     compactCard: 'p-4',
     activeCard:
       'bg-card border-border border shadow-[0_1px_0_color-mix(in_oklch,var(--foreground)_8%,transparent)]',
     disabledCard: 'bg-muted/35 border-border/70 text-muted-foreground border',
-    favoriteAll: 'justify-start p-4 text-left',
-    favoriteCard: 'flex-col items-start p-4',
+    favoriteAll: 'w-full min-h-11 justify-center min-[480px]:w-auto',
+    favoriteCard: 'flex min-w-0 flex-col gap-4 rounded-card border border-border bg-card p-5',
     favoriteNumber: 'text-lg font-semibold',
-    favoriteId: 'text-xs text-muted-foreground',
+    favoritePreview: 'h-32 overflow-hidden [mask-image:linear-gradient(black_75%,transparent)]',
     empty: 'py-12 text-center text-base text-muted-foreground',
     numberHeaderGrid:
-      'grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-3',
-    numberHeadingTitle: 'min-w-0 truncate text-base font-medium',
-    numberTitleCompact: 'col-span-2 col-start-1 row-start-2',
-    numberHeaderMeta: 'col-start-3 row-start-1 flex shrink-0 items-center',
-    numberLabel: 'col-start-1 row-start-1 text-lg font-semibold',
-    compactMetricValue: 'col-start-3 row-start-2 text-sm tabular-nums text-muted-foreground',
-    compactProgress: 'col-span-3 col-start-1 row-start-3 h-1.5',
+      'grid w-full min-h-12 grid-cols-[2rem_minmax(0,1fr)_1.25rem] items-center gap-x-3 gap-y-1 min-[480px]:flex min-[480px]:min-h-28 min-[480px]:flex-col min-[480px]:items-start min-[480px]:gap-3',
+    numberHeadingTitle: 'col-start-2 row-start-1 min-w-0 text-base font-medium leading-snug',
+    numberTitleCompact: 'w-full',
+    numberHeaderMeta:
+      'contents min-[480px]:flex min-[480px]:w-full min-[480px]:items-center min-[480px]:justify-between min-[480px]:gap-2',
+    numberArrow: 'col-start-3 row-start-1 row-span-2 size-5 self-center',
+    numberLabel: 'col-start-1 row-start-1 row-span-2 text-lg font-semibold',
+    compactMetricValue:
+      'col-start-2 row-start-2 text-xs tabular-nums text-muted-foreground min-[480px]:mt-auto',
+    compactProgress: 'col-start-2 row-start-3 mt-1 h-1 w-full',
     skeleton: 'h-32 rounded-tile',
     countGrid: 'grid grid-cols-4 gap-2',
     setupOption: 'min-w-0',
     difficultyControl: 'space-y-2',
-    difficultyValue: 'text-sm font-medium',
-    difficultySliderWrap: 'relative mx-3 h-11',
+    difficultyValue: 'min-h-[2lh] text-sm font-medium',
+    difficultySliderWrap:
+      'relative h-[var(--difficulty-hit-height)] [--difficulty-thumb-size:1.75rem] [--difficulty-hit-height:3rem]',
     difficultyTrack:
-      'bg-muted absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full',
+      'bg-muted absolute inset-x-[calc(var(--difficulty-thumb-size)/2)] top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full',
     difficultyTrackFill:
       'bg-foreground absolute inset-0 origin-left scale-x-[var(--difficulty-progress)]',
     difficultyThumb:
-      'bg-foreground border-background pointer-events-none absolute top-1/2 left-[var(--difficulty-position)] z-10 size-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] shadow-sm',
+      'bg-background border-foreground pointer-events-none absolute top-1/2 left-[calc(var(--difficulty-position)+(0.5-var(--difficulty-progress))*var(--difficulty-thumb-size))] z-10 size-[var(--difficulty-thumb-size)] -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] shadow-sm',
     difficultySlider:
-      'absolute inset-0 z-20 h-11 w-full cursor-pointer appearance-none rounded-control bg-transparent opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 [&::-moz-range-thumb]:size-6 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-transparent [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-11 [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:mt-2.5 [&::-webkit-slider-thumb]:size-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-transparent',
+      'absolute inset-0 z-20 size-full cursor-pointer appearance-none rounded-control bg-transparent opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 [&::-moz-range-thumb]:size-[var(--difficulty-thumb-size)] [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-transparent [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-[var(--difficulty-hit-height)] [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:mt-[calc((var(--difficulty-hit-height)-var(--difficulty-thumb-size))/2)] [&::-webkit-slider-thumb]:size-[var(--difficulty-thumb-size)] [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-transparent',
     difficultyScale: 'flex justify-between text-xs text-muted-foreground',
+    difficultyScaleActions: 'grid grid-cols-3',
+    difficultyScaleAction: 'text-sm text-muted-foreground',
+    difficultyScaleActive: 'text-foreground',
     soon: 'col-span-3 col-start-1 row-start-3 text-xs text-muted-foreground',
     icon: 'size-5',
   },
+  trainingSetup: {
+    content:
+      'mx-auto flex w-full max-w-3xl flex-col gap-6 pb-3 [overflow-anchor:none] [&>*]:shrink-0',
+    footer: 'mx-auto w-full max-w-3xl space-y-3 border-t border-border pt-3',
+    footerSummary: 'flex min-w-0 items-center justify-between gap-3 text-sm text-muted-foreground',
+    numberGrid: 'grid grid-cols-5 gap-2 pt-3 sm:grid-cols-10',
+    numberPicker: 'group',
+    numberButton: 'relative min-w-0 px-0',
+    selections: 'space-y-3',
+    selection: 'min-w-0 space-y-4 rounded-card border border-border bg-card p-4 sm:p-5',
+    selectionHeading: 'flex min-w-0 items-center justify-between gap-3',
+    selectionTitle: 'min-w-0 text-base font-semibold leading-snug',
+    counts: 'grid grid-cols-[repeat(auto-fit,minmax(2.75rem,1fr))] gap-2',
+    countGroup: 'space-y-2',
+    countHeading: 'flex min-h-11 items-center justify-between gap-2 text-sm text-muted-foreground',
+    countLabel: 'flex min-w-0 flex-col gap-1',
+    countAvailability: 'text-xs tabular-nums',
+    adjustment: 'shrink-0 tabular-nums',
+    adjustmentPlaceholder: 'invisible pointer-events-none',
+    topics: 'group border-t border-border pt-1',
+    topicToggle:
+      'flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden',
+    topicChevron:
+      'size-4 shrink-0 transition-transform duration-[var(--task-control-motion-duration)] group-open:rotate-180 motion-reduce:transition-none',
+    topicList: 'grid gap-1 pt-2',
+    topicOption:
+      'flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2 text-left font-normal whitespace-normal outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40',
+    topicSelected: 'bg-muted font-medium',
+    topicText: 'min-w-0 text-sm leading-snug',
+    topicCheck: 'size-4 shrink-0 text-foreground',
+    topicPlaceholder: 'size-4 shrink-0 rounded-full border border-border',
+    hint: 'text-sm leading-relaxed text-muted-foreground',
+  },
   settings: {
     shell: 'flex h-svh flex-col bg-background',
-    header: 'flex shrink-0 items-center gap-3 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2',
+    header:
+      'mx-auto flex w-full max-w-2xl shrink-0 items-center gap-3 border-b border-border px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3',
     backButton:
       'text-muted-foreground hover:bg-muted flex size-11 shrink-0 items-center justify-center rounded-control transition-[transform,opacity]',
     backIcon: 'size-5',
-    content: 'space-y-7 pt-4',
+    content: 'mx-auto w-full max-w-2xl space-y-7 pt-6',
+    loading: 'flex min-h-0 flex-1 flex-col items-center justify-center px-6',
+    avatarRow: 'flex items-center gap-4',
+    avatarActions: 'flex min-w-0 flex-1 flex-col items-start gap-2',
+    account: 'flex flex-col gap-3 border-b border-border pb-6',
     logoutSection: 'border-border space-y-3 border-t py-4',
     logoutAction: 'h-12 w-full justify-center px-0',
     fields: 'space-y-7 text-left',
+    choice: 'group/profile-choice',
+    choiceToggle:
+      'flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded-control border border-border px-4 text-base font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden',
+    choiceChevron:
+      'size-5 shrink-0 text-muted-foreground transition-transform group-open/profile-choice:rotate-180 motion-reduce:transition-none',
+    choiceOptions: 'mt-3',
     fieldGroup: 'space-y-3',
     input: 'h-12 rounded-control text-base',
-    footer: 'border-border shrink-0 space-y-3 border-t pt-3',
+    footer: 'mx-auto w-full max-w-2xl shrink-0 space-y-3 border-t border-border pt-3',
   },
   validatedInput: {
     frame: 'relative',
@@ -617,10 +767,18 @@ export const layout = {
     solution: 'border-border mt-3 border-t pt-4',
     reviewHeader: 'flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1',
     reviewTitle: 'text-lg font-semibold',
-    reviewStat: 'ml-auto text-sm whitespace-nowrap text-muted-foreground tabular-nums',
-    reviewList: 'mt-6 space-y-2',
-    reviewTask: 'w-full',
-    reviewActions: 'w-full space-y-2',
+    reviewContent: 'mx-auto flex w-full max-w-3xl flex-col gap-4',
+    reviewStat: 'text-sm text-muted-foreground tabular-nums',
+    reviewList: 'grid grid-cols-1 gap-2 sm:grid-cols-2',
+    reviewTask:
+      'flex min-h-20 w-full items-center gap-3 rounded-card border border-border px-4 py-3 text-left hover:bg-muted/50',
+    reviewPosition:
+      'flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium tabular-nums',
+    reviewTaskText: 'flex min-w-0 flex-1 flex-col gap-1',
+    reviewState: 'flex items-center gap-1.5 text-sm',
+    reviewStateIcon: 'size-4 shrink-0',
+    reviewActions: 'mx-auto flex w-full max-w-3xl flex-col gap-2 sm:flex-row-reverse',
+    reviewAction: 'w-full min-w-0 sm:w-0 sm:flex-1',
     exitSheet: 'w-full space-y-4',
     exitActions: 'grid grid-cols-2 gap-2',
     exitAction: 'h-11',
@@ -630,9 +788,6 @@ export const layout = {
     blockText: 'text-base whitespace-pre-line',
     inlineFormula: 'inline-block max-w-full h-auto',
     inlineLatex: 'inline align-baseline',
-    sourceMeta:
-      'max-h-24 shrink-0 overflow-y-auto px-5 pb-2 text-xs leading-relaxed text-muted-foreground break-words',
-    sourceLink: 'inline-flex min-h-11 items-center underline underline-offset-2',
     blockImage: 'object-contain',
     blockImageMonochrome: 'dark:invert',
     scrubberFrame: 'flex h-full min-w-0 items-center gap-2',

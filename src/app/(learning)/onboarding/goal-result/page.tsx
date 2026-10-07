@@ -1,10 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { GoalChart } from '@/components/onboarding/GoalChart';
-import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
-import { ScreenShell } from '@/components/onboarding/ScreenShell';
-import { layout } from '@/config/layout';
+import { EmbeddedBo } from '@/components/lemur/EmbeddedBo';
+import { ResultScreen } from '@/components/onboarding/ResultScreen';
+import { LEMUR_ANIMATIONS } from '@/config/lemur-media';
 import { COPY } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
 
@@ -12,17 +10,11 @@ export default function GoalResultPage() {
   const { goNext } = useOnboardingFlow('goal-result');
 
   return (
-    <ScreenShell
-      center
-      footer={
-        <Button className={layout.cta} size="default" onClick={() => goNext()}>
-          {COPY.goalResult.action}
-        </Button>
-      }
-    >
-      <ScreenHeading title={COPY.goalResult.title} />
-
-      <GoalChart />
-    </ScreenShell>
+    <ResultScreen
+      mascot={<EmbeddedBo animation={LEMUR_ANIMATIONS.joy} />}
+      title={COPY.goalResult.title}
+      actionLabel={COPY.goalResult.action}
+      onAction={() => goNext()}
+    />
   );
 }

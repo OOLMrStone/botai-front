@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { X, CheckCheck, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, CheckCheck, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { TaskStatusScrubber } from '@/components/tasks/TaskStatusScrubber';
 import { TrainingControls } from '@/components/tasks/TrainingControls';
 import { TrainingReview } from '@/components/tasks/TrainingReview';
@@ -16,6 +16,7 @@ import { LEARNING_COPY as C, INTEGRATION } from '@/config/integration';
 import { useTrainingShell } from '@/hooks/use-training-shell';
 import { itemLocked } from '@/lib/attempt';
 import { cn } from '@/lib/utils';
+import { TRAINING_REVIEW_COPY } from '@/config/training-review';
 export function TrainingShell({ attemptId }: { attemptId: string }) {
   const training = useTrainingShell(attemptId);
   const { attempt, item } = training;
@@ -61,27 +62,49 @@ export function TrainingShell({ attemptId }: { attemptId: string }) {
         </div>
       </header>
       <div className={layout.integration.summary}>
-        <span className={layout.typography.caption}>
+        <span className={layout.integration.summaryLeading}>
+          {training.activity.visible ? (
+            <span
+              className={layout.integration.timer}
+              title={training.activity.description}
+              aria-label={`${training.activity.description}: ${training.activity.label}`}
+            >
+              <Clock aria-hidden="true" className={layout.integration.timerIcon} />
+              {training.activity.label}
+            </span>
+          ) : null}
+        </span>
+        <span className={layout.integration.summaryStatus}>
           {training.busy ? C.saving : training.unsaved ? C.unsaved : C.saved}
         </span>
-        <span className={layout.typography.caption}>
-          {C.checked(attempt.summary.graded, attempt.summary.total)} ·{' '}
-          {C.score(attempt.summary.earnedPoints, attempt.summary.maxPoints)}
+        <span className={layout.integration.summaryPosition}>
+          {training.review
+            ? TRAINING_REVIEW_COPY.overview
+            : TRAINING_REVIEW_COPY.position(training.currentIndex + 1, attempt.items.length)}
         </span>
       </div>
       {training.error ? (
         <ErrorNote
           message={training.error}
           retryLabel={training.conflict ? C.reload : C.retry}
-          onRetry={() => void (training.conflict ? training.reload() : training.retry())}
+          onRetry={() =>
+            void (training.exitError
+              ? training.exit()
+              : training.conflict
+                ? training.reload()
+                : training.retry())
+          }
         />
       ) : null}
       {training.revealError ? <ErrorNote message={training.revealError} /> : null}
       <main className={layout.training.cardArea}>
         {training.review ? (
           <TrainingReview
-            taskCount={attempt.items.length}
-            missing={training.missing}
+            items={training.reviewItems}
+            completed={training.completed}
+            description={training.reviewDescription}
+            readyCount={training.readyCount}
+            gradedCount={attempt.summary.graded}
             onSelect={(index) => void training.select(index)}
           />
         ) : item ? (
@@ -112,11 +135,9 @@ export function TrainingShell({ attemptId }: { attemptId: string }) {
       </main>
       {item && !training.review ? (
         <>
-          {item.task.isDemo ? <p className={layout.typography.caption}>{C.demo}</p> : null}
-          {item.task.responseType === 'photo' && item.task.gradingCapability !== 'available' ? (
-            <p className={layout.typography.description}>
-              {item.task.gradingCapability === 'unsupported' ? C.unsupported : C.gradingUnavailable}
-            </p>
+          {item.task.isDemo ? <p className={layout.integration.notice}>{C.demo}</p> : null}
+          {training.photoNotice ? (
+            <p className={layout.integration.notice}>{training.photoNotice}</p>
           ) : null}
           {item.submission?.images.length ? (
             <div className={layout.integration.photos}>
@@ -133,11 +154,13 @@ export function TrainingShell({ attemptId }: { attemptId: string }) {
                   </a>
                   <Button
                     variant="ghost"
-                    size="compact"
+                    size="icon-compact"
+                    aria-label={C.removePhoto}
                     disabled={locked || training.busy || item.submission?.status !== 'draft'}
+                    disabledReason={training.photoDisabledReason}
                     onClick={() => void training.removeImage(item.submission!.id, image.id)}
                   >
-                    {C.removePhoto}
+                    <X className={layout.training.actionIcon} />
                   </Button>
                 </div>
               ))}
@@ -146,6 +169,7 @@ export function TrainingShell({ attemptId }: { attemptId: string }) {
           <AttemptFeedback
             item={item}
             busy={training.busy}
+            canReviewPhoto={training.canReviewPhoto}
             onCancel={() => item.submission && void training.cancel(item.submission.id)}
             onRetry={() => void training.retrySubmission(item.id)}
           />
@@ -170,7 +194,8 @@ export function TrainingShell({ attemptId }: { attemptId: string }) {
             review={training.review}
             reviewIndex={training.reviewIndex}
             status={item ? training.statuses[item.id] : 'unverified'}
-            unverified={attempt.status !== 'completed'}
+            unverified={training.readyCount > 0}
+            checkDisabledReason={training.checkDisabledReason}
             allCorrect={attempt.status === 'completed'}
             busy={training.busy}
             editingBusy={training.editingBusy}
@@ -194,6 +219,8 @@ export function TrainingShell({ attemptId }: { attemptId: string }) {
             </Button>
             <MockExamAttachments
               onAdd={(files) => void training.upload(item.id, files)}
+              onRequestAccess={training.requestPhotoAccess}
+              disabledReason={training.photoDisabledReason}
               disabled={
                 locked ||
                 training.busy ||

@@ -41,5 +41,9 @@ export function useProfile() {
       setBusy(false);
     }
   };
-  return { ...state, busy, error, avatar, verify, verificationBusy, verificationSent };
+  const addAvatar = (files: File[]) => {
+    if (files[0]) void avatar(files[0]);
+  };
+
+  return { ...state, busy, error, avatar, addAvatar, verify, verificationBusy, verificationSent };
 }

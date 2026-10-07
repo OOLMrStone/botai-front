@@ -1,10 +1,9 @@
 'use client';
 
-import { SelectableCard } from '@/components/onboarding/SelectableCard';
-import { FormSection } from '@/components/common/FormSection';
+import { ProfileChoiceField } from '@/components/app/ProfileChoiceField';
+import { PROFILE_COPY } from '@/config/profile';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup } from '@/components/ui/radio-group';
 import { layout } from '@/config/layout';
 import { COPY, DAILY_GOAL_OPTIONS, GOAL_OPTIONS, LEVEL_OPTIONS } from '@/config/onboarding-steps';
 
@@ -48,62 +47,27 @@ export function ProfileEditFields({
         />
       </div>
 
-      <FormSection title={COPY.level.title}>
-        <RadioGroup
-          aria-label={COPY.level.title}
-          value={levelId}
-          onValueChange={(next) => onLevelChange(String(next))}
-        >
-          {LEVEL_OPTIONS.map((option) => (
-            <SelectableCard
-              key={option.id}
-              value={option.id}
-              label={option.label}
-              description={option.description}
-              icon={option.icon}
-            />
-          ))}
-        </RadioGroup>
-      </FormSection>
-
-      <FormSection title={COPY.profile.dailyGoalTitle}>
-        <RadioGroup
-          aria-label={COPY.profile.dailyGoalTitle}
-          value={dailyId}
-          onValueChange={(next) => {
-            const option = DAILY_GOAL_OPTIONS.find((item) => item.id === String(next));
-            if (option) onDailyChange(option.minutes);
-          }}
-        >
-          {DAILY_GOAL_OPTIONS.map((option) => (
-            <SelectableCard
-              key={option.id}
-              value={option.id}
-              label={option.label}
-              description={option.description}
-              icon={option.icon}
-            />
-          ))}
-        </RadioGroup>
-      </FormSection>
-
-      <FormSection title={COPY.profile.goalTitle}>
-        <RadioGroup
-          aria-label={COPY.profile.goalTitle}
-          value={goalId}
-          onValueChange={(next) => onGoalChange(String(next))}
-        >
-          {GOAL_OPTIONS.map((option) => (
-            <SelectableCard
-              key={option.id}
-              value={option.id}
-              label={option.label}
-              description={option.description}
-              icon={option.icon}
-            />
-          ))}
-        </RadioGroup>
-      </FormSection>
+      <ProfileChoiceField
+        title={PROFILE_COPY.level}
+        options={LEVEL_OPTIONS}
+        value={levelId}
+        onValueChange={onLevelChange}
+      />
+      <ProfileChoiceField
+        title={COPY.profile.dailyGoalTitle}
+        options={DAILY_GOAL_OPTIONS}
+        value={dailyId}
+        onValueChange={(next) => {
+          const option = DAILY_GOAL_OPTIONS.find((item) => item.id === next);
+          if (option) onDailyChange(option.minutes);
+        }}
+      />
+      <ProfileChoiceField
+        title={COPY.profile.goalTitle}
+        options={GOAL_OPTIONS}
+        value={goalId}
+        onValueChange={onGoalChange}
+      />
     </div>
   );
 }

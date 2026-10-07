@@ -26,7 +26,8 @@ export interface Task {
   examNumber: number;
   part: 1 | 2;
   topicIds: string[];
-  difficulty: Difficulty;
+  difficulty: Difficulty | null;
+  isGrob: boolean;
   responseType: 'short' | 'photo';
   maxPoints: number;
   content: TaskBlock[];
@@ -110,6 +111,7 @@ export interface AttemptItem {
 }
 export interface Attempt {
   id: string;
+  title?: string | null;
   kind: 'training' | 'mock-exam';
   templateId?: string;
   formatId: string;
@@ -119,6 +121,7 @@ export interface Attempt {
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
+  lastExitedAt?: string | null;
   items: AttemptItem[];
   summary: {
     total: number;
@@ -149,11 +152,13 @@ export interface TrainingRequest {
   formatId: string;
   selections: TrainingSelection[];
   difficulty?: Difficulty;
+  difficultyPreference?: number;
   source?: 'catalog' | 'favorites';
   taskIds?: string[];
 }
 export interface AttemptPatch {
   revision: number;
+  title?: string;
   currentIndex?: number;
   items?: { id: string; answer?: string; drawing?: DrawingStroke[] }[];
 }

@@ -5,7 +5,6 @@ import { useStorefrontSession } from '@/hooks/use-storefront-session';
 import { StorefrontAbout } from '@/components/storefront/StorefrontAbout';
 import { StorefrontExample } from '@/components/storefront/StorefrontExample';
 import { StorefrontPricing } from '@/components/storefront/StorefrontPricing';
-import { StorefrontComparison } from '@/components/storefront/StorefrontComparison';
 import { StorefrontFooter } from '@/components/storefront/StorefrontFooter';
 import { StorefrontHero } from '@/components/storefront/StorefrontHero';
 import { StorefrontNavigation } from '@/components/storefront/StorefrontNavigation';
@@ -30,11 +29,14 @@ export function Storefront() {
         </div>
       ) : null}
       <main id={STOREFRONT.main}>
-        <StorefrontHero entryHref={entryHref} entryLabel={entryLabel} showTrial={!user} />
-        <StorefrontWorkflow />
-        <StorefrontExample />
-        <StorefrontComparison />
-        <StorefrontPricing entryHref={entryHref} />
+        <StorefrontHero
+          entryHref={entryHref}
+          entryLabel={entryLabel}
+          showTrial={STOREFRONT.features.trial && !user}
+        />
+        {STOREFRONT.features.workflow ? <StorefrontWorkflow /> : null}
+        {STOREFRONT.features.example ? <StorefrontExample /> : null}
+        <StorefrontPricing />
         <StorefrontAbout />
       </main>
       <StorefrontFooter />

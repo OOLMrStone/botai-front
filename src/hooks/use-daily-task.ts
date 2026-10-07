@@ -13,7 +13,7 @@ export interface DailyTaskState extends Omit<AsyncData<DailyTask>, 'data'> {
 
 // Задача дня для хаба.
 export function useDailyTask(): DailyTaskState {
-  const { data, failed, retry } = useAsyncData(dailyTaskResource);
+  const { data, loading, failed, retry } = useAsyncData(dailyTaskResource);
 
-  return { task: data, failed, retry };
+  return { task: data, loading, failed, retry };
 }

@@ -1,5 +1,7 @@
 'use client';
 
+import { EmbeddedBo } from '@/components/lemur/EmbeddedBo';
+import { LEMUR_ANIMATIONS } from '@/config/lemur-media';
 import { Button } from '@/components/ui/button';
 import { HighlightText } from '@/components/onboarding/HighlightText';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
@@ -20,10 +22,8 @@ export default function IntroQuestionsPage() {
         </Button>
       }
     >
-      <ScreenHeading
-        title={<HighlightText text={COPY.introQuestions.title} />}
-        subtitle={COPY.introQuestions.subtitle}
-      />
+      <EmbeddedBo animation={LEMUR_ANIMATIONS.sit} />
+      <ScreenHeading title={<HighlightText text={COPY.introQuestions.title} />} />
     </ScreenShell>
   );
 }

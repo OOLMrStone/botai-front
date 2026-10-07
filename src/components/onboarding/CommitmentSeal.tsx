@@ -23,16 +23,8 @@ type SealStyle = CSSProperties & {
 };
 
 export function CommitmentSeal({ date, onSealChange }: CommitmentSealProps) {
-  const {
-    isHolding,
-    isSealed,
-    startHold,
-    startKeyboardHold,
-    trackHold,
-    endHold,
-    endKeyboardHold,
-    cancelHold,
-  } = useCommitmentSeal();
+  const { isHolding, isSealed, startHold, activateFromKeyboard, trackHold, endHold, cancelHold } =
+    useCommitmentSeal();
 
   const style: SealStyle = {
     '--commitment-seal-duration': `${COMMITMENT_SEAL.holdDurationMs}ms`,
@@ -57,8 +49,7 @@ export function CommitmentSeal({ date, onSealChange }: CommitmentSealProps) {
         onPointerUp={endHold}
         onPointerCancel={cancelHold}
         onLostPointerCapture={cancelHold}
-        onKeyDown={startKeyboardHold}
-        onKeyUp={endKeyboardHold}
+        onKeyDown={activateFromKeyboard}
         onBlur={cancelHold}
         className={layout.commitment.seal}
         style={style}

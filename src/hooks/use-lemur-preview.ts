@@ -23,7 +23,7 @@ function getServerMotionPreference() {
   return true;
 }
 
-export function useLemurPreview(animation: LemurAnimation) {
+export function useLemurPreview(animation: LemurAnimation, suspended = false) {
   const reducedMotion = useSyncExternalStore(
     subscribeToMotionPreference,
     getMotionPreference,
@@ -43,7 +43,7 @@ export function useLemurPreview(animation: LemurAnimation) {
   const reacting = reactionPhase === 'playing';
   const queued = reactionPhase === 'queued';
   const reactionBusy = reactionPhase !== 'idle';
-  const paused = reactionBusy ? reactionPaused : (pauseOverride ?? reducedMotion);
+  const paused = suspended || (reactionBusy ? reactionPaused : (pauseOverride ?? reducedMotion));
   const playbackRate = slowed ? LEMUR_PLAYBACK.slow : LEMUR_PLAYBACK.normal;
   const source = reacting && reactionSource ? reactionSource : animation.video;
   const returnAt = reaction?.cycleDuration
@@ -56,12 +56,14 @@ export function useLemurPreview(animation: LemurAnimation) {
         ? { source: animation.video, startAt: returnAt }
         : undefined;
   const video = useLemurVideo({
+    deferLoad: suspended || reducedMotion,
     source,
     startAt: reacting ? LEMUR_PLAYBACK.start : idleStartAt,
     prepared,
     paused,
     playbackRate,
     loop: !reacting && animation.loop,
+    seamlessLoop: animation.seamlessLoop,
     loopFrom: reacting ? undefined : animation.loopFrom,
     onFinish: reacting
       ? () => {
@@ -117,7 +119,16 @@ export function useLemurPreview(animation: LemurAnimation) {
     setPauseOverride(!paused);
   }
 
+  function start() {
+    if (reducedMotion) return;
+    video.start();
+    setPauseOverride(false);
+  }
+
   return {
+    start,
+    reducedMotion,
+    requiresInteraction: video.requiresInteraction,
     firstRef: video.firstRef,
     secondRef: video.secondRef,
     activeSlot: video.activeSlot,

@@ -1,61 +1,74 @@
 'use client';
+
 import { useRouter } from 'next/navigation';
-import { useAsyncData } from '@/hooks/use-async-data';
-import { ROUTES } from '@/config/onboarding-steps';
-import { LEARNING_ROUTES } from '@/config/integration';
-import type { Task } from '@/lib/api/learning-types';
-import { createTraining } from '@/lib/api/learning';
-import { catalogResource, favoritesResource, invalidateAttempts } from '@/lib/learning-resources';
-import { useTasksStore } from '@/stores/tasks-store';
 import { useState } from 'react';
+
+import { ROUTES } from '@/config/onboarding-steps';
+import { TASK_DIFFICULTY_SLIDER, TRAINING_SETUP } from '@/config/tasks';
+import { useAsyncData } from '@/hooks/use-async-data';
+import { useTrainingLaunch } from '@/hooks/use-training-launch';
+import type { Task } from '@/lib/api/learning-types';
+import { catalogResource, favoritesResource } from '@/lib/learning-resources';
+import { favoriteTrainingBatch } from '@/lib/favorite-training';
+import { useTasksStore } from '@/stores/tasks-store';
+
 export function useTaskCatalog(tasks: Task[]) {
   const router = useRouter();
   const view = useTasksStore((state) => state.view);
   const setView = useTasksStore((state) => state.setView);
   const catalog = useAsyncData(catalogResource);
   const favorites = useAsyncData(favoritesResource);
-  const [error, setError] = useState<string | null>(null);
+  const launch = useTrainingLaunch();
+  const [openingNumber, setOpeningNumber] = useState<number | null>(null);
   const numbers = (catalog.data?.numbers ?? [])
     .filter((item) => (view === 'part-1' ? item.part === 1 : item.part === 2))
     .map((number) => ({
       number,
       tasks: tasks.filter((task) => task.examNumber === number.examNumber),
     }));
-  const openNumber = (number?: number) => {
+
+  const openSetup = () => {
     useTasksStore.setState({
-      setupExamNumber: number ?? null,
+      setupExamNumber: null,
       setupSource: 'catalog',
       setupTaskIds: [],
     });
     router.push(ROUTES.trainingSetup);
   };
-  const openFavorites = async (selectedTasks: Task[]) => {
-    if (!selectedTasks.length) return;
-    try {
-      const attempt = await createTraining(
-        {
-          formatId: catalog.data!.format.id,
-          selections: [],
-          source: 'favorites',
-          taskIds: selectedTasks.map((task) => task.id),
-        },
-        crypto.randomUUID(),
-      );
-      invalidateAttempts();
-      router.push(LEARNING_ROUTES.attempt(attempt.id));
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : null);
-    }
+  const openNumber = async (examNumber: number) => {
+    if (!catalog.data || launch.busy) return;
+
+    setOpeningNumber(examNumber);
+    await launch.start({
+      formatId: catalog.data.format.id,
+      selections: [{ examNumber, count: TRAINING_SETUP.quickStartCount }],
+      difficultyPreference: TASK_DIFFICULTY_SLIDER.defaultValue,
+      source: 'catalog',
+    });
   };
+  const openFavorites = async (selectedTasks: Task[]) => {
+    if (!selectedTasks.length || !catalog.data) return;
+
+    await launch.start({
+      formatId: catalog.data.format.id,
+      selections: [],
+      source: 'favorites',
+      taskIds: favoriteTrainingBatch(selectedTasks).tasks.map((task) => task.id),
+    });
+  };
+
   return {
     view,
     setView,
     numbers,
     favoriteTasks: favorites.data,
+    openSetup,
     openNumber,
     openFavorites,
     catalog,
     favorites,
-    error,
+    openingNumber,
+    busy: launch.busy,
+    error: launch.error,
   };
 }

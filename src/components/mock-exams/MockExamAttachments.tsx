@@ -7,7 +7,9 @@ import { MOCK_EXAM_COPY, MOCK_EXAM_FILE_ACCEPT, MOCK_EXAM_LAYOUT } from '@/confi
 
 interface MockExamAttachmentsProps {
   onAdd: (files: File[]) => void;
+  onRequestAccess?: () => void;
   disabled?: boolean;
+  disabledReason?: string;
   label?: string;
   accept?: string;
   multiple?: boolean;
@@ -43,7 +45,9 @@ export function MockExamAttachmentStrip({
 
 export function MockExamAttachments({
   onAdd,
+  onRequestAccess,
   disabled = false,
+  disabledReason,
   label = MOCK_EXAM_COPY.attach,
   accept = MOCK_EXAM_FILE_ACCEPT,
   multiple = true,
@@ -51,7 +55,9 @@ export function MockExamAttachments({
   return (
     <FileUploadButton
       onAdd={onAdd}
+      onRequestAccess={onRequestAccess}
       disabled={disabled}
+      disabledReason={disabledReason}
       label={label}
       accept={accept}
       multiple={multiple}

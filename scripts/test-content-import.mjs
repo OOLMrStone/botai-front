@@ -49,6 +49,19 @@ test('ordered inline text, TeX and lossless formula image remain within a valid 
   assert.equal(images[0].style.width, '4em');
   assert.equal(images[0].style.verticalAlign, 'middle');
 });
+test('display math uses display layout while paragraph math stays inline', () => {
+  const { TaskBlockRenderer } = load('@/components/tasks/TaskBlockRenderer');
+  const html = renderToStaticMarkup(
+    React.createElement(TaskBlockRenderer, {
+      blocks: [
+        { type: 'latex', value: 'x^2' },
+        { type: 'paragraph', runs: [{ type: 'latex', value: 'x^2' }] },
+      ],
+    }),
+  );
+  assert.equal((html.match(/class="katex-display"/g) ?? []).length, 1);
+  assert.doesNotMatch(html.match(/<p[\s\S]*<\/p>/)[0], /class="katex-display"/);
+});
 test('external and protocol-relative images cannot trigger a Next optimizer fetch', () => {
   const { taskMediaSrc } = load('@/lib/task-content');
   for (const url of [
@@ -84,40 +97,6 @@ test('exact rich answer and solution take precedence without falling back to nul
   assert.equal(blocks[1], answer);
   assert.equal(blocks[3], explanation);
   assert.ok(!JSON.stringify(blocks).includes('lossy'));
-});
-test('sources show only escaped original labels and proven primary-origin links', () => {
-  const { TaskSources } = load('@/components/tasks/TaskSources');
-  const source = {
-    provider: 'shkolkovo',
-    sourceUrl: 'https://3.shkolkovo.online/catalog/203/185802',
-    originalPublisher: { name: 'ФИПИ', url: 'https://fipi.ru/ege' },
-    originalReferences: [{ label: '<script>origin</script>', url: null }],
-  };
-  const html = renderToStaticMarkup(React.createElement(TaskSources, { sources: [source] }));
-  assert.match(html, /&lt;script&gt;origin/);
-  assert.match(html, /rel="noreferrer noopener"/);
-  assert.match(html, /https:\/\/fipi.ru\/ege/);
-  assert.doesNotMatch(html, /Школково|shkolkovo/);
-  const rejected = renderToStaticMarkup(
-    React.createElement(TaskSources, {
-      sources: [
-        {
-          originalPublisher: null,
-          originalReferences: [{ label: 'ЕГЭ 2024', url: source.sourceUrl }],
-        },
-      ],
-    }),
-  );
-  assert.match(rejected, /ЕГЭ 2024/);
-  assert.doesNotMatch(rejected, /<a |Школково|shkolkovo/);
-  assert.equal(
-    renderToStaticMarkup(
-      React.createElement(TaskSources, {
-        sources: [{ ...source, originalPublisher: null, originalReferences: [] }],
-      }),
-    ),
-    '',
-  );
 });
 
 function hookSetup() {
@@ -155,6 +134,7 @@ function hookSetup() {
         },
       }),
     },
+    '@/hooks/use-paywall': { usePaywall: () => ({ visible: false, open() {} }) },
     '@/hooks/use-attempt-activity': { useAttemptActivity() {} },
     '@/hooks/use-keyboard-viewport': { useKeyboardViewport() {} },
     '@/hooks/use-task-keyboard-navigation': { useTaskKeyboardNavigation() {} },

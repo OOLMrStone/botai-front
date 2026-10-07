@@ -13,8 +13,6 @@ interface PressOrigin {
   y: number;
 }
 
-const KEYBOARD_POINTER_ID = -1;
-
 export function useCommitmentSeal() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const originRef = useRef<PressOrigin | null>(null);
@@ -28,15 +26,15 @@ export function useCommitmentSeal() {
     setIsHolding(false);
   }, []);
 
+  const seal = useCallback(() => {
+    cancelHold();
+    setIsSealed(true);
+  }, [cancelHold]);
+
   const beginHold = useCallback(() => {
     setIsHolding(true);
-    timerRef.current = setTimeout(() => {
-      timerRef.current = null;
-      originRef.current = null;
-      setIsHolding(false);
-      setIsSealed(true);
-    }, COMMITMENT_SEAL.holdDurationMs);
-  }, []);
+    timerRef.current = setTimeout(seal, COMMITMENT_SEAL.holdDurationMs);
+  }, [seal]);
 
   const startHold = useCallback(
     (event: ReactPointerEvent<HTMLButtonElement>) => {
@@ -53,26 +51,16 @@ export function useCommitmentSeal() {
     [beginHold, isSealed],
   );
 
-  const startKeyboardHold = useCallback(
+  const activateFromKeyboard = useCallback(
     (event: ReactKeyboardEvent<HTMLButtonElement>) => {
-      if (
-        isSealed ||
-        originRef.current ||
-        event.repeat ||
-        (event.key !== ' ' && event.key !== 'Enter')
-      ) {
-        return;
-      }
+      if (event.key !== ' ' && event.key !== 'Enter') return;
 
       event.preventDefault();
-      originRef.current = {
-        pointerId: KEYBOARD_POINTER_ID,
-        x: 0,
-        y: 0,
-      };
-      beginHold();
+      if (isSealed || event.repeat) return;
+
+      seal();
     },
-    [beginHold, isSealed],
+    [seal, isSealed],
   );
 
   const trackHold = useCallback(
@@ -93,29 +81,15 @@ export function useCommitmentSeal() {
     [cancelHold],
   );
 
-  const endKeyboardHold = useCallback(
-    (event: ReactKeyboardEvent<HTMLButtonElement>) => {
-      if (
-        originRef.current?.pointerId === KEYBOARD_POINTER_ID &&
-        (event.key === ' ' || event.key === 'Enter')
-      ) {
-        event.preventDefault();
-        cancelHold();
-      }
-    },
-    [cancelHold],
-  );
-
   useEffect(() => cancelHold, [cancelHold]);
 
   return {
     isHolding,
     isSealed,
     startHold,
-    startKeyboardHold,
+    activateFromKeyboard,
     trackHold,
     endHold,
-    endKeyboardHold,
     cancelHold,
   };
 }

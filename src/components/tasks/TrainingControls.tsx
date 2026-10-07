@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { layout } from '@/config/layout';
 import { TASK_ANSWER_INPUT_ID, TASK_COPY, type TaskStatus } from '@/config/tasks';
 import type { TrainingSession } from '@/stores/tasks-store';
+import { TRAINING_REVIEW_COPY } from '@/config/training-review';
 
 interface TrainingControlsProps {
   session: TrainingSession;
   busy?: boolean;
+  checkDisabledReason?: string;
   editingBusy?: boolean;
   locked?: boolean;
   taskId: string | undefined;
@@ -27,6 +29,7 @@ interface TrainingControlsProps {
 export function TrainingControls({
   session,
   busy = false,
+  checkDisabledReason,
   editingBusy = false,
   locked = false,
   taskId,
@@ -44,15 +47,23 @@ export function TrainingControls({
   if (review) {
     return (
       <div className={layout.training.reviewActions}>
-        <Button className={layout.cta} disabled={!unverified || busy} onClick={onCheck}>
-          {TASK_COPY.review.check}
-        </Button>
+        {!allCorrect ? (
+          <Button
+            className={layout.training.reviewAction}
+            disabled={!unverified || busy}
+            disabledReason={checkDisabledReason}
+            onClick={onCheck}
+          >
+            {TRAINING_REVIEW_COPY.check}
+          </Button>
+        ) : null}
         <Button
-          className={layout.cta}
+          className={layout.training.reviewAction}
           variant={allCorrect ? 'default' : 'outline'}
+          disabled={busy}
           onClick={onContinue}
         >
-          {TASK_COPY.review.continue}
+          {allCorrect ? TRAINING_REVIEW_COPY.done : TRAINING_REVIEW_COPY.exit}
         </Button>
       </div>
     );
@@ -90,6 +101,7 @@ export function TrainingControls({
           size="icon"
           className={layout.training.controlButton}
           aria-label={TASK_COPY.training.toReview}
+          disabled={busy}
           onClick={() => onSelect(reviewIndex)}
         >
           <CheckCheck />
@@ -100,6 +112,7 @@ export function TrainingControls({
           size="icon"
           className={layout.training.controlButton}
           aria-label={TASK_COPY.training.next}
+          disabled={busy}
           onClick={() => onSelect(session.currentIndex + 1)}
         >
           <ChevronRight />

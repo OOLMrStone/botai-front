@@ -3,8 +3,11 @@
 import { useEffect, useEffectEvent, useState } from 'react';
 
 import { LEMUR_COPY, LEMUR_PLAYBACK } from '@/config/lemur-copy';
+import type { LemurAnimation } from '@/config/lemur-media';
+import { useLemurSeamlessLoop } from '@/hooks/use-lemur-seamless-loop';
 import { useLemurVideoBuffer } from '@/hooks/use-lemur-video-buffer';
 import type { LemurVideoRequest } from '@/hooks/use-lemur-video-buffer';
+import { prepareLemurVideo } from '@/lib/lemur-video-source';
 
 interface LemurVideoOptions extends LemurVideoRequest {
   prepared?: LemurVideoRequest;
@@ -12,8 +15,10 @@ interface LemurVideoOptions extends LemurVideoRequest {
   playbackRate: number;
   loop: boolean;
   loopFrom?: number;
+  seamlessLoop?: LemurAnimation['seamlessLoop'];
   onFinish?: () => void;
   onError?: (message: string) => void;
+  deferLoad?: boolean;
 }
 
 export function useLemurVideo({
@@ -24,18 +29,24 @@ export function useLemurVideo({
   playbackRate,
   loop,
   loopFrom,
+  seamlessLoop,
   onFinish,
   onError,
+  deferLoad = false,
 }: LemurVideoOptions) {
+  const [requested, setRequested] = useState(false);
   const [failure, setFailure] = useState({ source, message: '' });
   const [ended, setEnded] = useState(false);
   const [blockedSource, setBlockedSource] = useState<string | null>(null);
   const requiresInteraction = blockedSource === source;
   const error = failure.source === source ? failure.message : '';
+  const bufferedLoop = loop && Boolean(seamlessLoop) && !prepared;
+  const nativeLoop = loop && !seamlessLoop;
   const buffer = useLemurVideoBuffer({
+    enabled: !deferLoad || requested,
     source,
     startAt,
-    prepared,
+    prepared: prepared ?? (bufferedLoop ? { source, startAt: LEMUR_PLAYBACK.start } : undefined),
     onReady: () => {
       setEnded(false);
       setFailure({ source, message: '' });
@@ -67,7 +78,7 @@ export function useLemurVideo({
     if (document.hidden) return;
 
     video.playbackRate = playbackRate;
-    video.loop = loop;
+    video.loop = nativeLoop;
     void video
       .play()
       .then(() => {
@@ -87,6 +98,22 @@ export function useLemurVideo({
       });
   }
   const playAutomatically = useEffectEvent(play);
+  function advanceLoop() {
+    const next = buffer.advanceLoop();
+    if (!next) return false;
+    next.playbackRate = playbackRate;
+    if (next.paused) play(next);
+    return true;
+  }
+  useLemurSeamlessLoop(
+    ref,
+    activeSlot,
+    seamlessLoop,
+    bufferedLoop && ready && !paused && !ended && !requiresInteraction,
+    playbackRate,
+    buffer.preparedLoopVideo,
+    advanceLoop,
+  );
 
   useEffect(() => {
     const first = firstRef.current;
@@ -104,7 +131,7 @@ export function useLemurVideo({
 
     const sync = () => {
       video.playbackRate = playbackRate;
-      video.loop = loop;
+      video.loop = nativeLoop;
       if (!ready || requiresInteraction || paused || ended || video.ended || document.hidden) {
         video.pause();
         return;
@@ -114,6 +141,11 @@ export function useLemurVideo({
     const fail = () => reportFailure(LEMUR_COPY.loadError);
     const finish = () => {
       if (!ready || finishReaction()) return;
+      if (loop && seamlessLoop) {
+        video.currentTime = seamlessLoop.overlap;
+        sync();
+        return;
+      }
       if (loopFrom === undefined) {
         setEnded(true);
         return;
@@ -144,15 +176,20 @@ export function useLemurVideo({
     paused,
     playbackRate,
     ended,
+    nativeLoop,
+    bufferedLoop,
+    seamlessLoop,
     loop,
     loopFrom,
     requiresInteraction,
   ]);
 
   function start() {
-    const video = buffer.pendingRef.current ?? ref.current;
+    const video = buffer.pendingRef.current ?? ref.current ?? firstRef.current;
     if (!video) return;
 
+    setRequested(true);
+    prepareLemurVideo(video, source);
     setBlockedSource(null);
     // Safari должен получить play в самом нажатии, до обновления состояния и эффектов.
     play(video);

@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { test } from 'node:test';
 import { compileFunction } from 'node:vm';
 import ts from 'typescript';
+import { moduleLoader, hookHarness, deferred } from './helpers/hook-harness.mjs';
 
 const require = createRequire(import.meta.url);
 const root = resolve(import.meta.dirname, '..');
@@ -37,6 +38,321 @@ function loader(mocks = {}) {
 }
 
 const load = loader();
+
+function attemptDeletionSetup() {
+  const harness = hookHarness();
+  const requests = [],
+    forgotten = [],
+    resetItems = [];
+  let owner = 'owner',
+    invalidations = 0;
+  let remove = async () => {};
+  const attempt = { id: 'attempt', items: [{ id: 'item' }] };
+  const loadDelete = moduleLoader({
+    react: harness.react,
+    '@/lib/api/learning': {
+      deleteAttempt: async (id) => {
+        requests.push(id);
+        return remove();
+      },
+    },
+    '@/lib/attempt-drafts': { forgetAttemptDraft: (id) => forgotten.push(id) },
+    '@/lib/learning-resources': { invalidateAttempts: () => invalidations++ },
+    '@/stores/auth-store': { useAuthStore: { getState: () => ({ user: { id: owner } }) } },
+    '@/stores/tasks-store': {
+      useTasksStore: { getState: () => ({ resetTaskProgress: (ids) => resetItems.push(ids) }) },
+    },
+  });
+  return {
+    render: () =>
+      harness.render(() => loadDelete('@/hooks/use-attempt-delete').useAttemptDelete(attempt)),
+    requests,
+    forgotten,
+    resetItems,
+    invalidations: () => invalidations,
+    setRemove: (fn) => {
+      remove = fn;
+    },
+    changeOwner: (id) => {
+      owner = id;
+    },
+  };
+}
+
+test('attempt deletion requires confirmation, blocks double submit and refreshes all attempt lists', async () => {
+  const s = attemptDeletionSetup();
+  await s.render().remove();
+  assert.deepEqual(s.requests, []);
+  s.render().changeOpen(true);
+  s.render().changeOpen(false);
+  assert.deepEqual(s.requests, []);
+  s.render().changeOpen(true);
+  const response = deferred();
+  s.setRemove(() => response.promise);
+  const view = s.render();
+  const deleting = view.remove();
+  await view.remove();
+  s.render().changeOpen(false);
+  assert.equal(s.render().open, true);
+  assert.equal(s.render().deleting, true);
+  assert.deepEqual(s.requests, ['attempt']);
+  response.resolve();
+  await deleting;
+  assert.equal(s.render().open, false);
+  assert.equal(s.render().deleting, false);
+  assert.equal(s.invalidations(), 1);
+  assert.deepEqual(s.forgotten, ['attempt']);
+  assert.deepEqual(s.resetItems, [['item']]);
+});
+
+test('failed deletion preserves the card and draft and permits an idempotent retry', async () => {
+  const s = attemptDeletionSetup();
+  s.render().changeOpen(true);
+  s.setRemove(async () => {
+    throw new Error('offline');
+  });
+  await s.render().remove();
+  assert.equal(s.render().open, true);
+  assert.equal(s.render().deleting, false);
+  assert.equal(s.render().error, 'offline');
+  assert.deepEqual(s.forgotten, []);
+  assert.equal(s.invalidations(), 0);
+  s.setRemove(async () => {});
+  await s.render().remove();
+  assert.deepEqual(s.requests, ['attempt', 'attempt']);
+  assert.equal(s.render().error, null);
+  assert.equal(s.invalidations(), 1);
+});
+
+test('late deletion response cannot erase another account draft or invalidate its cache', async () => {
+  const s = attemptDeletionSetup();
+  s.render().changeOpen(true);
+  const response = deferred();
+  s.setRemove(() => response.promise);
+  const deleting = s.render().remove();
+  s.changeOwner('another');
+  response.resolve();
+  await deleting;
+  assert.equal(s.invalidations(), 0);
+  assert.deepEqual(s.forgotten, []);
+  assert.deepEqual(s.resetItems, []);
+});
+
+function serverExamsSetup(exams, createExamAttempt) {
+  const harness = hookHarness();
+  const routes = [];
+  const loadServerExams = moduleLoader({
+    react: harness.react,
+    'next/navigation': { useRouter: () => ({ push: (path) => routes.push(path) }) },
+    '@/hooks/use-async-data': { useAsyncData: () => ({ data: exams, failed: false, retry() {} }) },
+    '@/lib/learning-resources': { examsResource: {}, invalidateAttempts() {} },
+    '@/lib/api/learning': { createExamAttempt },
+  });
+  const render = () =>
+    harness.render(() => loadServerExams('@/hooks/use-server-exams').useServerExams());
+  return { render, routes, harness };
+}
+
+const serverExam = (id, properties = {}) => ({
+  id,
+  title: `Пробник ${id}`,
+  createdAt: '2026-10-01T12:00:00Z',
+  totalTasks: 20,
+  maxPoints: 33,
+  ...properties,
+});
+
+test('server exam double click creates one attempt and keeps pending through navigation', async () => {
+  const response = deferred();
+  const calls = [];
+  const s = serverExamsSetup([serverExam('exam')], (...args) => {
+    calls.push(args);
+    return response.promise;
+  });
+  const api = s.render();
+  const first = api.openExam('exam');
+  await api.openExam('exam');
+  assert.equal(calls.length, 1);
+  assert.equal(s.render().pending, true);
+  response.resolve({ id: 'created' });
+  await first;
+  assert.equal(s.routes.length, 1);
+  assert.equal(s.render().pending, true);
+});
+
+test('server exam retries reuse the creation key after an ambiguous network failure', async () => {
+  const keys = [];
+  const s = serverExamsSetup([serverExam('exam')], async (_id, key) => {
+    keys.push(key);
+    if (keys.length === 1) throw new Error('offline');
+    return { id: 'created' };
+  });
+  await s.render().openExam('exam', true);
+  assert.equal(s.render().pending, false);
+  assert.equal(s.render().error, 'offline');
+  await s.render().openExam('exam', true);
+  assert.deepEqual(keys, [keys[0], keys[0]]);
+  assert.equal(s.routes.length, 1);
+  assert.equal(s.render().error, null);
+});
+
+test('active exam wins over an older completed attempt and is filtered as unfinished', async () => {
+  const exam = serverExam('exam', {
+    activeAttemptId: 'active',
+    latestAttempt: {
+      id: 'completed',
+      status: 'completed',
+      completedAt: '2026-10-01T12:00:00Z',
+      summary: { earnedPoints: 0 },
+    },
+  });
+  let created = 0;
+  const s = serverExamsSetup([exam], async () => {
+    created++;
+    return { id: 'new' };
+  });
+  const api = s.render();
+  assert.equal(api.results.exam, undefined);
+  assert.ok(api.sessions.exam);
+  const { filterMockExams } = load('@/lib/mock-exams');
+  assert.equal(filterMockExams(api.exams, 'unsolved', api.results).length, 1);
+  assert.equal(filterMockExams(api.exams, 'solved', api.results).length, 0);
+  await api.openExam('exam');
+  assert.deepEqual(s.routes, [load('@/config/integration').LEARNING_ROUTES.attempt('active')]);
+  assert.equal(created, 0);
+});
+
+test('leaving the catalog before creation finishes does not hijack later navigation', async () => {
+  const response = deferred();
+  const s = serverExamsSetup([serverExam('exam')], () => response.promise);
+  const opening = s.render().openExam('exam');
+  s.harness.unmount();
+  response.resolve({ id: 'created' });
+  await opening;
+  assert.deepEqual(s.routes, []);
+});
+
+test('fresh exam attempt does not overwrite or resume the active attempt', async () => {
+  const calls = [];
+  const exam = serverExam('exam', { activeAttemptId: 'active' });
+  const s = serverExamsSetup([exam], async (...args) => {
+    calls.push(args);
+    return { id: 'fresh' };
+  });
+  await s.render().openExam('exam', true);
+  assert.equal(calls.length, 1);
+  assert.deepEqual(s.routes, [load('@/config/integration').LEARNING_ROUTES.attempt('fresh')]);
+  assert.equal(exam.activeAttemptId, 'active');
+});
+
+test('exam sort preserves source order and recognizes a completed zero-point result', () => {
+  const { sortMockExams } = load('@/lib/mock-exams');
+  const exams = [
+    { id: 'old', date: '2026-10-01' },
+    { id: 'new', date: '2026-10-03' },
+    { id: 'middle', date: '2026-10-02' },
+  ];
+  const results = { old: { score: 0, completedAt: '2026-10-04' } };
+  const ids = (sort) => sortMockExams(exams, sort, results).map((exam) => exam.id);
+  assert.deepEqual(ids('newest'), ['new', 'middle', 'old']);
+  assert.deepEqual(ids('oldest'), ['old', 'middle', 'new']);
+  assert.deepEqual(ids('score'), ['old', 'new', 'middle']);
+  assert.deepEqual(
+    exams.map((exam) => exam.id),
+    ['old', 'new', 'middle'],
+  );
+});
+
+function renderExamCatalog(state = {}) {
+  const React = require('react');
+  const { renderToStaticMarkup } = require('react-dom/server');
+  const loadCatalog = moduleLoader({
+    '@/hooks/use-server-exams': {
+      useServerExams: () => ({
+        data: [],
+        exams: [],
+        loading: false,
+        failed: false,
+        sort: 'newest',
+        filter: 'all',
+        sessions: {},
+        results: {},
+        setSort() {},
+        setFilter() {},
+        ...state,
+      }),
+    },
+    '@/hooks/use-mock-exam-sort-menu': {
+      useMockExamSortMenu: () => ({
+        open: false,
+        rootRef: { current: null },
+        triggerRef: { current: null },
+      }),
+    },
+    '@/components/mock-exams/MockExamCard': {
+      MockExamCard: ({ exam }) => React.createElement('button', null, exam.title),
+    },
+    '@/components/mock-exams/MockExamDetails': { MockExamDetails: () => null },
+  });
+  return renderToStaticMarkup(
+    React.createElement(loadCatalog('@/components/mock-exams/MockExamCatalog').MockExamCatalog),
+  );
+}
+
+test('exam filtering renders no actions for hidden variants', () => {
+  const exams = [
+    { id: 'solved', title: 'Решённый пробник', date: '2026-10-02', tasks: [] },
+    { id: 'hidden', title: 'Скрытый пробник', date: '2026-10-01', tasks: [] },
+  ];
+  const markup = renderExamCatalog({
+    data: exams,
+    exams,
+    filter: 'solved',
+    results: { solved: { score: 0, completedAt: '2026-10-02' } },
+  });
+  assert.ok(markup.includes('Решённый пробник'));
+  assert.ok(!markup.includes('Скрытый пробник'));
+});
+
+test('exam catalog distinguishes loading and failure from a successful empty response', () => {
+  const { LEARNING_COPY } = load('@/config/integration');
+  const { MOCK_EXAM_COPY } = load('@/config/mock-exams');
+  for (const data of [null, []]) {
+    const loading = renderExamCatalog({ data, loading: true });
+    assert.ok(loading.includes(LEARNING_COPY.loading));
+    assert.ok(!loading.includes(MOCK_EXAM_COPY.emptyFilter));
+    assert.ok(!loading.includes(LEARNING_COPY.loadError));
+
+    const failure = renderExamCatalog({ data, failed: true });
+    assert.ok(failure.includes(LEARNING_COPY.loadError));
+    assert.ok(!failure.includes(MOCK_EXAM_COPY.emptyFilter));
+    assert.ok(!failure.includes(LEARNING_COPY.loading));
+  }
+  const empty = renderExamCatalog();
+  assert.ok(empty.includes(MOCK_EXAM_COPY.emptyFilter));
+  assert.ok(!empty.includes(LEARNING_COPY.loading));
+  assert.ok(!empty.includes(LEARNING_COPY.loadError));
+});
+
+test('async data reports loading before the first fetch effect and ends it on response or failure', () => {
+  let snapshot = { data: null, error: null, loading: false };
+  const resource = { snapshot: () => snapshot, subscribe() {}, invalidate() {} };
+  const loadAsyncData = moduleLoader({
+    react: {
+      useEffect() {},
+      useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot(),
+    },
+  });
+  const { useAsyncData } = loadAsyncData('@/hooks/use-async-data');
+  assert.equal(useAsyncData(resource).loading, true);
+  snapshot = { data: [], error: null, loading: false };
+  assert.equal(useAsyncData(resource).loading, false);
+  assert.equal(useAsyncData(resource).failed, false);
+  snapshot = { data: null, error: new Error('offline'), loading: false };
+  assert.equal(useAsyncData(resource).loading, false);
+  assert.equal(useAsyncData(resource).failed, true);
+});
+
 const validation = load('@/lib/validation');
 for (const answer of ['0', '-12', '12,5', '12.5', '000.50', '-0']) {
   test(`готовый ответ: ${answer}`, () => assert.equal(validation.isValidShortAnswer(answer), true));
@@ -223,7 +539,7 @@ test('старый неверный ответ показывает ошибку
   assert.deepEqual(changes, []);
 });
 
-function setupHarness() {
+function setupHarness({ failFirstRequest = false } = {}) {
   const paths = [];
   const requests = [];
   const states = [];
@@ -237,7 +553,8 @@ function setupHarness() {
   const tasks = Array.from({ length: 7 }, (_, index) => ({
     id: `setup-task-${index}`,
     examNumber: index === 6 ? 2 : 1,
-    difficulty: index % 2 ? 'medium' : 'easy',
+    difficulty: index % 2 ? 3 : 1,
+    isGrob: false,
     topicIds: [index % 2 ? 'triangle' : 'circle'],
   }));
   const catalog = {
@@ -255,6 +572,12 @@ function setupHarness() {
       useRouter: () => ({ push: (path) => paths.push(path), replace: (path) => paths.push(path) }),
     },
     react: {
+      useEffect: (effect) => effect(),
+      useRef: (initial) => {
+        const index = cursor++;
+        if (!(index in states)) states[index] = { current: initial };
+        return states[index];
+      },
       useState: (initial) => {
         const index = cursor++;
         if (!(index in states)) states[index] = initial;
@@ -277,6 +600,7 @@ function setupHarness() {
     '@/lib/api/learning': {
       createTraining: async (request, key) => {
         requests.push({ request, key });
+        if (failFirstRequest && requests.length === 1) throw new Error('Connection lost');
         return { id: 'saved-server-attempt' };
       },
     },
@@ -289,13 +613,19 @@ function setupHarness() {
   return { store, paths, loadSetup, tasks, requests, render };
 }
 
-test('карточка открывает серверный номер, локальную сессию ещё не начинает', () => {
-  const { store, paths, loadSetup, render } = setupHarness();
+test('карточка сразу открывает одну серверную задачу выбранного номера', async () => {
+  const { store, paths, requests, loadSetup, render } = setupHarness();
   const catalog = render(loadSetup('@/hooks/use-task-catalog').useTaskCatalog);
-  catalog.openNumber(1);
-  assert.deepEqual(paths, ['/training/setup']);
+  await catalog.openNumber(1);
+  assert.deepEqual(paths, ['/training?attempt=saved-server-attempt']);
+  assert.deepEqual(requests[0].request, {
+    formatId: 'server-format',
+    selections: [{ examNumber: 1, count: 1 }],
+    difficultyPreference: 50,
+    source: 'catalog',
+  });
   assert.equal(store.getState().session, null);
-  assert.equal(store.getState().setupExamNumber, 1);
+  assert.equal(store.getState().setupExamNumber, null);
   assert.deepEqual(store.getState().setupTaskIds, []);
 });
 
@@ -353,7 +683,7 @@ test('старт отправляет тему, сложность и колич
   assert.deepEqual(requests[0].request, {
     formatId: 'server-format',
     selections: [{ examNumber: 1, count: 2, topicIds: ['circle'] }],
-    difficulty: 'easy',
+    difficultyPreference: 0,
     source: 'catalog',
   });
   assert.deepEqual(paths, ['/training?attempt=saved-server-attempt']);
@@ -369,7 +699,7 @@ test('пустой выбор и нехватка задач не создают
   setup.toggle(2);
   setup = render(hook);
   assert.equal(setup.selections.length, 2);
-  assert.equal(setup.total, 2);
+  assert.equal(setup.total, 4);
   setup.update(2, { count: 20 });
   setup = render(hook);
   assert.equal(setup.shortage, true);
@@ -385,12 +715,10 @@ test('название бренда в заголовках, подписях и
   const { COPY } = load('@/config/onboarding-steps');
   const { ScreenHeading } = load('@/components/onboarding/ScreenHeading');
   const { HighlightText } = load('@/components/onboarding/HighlightText');
-  const { GoalChart } = load('@/components/onboarding/GoalChart');
   const cases = [
     createElement(ScreenHeading, { title: COPY.goalResult.title }),
     createElement(ScreenHeading, { title: 'Название', subtitle: BRAND.name }),
     createElement(HighlightText, { text: `*${BRAND.name}*` }),
-    createElement(GoalChart),
   ];
 
   for (const element of cases) {
@@ -425,6 +753,10 @@ test('desktop-навигация показывает общий знак и с�
   assert.match(markup, /data-wordmark="navigation" aria-label="ботai"/);
   assert.match(markup, /aria-current="page"[^>]*href="\/tasks"/);
   for (const tab of APP_TABS) assert.ok(markup.includes(`href="${tab.href}"`), tab.href);
+  assert.ok(
+    !markup.includes(`href="${ROUTES.quizzes}"`),
+    'выключенные квизы отсутствуют в навигации',
+  );
   assert.ok(markup.includes(`href="${ROUTES.storefront}"`));
   assert.doesNotMatch(markup, /wordmark-chrome|\bbotai\b/);
 });
@@ -755,4 +1087,327 @@ test('полностью стёртый рисунок остаётся dirty д
   assert.equal(Object.hasOwn(useTasksStore.getState().savedDrawings, 'server-item'), true);
   store.acknowledge('server-item', cleared);
   assert.equal(Object.hasOwn(useTasksStore.getState().savedDrawings, 'server-item'), false);
+});
+
+test('пять уровней сложности: строгие края, плавные веса и неизвестная оценка', () => {
+  const { difficultyMixAt, isDifficultyEligible, allocateDifficultyCounts } =
+    loader()('@/lib/task-difficulty');
+  assert.deepEqual(difficultyMixAt(0), { 1: 1, 2: 0, 3: 0, 4: 0, 5: 0 });
+  const middle = difficultyMixAt(50);
+  assert.equal(middle[2] + middle[3], 0.9);
+  assert.deepEqual(
+    Object.keys(difficultyMixAt(100)).filter((key) => difficultyMixAt(100)[key] > 0),
+    ['4', '5'],
+  );
+  assert.equal(isDifficultyEligible(null, 0), false);
+  assert.equal(isDifficultyEligible(null, 100), false);
+  assert.equal(isDifficultyEligible(null, 50), true);
+  for (let position = 0; position <= 100; position += 1) {
+    const mix = difficultyMixAt(position);
+    assert.ok(Math.abs(Object.values(mix).reduce((sum, value) => sum + value, 0) - 1) < 1e-12);
+    assert.equal(
+      Object.values(allocateDifficultyCounts(17, position)).reduce((sum, value) => sum + value, 0),
+      17,
+    );
+    if (position > 0) {
+      const previous = difficultyMixAt(position - 1);
+      assert.ok(Object.keys(mix).every((key) => Math.abs(mix[key] - previous[key]) < 0.04));
+    }
+  }
+});
+
+test('неоценённые задачи идут только после оценённых и не попадают на края шкалы', () => {
+  const { selectTrainingTasks } = loader()('@/lib/task-training');
+  const tasks = [
+    { id: 'unknown', difficulty: null },
+    { id: 'rated', difficulty: 3 },
+    { id: 'grob', difficulty: 5 },
+  ];
+  const input = { tasks, difficulties: [1, 2, 3, 4, 5], count: 3, history: {} };
+  assert.deepEqual(
+    selectTrainingTasks({ ...input, difficultyLevel: 50 }).map((task) => task.id),
+    ['rated', 'grob', 'unknown'],
+  );
+  assert.deepEqual(
+    selectTrainingTasks({ ...input, difficultyLevel: 100 }).map((task) => task.id),
+    ['grob'],
+  );
+  assert.deepEqual(selectTrainingTasks({ ...input, difficultyLevel: 0 }), []);
+});
+
+test('ползунок обновляет доступность и сохраняет количество; дефицит блокирует старт', () => {
+  const { store, loadSetup, render } = setupHarness();
+  store.setState({ setupExamNumber: 1 });
+  const hook = loadSetup('@/hooks/use-training-setup-page').useTrainingSetupPage;
+  let setup = render(hook);
+  setup.update(1, { count: 6 });
+  setup = render(hook);
+  setup.setDifficultyLevel(0);
+  setup = render(hook);
+  assert.equal(setup.selections[0].count, 6);
+  assert.equal(setup.available(setup.selections[0]), 3);
+  assert.equal(setup.canStart, false);
+  setup.setDifficultyLevel(100);
+  setup = render(hook);
+  assert.equal(setup.available(setup.selections[0]), 0);
+  assert.equal(setup.shortage, true);
+  assert.equal(setup.canStart, false);
+});
+
+test('сборщик открывается отдельно, без создания попытки', () => {
+  const { store, paths, requests, loadSetup, render } = setupHarness();
+  store.setState({ setupExamNumber: 2 });
+  const catalog = render(loadSetup('@/hooks/use-task-catalog').useTaskCatalog);
+  catalog.openSetup();
+  assert.deepEqual(paths, ['/training/setup']);
+  assert.equal(requests.length, 0);
+  assert.equal(store.getState().setupExamNumber, null);
+});
+
+test('быстрый повторный клик создаёт только одну попытку', async () => {
+  const { requests, loadSetup, render } = setupHarness();
+  const catalog = render(loadSetup('@/hooks/use-task-catalog').useTaskCatalog);
+  await Promise.all([catalog.openNumber(1), catalog.openNumber(1)]);
+  assert.equal(requests.length, 1);
+});
+
+test('повтор после потери соединения сохраняет idempotency key запроса', async () => {
+  const { requests, loadSetup, render } = setupHarness({ failFirstRequest: true });
+  const hook = loadSetup('@/hooks/use-task-catalog').useTaskCatalog;
+  let catalog = render(hook);
+  await catalog.openNumber(1);
+  catalog = render(hook);
+  assert.equal(catalog.busy, false);
+  assert.equal(catalog.error, 'Connection lost');
+  await catalog.openNumber(1);
+  assert.equal(requests.length, 2);
+  assert.equal(requests[0].key, requests[1].key);
+});
+
+test('можно выбрать несколько тем, повторное нажатие снимает выбор', () => {
+  const { loadSetup, render } = setupHarness();
+  const hook = loadSetup('@/hooks/use-training-setup-page').useTrainingSetupPage;
+  let setup = render(hook);
+  setup.toggle(1);
+  setup = render(hook);
+  setup.toggleTopic(1, 'triangle');
+  setup = render(hook);
+  setup.toggleTopic(1, 'circle');
+  setup = render(hook);
+  assert.deepEqual(setup.selections[0].topicIds, ['triangle', 'circle']);
+  setup.toggleTopic(1, 'triangle');
+  setup = render(hook);
+  assert.deepEqual(setup.selections[0].topicIds, ['circle']);
+  setup.toggleTopic(1);
+  setup = render(hook);
+  assert.deepEqual(setup.selections[0].topicIds, []);
+});
+
+test('короткий ответ получает понятный результат без баллов 1 из 1', () => {
+  const { attemptFeedback } = loader()('@/lib/attempt-feedback');
+  const item = {
+    id: 'short',
+    task: { responseType: 'short' },
+    result: { isGraded: true, score: 1, maxScore: 1 },
+  };
+  assert.equal(attemptFeedback(item, false).label, 'Верно');
+  assert.equal(attemptFeedback(item, false).hasDetails, false);
+  assert.equal(
+    attemptFeedback({ ...item, result: { ...item.result, score: 0 } }, false).label,
+    'Пока неверно',
+  );
+});
+
+test('разбор фото раскрывает человеческий текст и не публикует служебный JSON', () => {
+  const { createElement } = require('react');
+  const { renderToStaticMarkup } = require('react-dom/server');
+  const feedback = {
+    ocr: 'INTERNAL_OCR_DATA',
+    analysis: {
+      summary: 'Потерян один корень',
+      errors: [
+        {
+          id: 'domain',
+          code: 'INTERNAL_ERROR_CODE',
+          description: 'Не учтено ограничение',
+          where: 'Вторая строка',
+          correctVersion: 'Проверь знаменатель',
+          advice: 'Подставь оба корня',
+        },
+      ],
+    },
+    grading: { explanation: 'За верный ход решения сохранён балл' },
+  };
+  const item = {
+    id: 'photo',
+    task: { responseType: 'photo' },
+    result: { isGraded: true, score: 1, maxScore: 2, feedback },
+  };
+  const { AttemptFeedback } = loader()('@/components/tasks/AttemptFeedback');
+  const html = renderToStaticMarkup(
+    createElement(AttemptFeedback, {
+      item,
+      busy: false,
+      canReviewPhoto: true,
+      onCancel() {},
+      onRetry() {},
+    }),
+  );
+  for (const text of [
+    '1 из 2 баллов',
+    'Потерян один корень',
+    'Вторая строка',
+    'Проверь знаменатель',
+    'Подставь оба корня',
+  ])
+    assert.ok(html.includes(text), text);
+  assert.ok(html.includes('<details'));
+  assert.ok(!html.includes('<pre'));
+  assert.ok(!html.includes('INTERNAL_OCR_DATA'));
+  assert.ok(!html.includes('INTERNAL_ERROR_CODE'));
+});
+
+test('действия черновика, проверки и повтора сохраняют точный смысл', () => {
+  const { attemptFeedback } = loader()('@/lib/attempt-feedback');
+  const item = {
+    task: { responseType: 'photo', gradingCapability: 'available' },
+    submission: { status: 'draft', images: [{ id: 'image' }] },
+  };
+  assert.equal(
+    attemptFeedback({ ...item, submission: { ...item.submission, images: [] } }, true),
+    null,
+  );
+  assert.equal(attemptFeedback(item, true).label, 'Фото готово к проверке');
+  assert.equal(attemptFeedback(item, true).canCancel, false);
+  for (const gradingCapability of ['unsupported', 'unavailable']) {
+    const saved = attemptFeedback({ ...item, task: { ...item.task, gradingCapability } }, true);
+    assert.equal(saved.label, 'Фото сохранено');
+    assert.equal(saved.canCancel, false);
+  }
+  const queued = attemptFeedback(
+    { ...item, submission: { ...item.submission, status: 'queued' } },
+    true,
+  );
+  assert.equal(queued.cancelLabel, 'Отменить проверку');
+  assert.equal(queued.canCancel, true);
+  const failed = attemptFeedback(
+    {
+      ...item,
+      submission: { ...item.submission, status: 'failed', retryable: true },
+    },
+    true,
+  );
+  assert.equal(failed.canRetry, true);
+  assert.equal(failed.canCancel, false);
+});
+
+test('большое избранное явно предлагает первые 50 задач и отправляет допустимый набор', async () => {
+  const { createElement } = require('react');
+  const { renderToStaticMarkup } = require('react-dom/server');
+  const { loadSetup, requests, render } = setupHarness();
+  const tasks = Array.from({ length: 55 }, (_, index) => ({
+    id: `favorite-${index}`,
+    examNumber: 1,
+    content: [{ type: 'text', value: `Условие ${index}` }],
+  }));
+  const catalog = render(loadSetup('@/hooks/use-task-catalog').useTaskCatalog);
+  await catalog.openFavorites(tasks);
+  assert.equal(requests[0].request.taskIds.length, 50);
+  assert.deepEqual(
+    requests[0].request.taskIds,
+    tasks.slice(0, 50).map((task) => task.id),
+  );
+  const { FavoritesGrid } = loader()('@/components/tasks/FavoritesGrid');
+  const html = renderToStaticMarkup(
+    createElement(FavoritesGrid, { tasks, onOpenAll() {}, onOpenTask() {} }),
+  );
+  assert.ok(html.includes('Решить первые 50 задач'));
+  assert.ok(!html.includes('Решать все избранные'));
+  assert.ok(html.includes('Условие 54'));
+  assert.equal((html.match(/>Решить задачу</g) ?? []).length, tasks.length);
+});
+
+test('одиночная задача за пределом общей подборки остаётся доступной', async () => {
+  const { loadSetup, requests, render } = setupHarness();
+  const catalog = render(loadSetup('@/hooks/use-task-catalog').useTaskCatalog);
+  await catalog.openFavorites([{ id: 'favorite-54' }]);
+  assert.deepEqual(requests[0].request.taskIds, ['favorite-54']);
+});
+
+test('граница сложности честно сужает банк, не заменяя количество и темы ученика', async () => {
+  const { loadSetup, tasks, requests, render } = setupHarness();
+  tasks.splice(
+    0,
+    tasks.length,
+    ...Array.from({ length: 17 }, (_, index) => ({
+      id: `edge-task-${index}`,
+      examNumber: 1,
+      difficulty: index === 0 ? 5 : index === 1 ? null : 2,
+      isGrob: index === 0,
+      topicIds: ['chosen-topic'],
+    })),
+  );
+  const hook = loadSetup('@/hooks/use-training-setup-page').useTrainingSetupPage;
+  let setup = render(hook);
+  setup.toggle(1);
+  setup = render(hook);
+  setup.update(1, { count: 5 });
+  setup.toggleTopic(1, 'chosen-topic');
+  setup = render(hook);
+  assert.equal(setup.available(setup.selections[0]), 17);
+  const choice = setup.selections[0];
+  for (const level of [99, 100, 99, 0, 1, 50]) {
+    setup.setDifficultyLevel(level);
+    setup = render(hook);
+    assert.deepEqual(setup.selections[0], choice);
+    assert.deepEqual(
+      setup.numbers[0].countOptions.map((option) => option.count),
+      [3, 5, 10, 20],
+    );
+    assert.equal(setup.available(choice), level === 100 ? 1 : level === 0 ? 0 : 17);
+    assert.equal(setup.canStart, level !== 0 && level !== 100);
+  }
+  setup.setDifficultyLevel(100);
+  setup = render(hook);
+  assert.equal(setup.numbers[0].adjustmentCount, 1);
+  await setup.start();
+  assert.equal(requests.length, 0);
+  setup.update(1, { count: setup.numbers[0].adjustmentCount });
+  setup = render(hook);
+  assert.equal(setup.canStart, true);
+  assert.equal(setup.selections[0].count, 1);
+  assert.deepEqual(
+    setup.numbers[0].countOptions.map((option) => option.count),
+    [1, 5, 10, 20],
+  );
+  await setup.start();
+  assert.equal(requests[0].request.difficultyPreference, 100);
+  assert.equal(requests[0].request.selections[0].count, 1);
+  assert.deepEqual(requests[0].request.selections[0].topicIds, ['chosen-topic']);
+});
+
+test('доступность номера и тем учитывает только допустимые уникальные задачи на всех позициях шкалы', () => {
+  const { availableTrainingTasks, trainingNumberOptions } = loader()('@/lib/training-setup');
+  const tasks = [
+    { examNumber: 1, difficulty: 1, topicIds: ['a', 'b'] },
+    { examNumber: 1, difficulty: 2, topicIds: ['a'] },
+    { examNumber: 1, difficulty: 4, topicIds: ['b'] },
+    { examNumber: 1, difficulty: 5, topicIds: ['a', 'b'] },
+    { examNumber: 1, difficulty: null, topicIds: ['a'] },
+    { examNumber: 2, difficulty: 5, topicIds: ['a'] },
+  ];
+  const selection = { examNumber: 1, count: 5, topicIds: ['a', 'b'] };
+  const numbers = [{ examNumber: 1, topics: [{ id: 'a' }, { id: 'b' }] }];
+  for (let level = 0; level <= 100; level++) {
+    const expected = level === 0 ? 1 : level === 100 ? 2 : 5;
+    const [number] = trainingNumberOptions(numbers, tasks, [selection], level);
+    assert.equal(availableTrainingTasks(tasks, selection, level), expected);
+    assert.equal(number.available, expected);
+    assert.equal(number.adjustmentCount, expected < selection.count ? expected : null);
+    assert.deepEqual(
+      number.topics.map((topic) => topic.available),
+      level === 0 ? [1, 1] : level === 100 ? [1, 2] : [4, 3],
+    );
+    assert.ok(number.topics.every((topic) => topic.selected));
+  }
 });

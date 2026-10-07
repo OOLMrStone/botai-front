@@ -12,6 +12,7 @@ import {
 } from '@/config/tasks';
 import {
   difficultiesAt,
+  isDifficultyEligible,
   difficultyLabelKey,
   difficultyLevelFromSelection,
 } from '@/lib/task-difficulty';
@@ -45,7 +46,9 @@ export function useTrainingSetup(
     }));
 
   const difficultyLevel = settings.difficultyLevel ?? TASK_DIFFICULTY_SLIDER.defaultValue;
-  const canStart = selectedTasks.some((task) => settings.difficulties.includes(task.difficulty));
+  const canStart = selectedTasks.some((task) =>
+    isDifficultyEligible(task.difficulty, difficultyLevel),
+  );
 
   return {
     topicId,

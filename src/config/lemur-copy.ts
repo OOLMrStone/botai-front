@@ -59,4 +59,6 @@ export const LEMUR_PLAYBACK = {
   normal: 1,
   slow: 0.5,
   syncLateFrames: 4,
+  loopAlignmentRate: 0.25,
+  loopSettleFrames: 2,
 } as const;

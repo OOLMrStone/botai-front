@@ -1,4 +1,6 @@
 // Геометрия хаба и профиля: карточки, метрики и состояния загрузки.
+const homeMascotEnabled = true;
+
 export const appLayout = {
   card: {
     surface: 'border-border bg-card min-w-0 w-full shrink-0 rounded-card border p-4',
@@ -7,54 +9,97 @@ export const appLayout = {
     heading: 'flex flex-col gap-1',
   },
   home: {
-    content: 'flex shrink-0 flex-col gap-5 desktop:gap-8',
+    mascotEnabled: homeMascotEnabled,
+    content:
+      'mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col gap-4 phone-short:gap-2 desktop:gap-6',
     header:
-      'contents desktop:flex desktop:flex-row-reverse desktop:items-center desktop:justify-between desktop:gap-8',
+      'flex shrink-0 flex-col gap-4 border-b border-border pb-4 phone-short:gap-2 phone-short:pb-3 desktop:flex-row-reverse desktop:items-center desktop:justify-between desktop:gap-8 desktop:pb-6 landscape-short:flex-row-reverse landscape-short:items-center landscape-short:gap-4 landscape-short:pb-3',
+    heading: 'min-w-0 flex-1',
+    attemptList: 'flex min-h-0 flex-1 flex-col gap-3 overflow-hidden',
+    attemptRow: 'shrink-0',
+    hiddenAttempt: 'invisible pointer-events-none',
     cards:
-      'contents desktop:grid desktop:gap-8 xl:grid xl:grid-cols-[minmax(0,1fr)_280px] xl:gap-6 landscape-short:grid landscape-short:grid-cols-2 landscape-short:gap-3',
-    goalTitle: 'flex items-center gap-2 text-sm text-muted-foreground',
-    goalCard:
-      'desktop:p-6 xl:col-start-2 xl:row-start-1 xl:min-h-64 xl:justify-between landscape-short:col-start-2 landscape-short:row-start-1',
-    taskCard:
-      'desktop:p-6 xl:col-start-1 xl:row-start-2 xl:min-h-52 landscape-short:col-start-1 landscape-short:row-start-2',
-    taskError: 'contents xl:block',
-    continueCard:
-      'desktop:order-first desktop:p-6 xl:col-start-1 xl:row-start-1 xl:min-h-64 xl:justify-between landscape-short:col-start-1 landscape-short:row-start-1 landscape-short:justify-between xl:bg-muted/30',
-    continueAction: 'desktop:max-w-xs',
-    reviewCard:
-      'desktop:p-6 xl:col-start-2 xl:row-start-2 xl:min-h-52 landscape-short:col-start-2 landscape-short:row-start-2',
+      'flex min-h-0 flex-1 flex-col gap-3 phone-short:gap-2 desktop:grid desktop:grid-cols-[minmax(0,1fr)_20rem] desktop:gap-6 min-[1440px]:grid-cols-[minmax(0,1fr)_22rem] landscape-short:grid landscape-short:grid-cols-[minmax(0,1fr)_15rem] landscape-short:gap-4',
+    aside:
+      'flex shrink-0 flex-col desktop:col-start-2 desktop:row-start-1 desktop:self-start landscape-short:col-start-2 landscape-short:row-start-1 landscape-short:self-start',
+    goalTitle: 'text-sm text-muted-foreground',
+    goalCard: homeMascotEnabled
+      ? 'relative min-h-[calc(var(--bo-size)*0.8+1.5rem)] justify-center py-3 [--bo-size:clamp(6.25rem,min(36vw,19svh),9rem)] desktop:justify-start desktop:py-4 desktop:[--bo-size:clamp(10rem,17vw,13.75rem)] min-[1440px]:[--bo-size:15rem] landscape-short:justify-start landscape-short:[--bo-size:7rem]'
+      : 'justify-center py-4 desktop:py-5 landscape-short:py-3',
+    goalContent: homeMascotEnabled
+      ? 'relative z-10 flex max-w-[calc(100%-var(--bo-size)*0.78)] flex-col gap-3'
+      : 'relative z-10 flex min-w-0 flex-col gap-3',
+    goalMascot: 'absolute right-0 top-0 size-[var(--bo-size)]',
     reveal: 'min-h-11 self-start px-3 text-sm',
     question: 'text-base font-medium',
     answer: 'text-sm leading-relaxed text-muted-foreground',
-    ring: 'relative mx-auto size-40 shrink-0 landscape-short:size-28',
-    ringSvg: 'block size-full',
+    ring: 'flex items-center gap-2.5',
+    ringSvg: 'size-9 shrink-0 desktop:size-10',
     ringTrack: 'stroke-border',
-    ringProgress: 'stroke-foreground',
-    ringLabel: 'absolute inset-0 flex flex-col items-center justify-center gap-1',
+    ringProgress: 'stroke-brand-strong',
+    ringLabel: 'flex min-w-0 flex-col gap-1',
+    ringValue: 'text-3xl font-semibold leading-none tabular-nums',
+    ringGoal: 'text-xs text-muted-foreground',
+    ringSkeleton: 'size-9 shrink-0 rounded-full desktop:size-10',
+    goalMetricSkeleton: 'h-12 w-16 rounded-tile',
     status:
-      'grid min-h-6 grid-cols-[1fr_auto_1fr] items-center gap-3 font-semibold text-foreground desktop:flex desktop:shrink-0 desktop:gap-6',
+      'grid min-h-6 grid-cols-[1fr_auto_1fr] items-center gap-3 font-semibold text-foreground desktop:flex desktop:shrink-0 desktop:gap-6 landscape-short:flex landscape-short:shrink-0',
     statusItem: 'flex items-center gap-1.5',
-    brand: 'desktop:hidden',
+    brand: 'desktop:hidden landscape-short:hidden',
     statusEnd: 'flex items-center justify-end gap-1.5',
     statusIcon: 'size-5 shrink-0',
   },
+  attempts: {
+    root: 'flex min-h-0 min-w-0 flex-1 flex-col desktop:col-start-1 desktop:row-start-1 landscape-short:col-start-1 landscape-short:row-start-1',
+    toolbar: 'flex shrink-0 items-center justify-between gap-2 pb-3 phone-short:pb-1',
+    filters: 'flex min-w-0 gap-1 overflow-x-auto',
+    list: 'flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain pb-4 [scrollbar-gutter:stable]',
+    card: 'gap-3 phone-short:gap-2 phone-short:p-3 desktop:flex-row desktop:items-center desktop:gap-4 desktop:p-5',
+    cardContent: 'min-w-0 flex-1',
+    metadata: 'text-xs text-muted-foreground',
+    titleRow: 'flex min-w-0 items-center gap-1',
+    title: 'min-w-0 flex-1 break-words',
+    rename: 'shrink-0 text-muted-foreground',
+    summary: 'flex items-center gap-1.5 text-sm text-muted-foreground',
+    action: 'w-full desktop:w-auto',
+    icon: 'size-4 shrink-0',
+    loading: 'flex flex-col gap-3',
+    skeleton: 'h-40 w-full rounded-card desktop:h-32',
+    empty: 'items-start justify-center gap-5 border-dashed p-6 desktop:min-h-64 desktop:p-8',
+    emptyIcon: 'size-8 text-muted-foreground',
+    renameForm: 'mt-3 flex flex-col gap-4',
+    renameActions: 'grid grid-cols-2 gap-3',
+  },
+  history: {
+    content: 'mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col gap-4 desktop:gap-6',
+    header:
+      'flex shrink-0 flex-wrap items-start justify-between gap-4 border-b border-border pb-4 desktop:items-center desktop:pb-6',
+    heading:
+      'min-w-0 max-w-full basis-full desktop:flex-1 desktop:basis-auto landscape-short:flex-1 landscape-short:basis-auto',
+  },
   profile: {
-    shell: '[container-type:size]',
+    shell: '',
     content:
-      'my-auto flex shrink-0 flex-col gap-[var(--profile-gap)] py-[clamp(0.5rem,2cqh,1.5rem)] [--profile-gap:clamp(0.5rem,calc(4cqh-1rem),1.5rem)] [--profile-card-padding:clamp(0.5rem,calc(3cqh-0.625rem),1rem)] desktop:mx-auto desktop:w-full desktop:max-w-2xl landscape-short:grid landscape-short:max-w-none landscape-short:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] landscape-short:gap-5',
-    group: 'flex min-w-0 flex-col gap-[var(--profile-gap)]',
-    card: 'p-[var(--profile-card-padding)]',
-    identity: 'flex flex-col items-center gap-[clamp(0.25rem,1cqh,0.75rem)] text-center',
+      'mx-auto flex w-full max-w-4xl shrink-0 flex-col gap-8 pb-8 desktop:grid desktop:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] desktop:items-start desktop:gap-10 landscape-short:grid landscape-short:grid-cols-2 landscape-short:gap-6',
+    group:
+      'contents desktop:flex desktop:min-w-0 desktop:flex-col desktop:gap-6 landscape-short:flex landscape-short:min-w-0 landscape-short:flex-col landscape-short:gap-6',
+    card: 'p-4',
+    identity: 'order-1 flex flex-col items-center gap-3 py-2 text-center',
     avatar:
-      'bg-muted text-muted-foreground flex size-[clamp(2.5rem,calc(12cqh-2rem),5rem)] shrink-0 items-center justify-center rounded-card',
-    avatarIcon: 'size-8',
-    email: 'max-w-full [overflow-wrap:anywhere]',
+      'flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted text-muted-foreground',
+    avatarIcon: 'size-9',
+    email: 'max-w-full text-sm text-muted-foreground [overflow-wrap:anywhere]',
+    joined: 'text-sm text-foreground/75',
+    links: 'order-4 overflow-hidden rounded-card border border-border divide-y divide-border',
+    plan: 'order-5 flex-row items-center justify-between',
     settings:
-      'flex min-h-12 items-center gap-3 text-left transition-transform active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100',
+      'flex min-h-18 items-center gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-[transform,opacity] active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100',
+    linkText: 'flex min-w-0 flex-1 flex-col gap-1',
     settingsLabel: 'min-w-0 flex-1',
-    settingsIcon: 'text-muted-foreground size-5 shrink-0',
-    section: 'space-y-[clamp(0.375rem,1cqh,0.75rem)]',
-    grid: 'grid grid-cols-2 gap-[clamp(0.375rem,1cqh,0.75rem)]',
+    settingsIcon: 'size-5 shrink-0 text-muted-foreground',
+    section: 'order-2 space-y-3',
+    calendarSection: 'order-3 space-y-3',
+    grid: 'grid grid-cols-2 gap-3',
     metricLabel: 'flex min-w-0 items-center gap-1.5',
     metricIcon: 'size-4 shrink-0',
     metricValue: 'leading-tight [overflow-wrap:anywhere]',
@@ -76,7 +121,6 @@ export const appLayout = {
   skeleton: {
     status: 'h-6 w-16 rounded-full',
     caption: 'h-5 w-24',
-    ring: 'size-full rounded-full',
     question: 'h-12 w-full',
     action: 'h-11 w-32',
   },

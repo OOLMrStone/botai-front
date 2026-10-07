@@ -6,9 +6,7 @@ import { ApiError, apiFetch, sleep } from '@/lib/api/client';
 export type OAuthProvider = 'yandex' | 'google' | 'vk';
 
 export interface RegisterPayload {
-  age: string;
-  firstName: string;
-  lastName: string;
+  displayName: string;
   email: string;
   password: string;
 }
@@ -46,12 +44,11 @@ export async function oauthSignIn(provider: OAuthProvider): Promise<User> {
 }
 
 export async function registerUser(payload: RegisterPayload): Promise<User> {
-  // TODO: возраст (payload.age) бэкенд пока не хранит.
   await apiFetch<User>('/api/auth/register', {
     json: {
       email: payload.email,
       password: payload.password,
-      displayName: [payload.firstName, payload.lastName].filter(Boolean).join(' ') || undefined,
+      displayName: payload.displayName,
     },
   });
 

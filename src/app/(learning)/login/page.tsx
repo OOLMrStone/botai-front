@@ -1,8 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-
+import { AuthLegalNotice } from '@/components/legal/AuthLegalNotice';
 import { ErrorNote } from '@/components/common/ErrorNote';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,118 +9,77 @@ import { OAuthButtons } from '@/components/onboarding/OAuthButtons';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { ScreenTransition } from '@/components/onboarding/ScreenTransition';
+import { AUTH_COPY, LOGIN_FORM_ID } from '@/config/auth';
 import { layout } from '@/config/layout';
-import { COPY, onboardingPath, ROUTES } from '@/config/onboarding-steps';
-import { loginUser } from '@/lib/api/auth';
-import { ApiError } from '@/lib/api/client';
-import { useOnboardingStore } from '@/stores/onboarding-store';
-import { useAuthStore } from '@/stores/auth-store';
+import { COPY, ROUTES } from '@/config/onboarding-steps';
+import { useLogin } from '@/hooks/use-login';
 
-// Вход существующего пользователя: POST /api/auth/login, сессия - в куке.
 export default function LoginPage() {
-  const router = useRouter();
-  const setUser = useAuthStore((s) => s.setUser);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // На логине поля не валидируем - у зарегистрированного они уже корректны.
-  // Достаточно, чтобы в каждом было хоть что-то.
-  const valid = email.length > 0 && password.length > 0;
-
-  const handleForgot = () => {
-    // TODO: восстановление пароля - экран и роут появятся позже.
-  };
-
-  const handleLogin = async () => {
-    setPending(true);
-    setError(null);
-
-    try {
-      const user = await loginUser({ email, password });
-      setUser(user);
-      router.push(useOnboardingStore.getState().needsProfileSave ? ROUTES.done : ROUTES.home);
-    } catch (e) {
-      setError(
-        e instanceof ApiError && e.status === 401 ? COPY.login.badCredentials : COPY.login.error,
-      );
-      setPending(false);
-    }
-  };
+  const login = useLogin();
 
   return (
     <ScreenTransition>
       <ScreenShell
-        className="pt-16"
+        className={layout.auth.shell}
         footer={
-          <div className="space-y-4">
+          <div className={layout.auth.footer}>
             <Button
+              type="submit"
+              form={LOGIN_FORM_ID}
               className={layout.cta}
-              size="default"
-              disabled={!valid || pending}
-              onClick={handleLogin}
+              disabled={!login.valid || login.pending}
             >
-              {COPY.login.action}
+              {login.pending ? AUTH_COPY.signingIn : COPY.login.action}
             </Button>
-
-            <div className="text-muted-foreground flex items-center gap-3 text-sm">
-              <span className="bg-border h-px flex-1" />
-              или
-              <span className="bg-border h-px flex-1" />
-            </div>
-
-            <OAuthButtons redirectTo={ROUTES.home} />
-
+            <OAuthButtons redirectTo={ROUTES.home} separator="before" />
             <Button
               variant="ghost"
               className={layout.cta}
-              onClick={() => router.push(onboardingPath('welcome'))}
+              disabled={login.pending}
+              onClick={login.register}
             >
               {COPY.login.noAccount}
             </Button>
+            <AuthLegalNotice mode="login" />
           </div>
         }
       >
         <ScreenHeading title={COPY.login.title} subtitle={COPY.login.subtitle} />
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Почта</Label>
+        <form
+          id={LOGIN_FORM_ID}
+          className={layout.auth.form}
+          noValidate
+          onSubmit={(event) => {
+            event.preventDefault();
+            void login.submit();
+          }}
+        >
+          <div className={layout.auth.field}>
+            <Label htmlFor="email">{AUTH_COPY.email}</Label>
             <Input
               id="email"
               type="email"
               inputMode="email"
               autoComplete="email"
               autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              disabled={login.pending}
+              value={login.email}
+              onChange={(event) => login.setEmail(event.target.value)}
             />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Пароль</Label>
+          <div className={layout.auth.field}>
+            <Label htmlFor="password">{AUTH_COPY.password}</Label>
             <Input
               id="password"
               type="password"
               autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              disabled={login.pending}
+              value={login.password}
+              onChange={(event) => login.setPassword(event.target.value)}
             />
-            <div className="flex justify-end">
-              <Button
-                type="button"
-                variant="link"
-                className={layout.auth.forgot}
-                onClick={handleForgot}
-              >
-                {COPY.login.forgot}
-              </Button>
-            </div>
           </div>
-
-          {error ? <ErrorNote message={error} /> : null}
-        </div>
+          {login.error ? <ErrorNote message={login.error} /> : null}
+        </form>
       </ScreenShell>
     </ScreenTransition>
   );

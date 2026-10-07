@@ -10,6 +10,7 @@ export interface LemurAnimation {
   poster: string;
   loop: boolean;
   loopFrom?: number;
+  seamlessLoop?: { duration: number; fps: number; overlap: number };
   reaction?: {
     video: string;
     label: string;
@@ -21,26 +22,29 @@ export interface LemurAnimation {
     phases?: readonly { offset: number; video: string }[];
   };
   square?: boolean;
+  rendering?: 'packed-alpha';
+  frameSize?: { width: number; height: number };
 }
 
 const hangMediaPath = `/${hangMotion.paths.output.replace(/^public\//, '')}`;
-const hangMediaVersion = '?v=7';
+const hangMediaVersion = '?v=9';
 const hangReactionPhases = Array.from(
   { length: Math.round(hangMotion.duration / hangMotion.reactionPhaseStep) },
   (_, index) => ({
     offset: index * hangMotion.reactionPhaseStep,
-    video: `${hangMediaPath}/${hangMotion.reactionPhaseVideo.replace(
-      '{index}',
-      String(index).padStart(hangMotion.reactionPhaseDigits, '0'),
-    )}${hangMediaVersion}`,
+    video: `${hangMediaPath}/${hangMotion.reactionPhaseVideo
+      .replace('{index}', String(index).padStart(hangMotion.reactionPhaseDigits, '0'))
+      .replace('.mp4', '-alpha.mp4')}${hangMediaVersion}`,
   }),
 );
 
 export const LEMUR_ANIMATIONS = {
   paywall: {
     ...LEMUR_COPY.paywall,
-    video: '/lemur-paywall/paywall.mp4?v=6',
-    poster: '/lemur-paywall/poster.png?v=6',
+    video: '/paywall-preview/lemur-alpha.mp4?v=alpha-v1',
+    poster: '/paywall-preview/lemur-alpha-poster.png?v=alpha-v1',
+    rendering: 'packed-alpha',
+    frameSize: { width: 1536, height: 1024 },
     loop: true,
   },
   cool: {
@@ -52,9 +56,15 @@ export const LEMUR_ANIMATIONS = {
   },
   hang: {
     ...LEMUR_COPY.hang,
-    video: `${hangMediaPath}/idle-preview.mp4${hangMediaVersion}`,
-    poster: `${hangMediaPath}/poster.png${hangMediaVersion}`,
+    video: `${hangMediaPath}/idle-alpha.mp4${hangMediaVersion}`,
+    poster: `${hangMediaPath}/poster-alpha.png${hangMediaVersion}`,
+    rendering: 'packed-alpha',
     loop: true,
+    seamlessLoop: {
+      duration: hangMotion.duration,
+      fps: hangMotion.fps,
+      overlap: hangMotion.loopOverlap,
+    },
     reaction: {
       video: hangReactionPhases[0].video,
       label: LEMUR_COPY.hang.reactionLabel,
@@ -78,15 +88,17 @@ export const LEMUR_ANIMATIONS = {
     ...LEMUR_COPY.joy,
     label:
       'Радостный лемур подпрыгивает со сверкающими глазами и остаётся радостно стоять на лапках',
-    video: '/lemur-joy/joy.mp4?v=11',
-    poster: '/lemur-joy/poster.png?v=11',
+    video: '/lemur-joy/joy-alpha.mp4?v=alpha-v1',
+    poster: '/lemur-joy/poster-alpha.png?v=alpha-v1',
+    rendering: 'packed-alpha',
     loop: false,
     loopFrom: joyMotion.restLoopStart,
   },
   wave: {
     ...LEMUR_COPY.wave,
-    video: '/lemur-wave/wave.mp4?v=10',
-    poster: '/lemur-wave/poster.png?v=10',
+    video: '/lemur-wave/wave-alpha.mp4?v=alpha-v1',
+    poster: '/lemur-wave/poster-alpha.png?v=alpha-v1',
+    rendering: 'packed-alpha',
     loop: true,
   },
   cry: {
@@ -97,8 +109,9 @@ export const LEMUR_ANIMATIONS = {
   },
   sit: {
     ...LEMUR_COPY.sit,
-    video: '/lemur-sit/sit.mp4?v=3',
-    poster: '/lemur-sit/poster.png?v=3',
+    video: '/lemur-sit/sit-alpha.mp4?v=alpha-v1',
+    poster: '/lemur-sit/poster-alpha.png?v=alpha-v1',
+    rendering: 'packed-alpha',
     loop: true,
   },
   sitLeft: {

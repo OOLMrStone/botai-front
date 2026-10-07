@@ -1,94 +1,148 @@
 'use client';
+
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useAsyncData } from '@/hooks/use-async-data';
-import { INTEGRATION, LEARNING_COPY as C, LEARNING_ROUTES } from '@/config/integration';
+import { useRef, useState } from 'react';
+
+import { INTEGRATION } from '@/config/integration';
 import { ROUTES } from '@/config/onboarding-steps';
-import { ALL_TASK_TOPICS, TASK_DIFFICULTY_SLIDER } from '@/config/tasks';
-import type { Difficulty } from '@/config/tasks';
+import { TASK_COPY, TASK_DIFFICULTY_SLIDER, TRAINING_SETUP } from '@/config/tasks';
+import { useAsyncData } from '@/hooks/use-async-data';
+import { useTrainingLaunch } from '@/hooks/use-training-launch';
 import type { Task, TrainingSelection } from '@/lib/api/learning-types';
-import { createTraining } from '@/lib/api/learning';
-import { catalogResource, invalidateAttempts } from '@/lib/learning-resources';
+import { catalogResource } from '@/lib/learning-resources';
+import { difficultyLabelKey, clampDifficultyLevel } from '@/lib/task-difficulty';
+import {
+  availableTrainingTasks,
+  clampTrainingCount,
+  trainingNumberOptions,
+} from '@/lib/training-setup';
 import { useTasksStore } from '@/stores/tasks-store';
+
 export function useTrainingSetupPage(tasks: Task[]) {
   const router = useRouter();
   const catalog = useAsyncData(catalogResource);
+  const launch = useTrainingLaunch();
   const initialNumber = useTasksStore((state) => state.setupExamNumber);
+  const pickerToggleRef = useRef<HTMLElement>(null);
+  const [numbersOpen, setNumbersOpen] = useState(!initialNumber);
   const [selections, setSelections] = useState<TrainingSelection[]>(
-    initialNumber ? [{ examNumber: initialNumber, count: 1 }] : [],
+    initialNumber
+      ? [
+          {
+            examNumber: initialNumber,
+            count: clampTrainingCount(
+              TRAINING_SETUP.defaultCount,
+              availableTrainingTasks(
+                tasks,
+                { examNumber: initialNumber },
+                TASK_DIFFICULTY_SLIDER.defaultValue,
+              ),
+            ),
+          },
+        ]
+      : [],
   );
   const [difficultyLevel, setDifficultyLevel] = useState<number>(
     TASK_DIFFICULTY_SLIDER.defaultValue,
   );
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const difficulty: Difficulty | undefined =
-    difficultyLevel === TASK_DIFFICULTY_SLIDER.min
-      ? 'easy'
-      : difficultyLevel === TASK_DIFFICULTY_SLIDER.max
-        ? 'hard'
-        : undefined;
-  const toggle = (number: number) =>
-    setSelections((current) =>
-      current.some((s) => s.examNumber === number)
-        ? current.filter((s) => s.examNumber !== number)
-        : [...current, { examNumber: number, count: 1 }],
+  const available = (selection: TrainingSelection, level = difficultyLevel) =>
+    availableTrainingTasks(tasks, selection, level);
+  const toggle = (examNumber: number) => {
+    const removingLast = selections.length === 1 && selections[0].examNumber === examNumber;
+    if (!selections.length || removingLast) {
+      pickerToggleRef.current?.focus();
+      setNumbersOpen(removingLast);
+    }
+    const count = clampTrainingCount(
+      TRAINING_SETUP.defaultCount,
+      available({ examNumber, count: TRAINING_SETUP.defaultCount }),
     );
-  const update = (number: number, patch: Partial<TrainingSelection>) =>
     setSelections((current) =>
-      current.map((s) => (s.examNumber === number ? { ...s, ...patch } : s)),
+      current.some((selection) => selection.examNumber === examNumber)
+        ? current.filter((selection) => selection.examNumber !== examNumber)
+        : [...current, { examNumber, count }],
     );
-  const available = (selection: TrainingSelection) =>
-    tasks.filter(
-      (task) =>
-        task.examNumber === selection.examNumber &&
-        (!difficulty || task.difficulty === difficulty) &&
-        (!selection.topicIds?.length ||
-          selection.topicIds.some((id) => task.topicIds.includes(id))),
-    ).length;
-  const total = selections.reduce((n, s) => n + s.count, 0);
-  const shortage = selections.some((s) => s.count > available(s));
+  };
+  const update = (examNumber: number, patch: Partial<TrainingSelection>) =>
+    setSelections((current) =>
+      current.map((selection) =>
+        selection.examNumber === examNumber ? { ...selection, ...patch } : selection,
+      ),
+    );
+  const toggleTopic = (examNumber: number, topicId?: string) =>
+    setSelections((current) =>
+      current.map((selection) => {
+        if (selection.examNumber !== examNumber) return selection;
+        const selected = selection.topicIds ?? [];
+        const topicIds = !topicId
+          ? []
+          : selected.includes(topicId)
+            ? selected.filter((id) => id !== topicId)
+            : [...selected, topicId];
+        return { ...selection, topicIds };
+      }),
+    );
+  const changeDifficultyLevel = (nextLevel: number) => {
+    const level = clampDifficultyLevel(nextLevel);
+    setDifficultyLevel(level);
+  };
+  const total = selections.reduce((sum, selection) => sum + selection.count, 0);
+  const shortage = selections.some((selection) => selection.count > available(selection));
+  const overLimit = total > INTEGRATION.maxTasks;
   const canStart =
     Boolean(catalog.data) &&
-    !busy &&
+    !launch.busy &&
     !shortage &&
+    !overLimit &&
     total > 0 &&
-    total <= INTEGRATION.maxTasks &&
     selections.every(
-      (s) => Number.isInteger(s.count) && s.count >= 1 && s.count <= INTEGRATION.maxPerNumber,
+      (selection) =>
+        Number.isInteger(selection.count) &&
+        selection.count >= TRAINING_SETUP.quickStartCount &&
+        selection.count <= INTEGRATION.maxPerNumber,
     );
+  const startDisabledReason =
+    launch.busy || !catalog.data
+      ? undefined
+      : !selections.length
+        ? TASK_COPY.setup.chooseNumbers
+        : overLimit
+          ? TASK_COPY.setup.tooMany(INTEGRATION.maxTasks)
+          : shortage
+            ? TASK_COPY.setup.insufficient
+            : undefined;
   const start = async () => {
     if (!canStart || !catalog.data) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const attempt = await createTraining(
-        { formatId: catalog.data.format.id, selections, difficulty, source: 'catalog' },
-        crypto.randomUUID(),
-      );
-      invalidateAttempts();
-      router.push(LEARNING_ROUTES.attempt(attempt.id));
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : C.saveError);
-      setBusy(false);
-    }
+    await launch.start({
+      formatId: catalog.data.format.id,
+      selections,
+      difficultyPreference: difficultyLevel,
+      source: 'catalog',
+    });
   };
+
   return {
     catalog,
+    numbers: trainingNumberOptions(catalog.data?.numbers ?? [], tasks, selections, difficultyLevel),
     selections,
+    numbersOpen,
+    setNumbersOpen,
+    pickerToggleRef,
     toggle,
+    toggleTopic,
     update,
     available,
     total,
     shortage,
+    overLimit,
     canStart,
-    difficulty,
+    startDisabledReason,
+    difficultyLabelKey: difficultyLabelKey(difficultyLevel),
     difficultyLevel,
-    setDifficultyLevel,
-    busy,
-    error,
+    setDifficultyLevel: changeDifficultyLevel,
+    busy: launch.busy,
+    error: launch.error,
     start,
     close: () => router.push(ROUTES.tasks),
-    allTopics: ALL_TASK_TOPICS,
   };
 }

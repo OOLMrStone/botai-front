@@ -68,3 +68,6 @@ export function ownsAttemptDraft(id: string, session: AttemptDraft) {
 export function clearAttemptDrafts() {
   sessions.clear();
 }
+export function forgetAttemptDraft(id: string) {
+  sessions.delete(id);
+}

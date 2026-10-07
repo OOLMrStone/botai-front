@@ -17,6 +17,10 @@ const money = new Intl.NumberFormat(STOREFRONT_PRICE_FORMAT.locale, {
 
 export function useStorefrontPricing() {
   const [period, setPeriod] = useState<StorefrontPeriod>(STOREFRONT_PERIODS[0].id);
-  const plans = STOREFRONT_PLANS.map((plan) => ({ ...plan, price: money.format(plan[period]) }));
+  const plans = STOREFRONT_PLANS.map((plan) => ({
+    ...plan,
+    price: money.format(plan[period]),
+    quota: period === 'season' ? plan.seasonQuota : plan.quota,
+  }));
   return { period, setPeriod, plans };
 }

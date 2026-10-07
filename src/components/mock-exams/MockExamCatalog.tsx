@@ -14,7 +14,6 @@ import {
 } from '@/config/mock-exams';
 import { useServerExams } from '@/hooks/use-server-exams';
 import { ErrorNote } from '@/components/common/ErrorNote';
-import { Button } from '@/components/ui/button';
 import { LEARNING_COPY as C } from '@/config/integration';
 import { useMockExamSortMenu } from '@/hooks/use-mock-exam-sort-menu';
 import { filterMockExams, sortMockExams } from '@/lib/mock-exams';
@@ -48,9 +47,11 @@ export function MockExamCatalog() {
   return (
     <>
       {navigation.failed ? <ErrorNote message={C.loadError} onRetry={navigation.retry} /> : null}
-      {navigation.error ? <ErrorNote message={navigation.error} /> : null}
-      {!navigation.data && !navigation.failed ? (
-        <p className={layout.typography.description}>{C.loading}</p>
+      {navigation.error && !detailsExam ? <ErrorNote message={navigation.error} /> : null}
+      {navigation.loading && !navigation.failed ? (
+        <p className={layout.typography.description} role="status">
+          {C.loading}
+        </p>
       ) : null}
       <div className={MOCK_EXAM_LAYOUT.toolbar}>
         <div ref={sortRootRef} className={MOCK_EXAM_LAYOUT.sortRoot}>
@@ -132,7 +133,7 @@ export function MockExamCatalog() {
           </button>
           {filterOpen ? (
             <div
-              className={cn(MOCK_EXAM_LAYOUT.sortMenu, 'right-0 left-auto w-60')}
+              className={cn(MOCK_EXAM_LAYOUT.sortMenu, MOCK_EXAM_LAYOUT.filterMenu)}
               role="listbox"
               aria-label={MOCK_EXAM_COPY.filterLabel}
               onKeyDown={onFilterMenuKeyDown}
@@ -165,7 +166,7 @@ export function MockExamCatalog() {
           ) : null}
         </div>
       </div>
-      <div className={MOCK_EXAM_LAYOUT.listFrame}>
+      <div className={MOCK_EXAM_LAYOUT.listFrame} aria-busy={navigation.loading}>
         <div className={cn(layout.scroll, MOCK_EXAM_LAYOUT.list)}>
           {visibleExams.map((exam) => (
             <MockExamCard
@@ -176,7 +177,7 @@ export function MockExamCatalog() {
               opening={navigation.openingExamId === exam.id}
               disabled={navigation.pending}
               onOpen={() => {
-                if (results[exam.id]) {
+                if (results[exam.id] || sessions[exam.id]) {
                   setDetailsExamId(exam.id);
                   return;
                 }
@@ -184,17 +185,10 @@ export function MockExamCatalog() {
               }}
             />
           ))}
-          {exams.map((exam) => (
-            <Button
-              key={exam.id}
-              variant="outline"
-              disabled={navigation.pending}
-              onClick={() => void navigation.openExam(exam.id, true)}
-            >
-              {C.newAttempt} · {exam.title}
-            </Button>
-          ))}
-          {visibleExams.length === 0 ? (
+          {!navigation.loading &&
+          !navigation.failed &&
+          navigation.data !== null &&
+          visibleExams.length === 0 ? (
             <p className={MOCK_EXAM_LAYOUT.emptyFilter}>{MOCK_EXAM_COPY.emptyFilter}</p>
           ) : null}
         </div>
@@ -202,10 +196,16 @@ export function MockExamCatalog() {
       <MockExamDetails
         exam={detailsExam}
         result={detailsExamId ? results[detailsExamId] : undefined}
+        inProgress={Boolean(detailsExamId && sessions[detailsExamId])}
+        pending={navigation.pending}
+        error={navigation.error}
         onClose={() => setDetailsExamId(undefined)}
         onView={() => {
           if (!detailsExam) return;
           navigation.openExam(detailsExam.id);
+        }}
+        onStartNew={() => {
+          if (detailsExam) void navigation.openExam(detailsExam.id, true);
         }}
       />
     </>

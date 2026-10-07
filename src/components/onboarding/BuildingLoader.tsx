@@ -3,7 +3,7 @@
 import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 
-import { MascotPlaceholder } from '@/components/onboarding/MascotPlaceholder';
+import { OnboardingMascot } from '@/components/onboarding/OnboardingMascot';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { TIMINGS } from '@/config/constants';
 import { MOTION_STYLES } from '@/config/motion';
@@ -30,7 +30,7 @@ export function BuildingLoader({
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
-      <MascotPlaceholder />
+      <OnboardingMascot />
 
       <ScreenHeading title={title} subtitle={subtitle} />
 

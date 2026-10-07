@@ -1,9 +1,12 @@
 import type { CSSProperties } from 'react';
 
+import { BILLING_COPY, TRIAL_OFFER } from '@/config/storefront-pricing';
 import { BRAND } from '@/config/brand';
+import { LEGAL_OPERATOR } from '@/config/legal-operator';
+import { LEGAL_COPY } from '@/config/legal';
 import { onboardingPath, ROUTES } from '@/config/onboarding-steps';
 
-const email = 'botai.ege@gmail.com';
+const email = LEGAL_OPERATOR.email;
 
 export const STOREFRONT = {
   metadata: {
@@ -29,6 +32,7 @@ export const STOREFRONT = {
     height: 775,
     sizes: '(min-width: 1024px) 440px, 80vw',
   },
+  features: { heroMascot: false, workflow: false, example: false, trial: TRIAL_OFFER.available },
   sections: {
     workflow: 'how-it-works',
     example: 'example',
@@ -41,11 +45,20 @@ export const STOREFRONT = {
 } as const;
 
 export const STOREFRONT_NAV = [
-  { label: 'Как это работает', href: `#${STOREFRONT.sections.workflow}` },
-  { label: 'Пример проверки', href: `#${STOREFRONT.sections.example}` },
+  {
+    label: 'Как это работает',
+    href: `#${STOREFRONT.sections.workflow}`,
+    enabled: STOREFRONT.features.workflow,
+  },
+  {
+    label: 'Пример проверки',
+    href: `#${STOREFRONT.sections.example}`,
+    enabled: STOREFRONT.features.example,
+  },
   { label: 'Тарифы', href: `#${STOREFRONT.sections.pricing}` },
   { label: 'Вопросы', href: `#${STOREFRONT.sections.questions}` },
-] as const;
+  { label: LEGAL_COPY.title, href: ROUTES.legal },
+].filter((item) => item.enabled !== false);
 
 export const STOREFRONT_COPY = {
   nav: 'Навигация по сайту',
@@ -58,7 +71,7 @@ export const STOREFRONT_COPY = {
   continue: 'Продолжить подготовку',
   account: 'Мой кабинет',
   sessionError: 'Не удалось проверить вход. Можно повторить проверку или войти заново',
-  trial: '3 дня бесплатно',
+  trial: `${TRIAL_OFFER.days} дня бесплатно`,
   trialDetails: 'Без карты и автопродления',
   hero: {
     eyebrow: 'ЕГЭ · Профильная математика',
@@ -86,57 +99,17 @@ export const STOREFRONT_COPY = {
     note: 'Добавим настоящую работу с пояснениями к каждому замечанию',
     label: 'Пример готовится',
   },
-  comparison: {
-    eyebrow: 'Почему ботать с нами',
-    title: 'Создан для проверки\nтвоих решений',
-    description: 'Готовый сценарий для ЕГЭ: от фотографии тетради до разбора ошибок',
-    scrollLabel:
-      'Сравнение сервиса, нейросети и репетитора. Листай вправо, чтобы увидеть все варианты',
-    scrollHint: 'Листай таблицу вправо →',
-    headers: ['Что важно', BRAND.name, 'Нейросеть', 'Репетитор'],
-    rows: [
-      {
-        label: 'Подготовка к проверке',
-        values: [
-          'Просто фото решения',
-          'Фото и запрос с объяснением задачи',
-          'Нужно найти преподавателя и договориться',
-        ],
-      },
-      {
-        label: 'Критерии ЕГЭ',
-        values: [
-          'В основе разбора',
-          'Нужно задать в запросе',
-          'Зависят от специализации преподавателя',
-        ],
-      },
-      {
-        label: 'Разбор ошибок',
-        values: ['Замечания к шагам решения', 'Ответ в свободном диалоге', 'Обсуждение на занятии'],
-      },
-      {
-        label: 'Практика после разбора',
-        values: [
-          'Задачи и готовые решения в одном месте',
-          'Нужно попросить дополнительные задания',
-          'По программе преподавателя',
-        ],
-      },
-    ],
-  },
   pricing: {
     eyebrow: 'Тарифы',
     title: 'Больше практики.\nМеньше непонятных ошибок',
     description: 'Выбери количество проверок под свой темп подготовки',
     free: 'Практика и готовые решения - бесплатно',
-    action: 'Начать подготовку',
-    periodLabel: 'Период оплаты',
-    quota: 'проверок развёрнутых заданий в месяц',
-    monthUnit: 'за месяц',
-    seasonUnit: 'за 8 месяцев',
-    seasonNote: 'Лимит проверок указан на каждый месяц сезона',
-    recommendation: 'Для регулярной практики',
+    trial: `${TRIAL_OFFER.checks} бесплатные проверки за ${TRIAL_OFFER.days} дня`,
+    trialStatus: 'Скоро',
+    action: 'Купить',
+    ...BILLING_COPY,
+    recommendation: 'Рекомендуемый',
+    details: 'Разбор решения по критериям ЕГЭ с объяснением ошибок',
   },
   about: {
     eyebrow: 'Вопросы и ответы',
@@ -162,10 +135,6 @@ export const STOREFRONT_COPY = {
           'Практика и готовые решения. Для проверки развёрнутых заданий выбери подходящий тариф',
       },
       {
-        question: 'Можно попробовать бесплатно?',
-        answer: 'Да, первые 3 дня бесплатны. Карта не нужна, автопродления нет',
-      },
-      {
         question: 'Какой тариф выбрать?',
         answer:
           'Ориентируйся на количество работ, которые хочешь проверять каждый месяц. Во всех тарифах один формат разбора, отличается лимит проверок',
@@ -179,17 +148,17 @@ export const STOREFRONT_COPY = {
   footer: {
     description: 'ЕГЭ по профильной математике',
     contactTitle: 'Контакты',
-    legal: 'Самозанятый Слобожанов Василий Николаевич',
-    taxId: 'ИНН 771701858219',
+    legal: LEGAL_OPERATOR.name,
+    taxId: `ИНН ${LEGAL_OPERATOR.taxId}`,
   },
 } as const;
 
 export const STOREFRONT_THEME = {
-  '--sf-paper': '#faf9f6',
-  '--sf-warm': '#f0efeb',
-  '--sf-ink': '#242422',
-  '--sf-muted': '#65655f',
-  '--sf-orange': '#e8b931',
-  '--sf-pale': '#f4f1e7',
+  '--sf-paper': 'var(--palette-paper)',
+  '--sf-warm': 'var(--palette-surface)',
+  '--sf-ink': 'var(--palette-ink)',
+  '--sf-muted': 'var(--palette-muted)',
+  '--sf-orange': 'var(--palette-yellow)',
+  '--sf-pale': 'var(--palette-pale)',
   colorScheme: 'light',
 } as CSSProperties;

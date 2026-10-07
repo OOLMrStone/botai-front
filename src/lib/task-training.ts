@@ -6,9 +6,11 @@ import type {
   TrainingTask,
 } from '@/config/tasks';
 import { isValidShortAnswer, normalizeShortAnswer } from '@/lib/validation';
-import { allocateDifficultyCounts, difficultiesAt } from '@/lib/task-difficulty';
-
-const DIFFICULTY_ORDER: Record<Difficulty, number> = { easy: 0, medium: 1, hard: 2 };
+import {
+  allocateDifficultyCounts,
+  difficultiesAt,
+  allowsUnratedDifficulty,
+} from '@/lib/task-difficulty';
 
 interface SelectTasksInput {
   tasks: TrainingTask[];
@@ -40,16 +42,19 @@ export function selectTrainingTasks({
 
   const activeDifficulties =
     difficultyLevel === undefined ? difficulties : difficultiesAt(difficultyLevel);
+  const unrated =
+    difficultyLevel !== undefined && allowsUnratedDifficulty(difficultyLevel)
+      ? tasks.filter((task) => task.difficulty === null).sort((a, b) => priority(a) - priority(b))
+      : [];
   const sorted = tasks
-    .filter((task) => activeDifficulties.includes(task.difficulty))
+    .filter((task) => task.difficulty !== null && activeDifficulties.includes(task.difficulty))
     .sort(
       (a, b) =>
-        priority(a) - priority(b) ||
-        DIFFICULTY_ORDER[a.difficulty] - DIFFICULTY_ORDER[b.difficulty],
+        priority(a) - priority(b) || (a.difficulty ?? Infinity) - (b.difficulty ?? Infinity),
     );
 
   if (count === 'all' || difficultyLevel === undefined) {
-    const available = sorted.filter((task) => history[task.id] !== 'correct');
+    const available = [...sorted, ...unrated].filter((task) => history[task.id] !== 'correct');
     return count === 'all' ? available : available.slice(0, count);
   }
 
@@ -61,7 +66,7 @@ export function selectTrainingTasks({
 
   const selectedIds = new Set(selected.map((task) => task.id));
   const remainder = sorted.filter((task) => !selectedIds.has(task.id));
-  return [...selected, ...remainder].slice(0, count);
+  return [...selected, ...remainder, ...unrated].slice(0, count);
 }
 
 export function taskProgress(tasks: TrainingTask[], history: Record<string, TaskHistoryStatus>) {

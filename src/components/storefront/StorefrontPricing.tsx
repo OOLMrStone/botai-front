@@ -1,18 +1,17 @@
 'use client';
 
-import { Check } from 'lucide-react';
+import { ArrowUpRight, Check } from 'lucide-react';
 
+import { BillingPeriodSwitch } from '@/components/common/BillingPeriodSwitch';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
-import { StorefrontAction } from '@/components/storefront/StorefrontAction';
 import { StorefrontSectionIntro } from '@/components/storefront/StorefrontSectionIntro';
 import { Button } from '@/components/ui/button';
 import { layout } from '@/config/layout';
 import { STOREFRONT, STOREFRONT_COPY as COPY } from '@/config/storefront';
-import { STOREFRONT_PERIODS } from '@/config/storefront-pricing';
 import { useStorefrontPricing } from '@/hooks/use-storefront-pricing';
 import { cn } from '@/lib/utils';
 
-export function StorefrontPricing({ entryHref }: { entryHref: string }) {
+export function StorefrontPricing() {
   const { period, setPeriod, plans } = useStorefrontPricing();
 
   return (
@@ -22,36 +21,25 @@ export function StorefrontPricing({ entryHref }: { entryHref: string }) {
     >
       <div className={layout.storefront.container}>
         <StorefrontSectionIntro {...COPY.pricing} />
-        <div className={layout.storefront.trialBanner}>
-          <p className={layout.storefront.trialTitle}>{COPY.trial}</p>
-          <p className={layout.storefront.helper}>{COPY.trialDetails}</p>
-        </div>
         <div className={layout.storefront.pricingToolbar}>
-          <p className={layout.storefront.freePractice}>
-            <Check className={layout.storefront.icon} aria-hidden />
-            {COPY.pricing.free}
-          </p>
-          <div
-            className={layout.storefront.periods}
-            role="group"
-            aria-label={COPY.pricing.periodLabel}
-          >
-            {STOREFRONT_PERIODS.map((option) => (
-              <Button
-                key={option.id}
-                variant="ghost"
-                size="default"
-                aria-pressed={period === option.id}
-                onClick={() => setPeriod(option.id)}
-                className={cn(
-                  layout.storefront.periodButton,
-                  period === option.id && layout.storefront.periodSelected,
-                )}
-              >
-                {option.label}
-              </Button>
-            ))}
+          <div className={layout.storefront.pricingBenefits}>
+            <p className={layout.storefront.freePractice}>
+              <Check className={layout.storefront.smallIcon} aria-hidden />
+              {COPY.pricing.free}
+            </p>
+            <p className={layout.storefront.trialBenefit}>
+              <Check className={layout.storefront.smallIcon} aria-hidden />
+              {COPY.pricing.trial}
+              {!STOREFRONT.features.trial ? (
+                <span className={layout.storefront.trialStatus}>{COPY.pricing.trialStatus}</span>
+              ) : null}
+            </p>
           </div>
+          <BillingPeriodSwitch
+            value={period}
+            onChange={setPeriod}
+            className={layout.storefront.periods}
+          />
         </div>
         <div className={layout.storefront.pricingGrid}>
           {plans.map((plan) => (
@@ -62,37 +50,39 @@ export function StorefrontPricing({ entryHref }: { entryHref: string }) {
                 plan.recommended && layout.storefront.priceRecommended,
               )}
             >
+              {plan.recommended ? (
+                <span className={layout.storefront.priceBadge}>{COPY.pricing.recommendation}</span>
+              ) : null}
               <div className={layout.storefront.priceHeading}>
                 <ScreenHeading as="h3" variant="landingCard" title={plan.name} />
-                {plan.recommended ? (
-                  <p className={layout.storefront.priceRecommendation}>
-                    {COPY.pricing.recommendation}
-                  </p>
-                ) : null}
               </div>
               <div className={layout.storefront.priceAmount}>
                 <p className={layout.storefront.priceValue}>{plan.price}</p>
-                <p className={layout.storefront.helper}>
+                <p className={layout.storefront.priceUnit}>
                   {period === 'month' ? COPY.pricing.monthUnit : COPY.pricing.seasonUnit}
                 </p>
               </div>
               <p className={layout.storefront.priceQuota}>
-                <span className={layout.storefront.quotaValue}>{plan.quota}</span>
-                {COPY.pricing.quota}
+                <Check className={layout.storefront.smallIcon} aria-hidden />
+                {COPY.pricing.checksIncluded(plan.quota)}
               </p>
-              <StorefrontAction
-                href={entryHref}
-                tone="dark"
-                className={layout.storefront.priceAction}
+              <p className={layout.storefront.priceDetails}>{COPY.pricing.details}</p>
+              <Button
+                variant="storefrontDark"
+                size="default"
+                className={cn(layout.storefront.action, layout.storefront.priceAction)}
+                disabled
+                disabledReason={COPY.pricing.checkoutUnavailable}
               >
                 {COPY.pricing.action}
-              </StorefrontAction>
+                <ArrowUpRight className={layout.storefront.smallIcon} aria-hidden />
+              </Button>
             </article>
           ))}
         </div>
-        {period === 'season' ? (
-          <p className={layout.storefront.pricingNote}>{COPY.pricing.seasonNote}</p>
-        ) : null}
+        <p className={layout.storefront.pricingNote}>
+          {period === 'season' ? COPY.pricing.seasonNote : COPY.pricing.monthNote}
+        </p>
       </div>
     </section>
   );

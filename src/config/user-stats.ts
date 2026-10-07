@@ -9,5 +9,13 @@ export const USER_STATS_MOCK = {
 
 export const STUDY_TIME = {
   minutesPerHour: 60,
-  hoursFormat: new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }),
+  minutesLabel: (minutes: number) => `${minutes} мин`,
+  hoursLabel: (hours: number, minutes: number) =>
+    minutes ? `${hours} ч ${minutes} мин` : `${hours} ч`,
+} as const;
+
+export const STREAK_FORMAT = {
+  plural: new Intl.PluralRules('ru-RU'),
+  units: { one: 'день', few: 'дня', many: 'дней', other: 'дней', zero: 'дней', two: 'дня' },
+  label: (days: string) => `${days} в ударе`,
 } as const;

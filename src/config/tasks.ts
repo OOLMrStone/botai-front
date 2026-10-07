@@ -4,7 +4,7 @@ import { BRAND } from '@/config/brand';
 
 type ExamPart = 1 | 2;
 
-export type Difficulty = 'easy' | 'medium' | 'hard';
+export type Difficulty = 1 | 2 | 3 | 4 | 5;
 
 export type TaskStatus = 'unverified' | 'correct' | 'incorrect' | 'partial';
 export type TaskHistoryStatus = 'in-progress' | 'correct';
@@ -26,16 +26,23 @@ export const TASK_SOLVED_DATE_FORMAT = new Intl.DateTimeFormat('ru-RU', {
   day: 'numeric',
   month: 'short',
 });
-export const TASK_COUNT_OPTIONS = [5, 10, 20, 'all'] as const;
-export const TASK_DIFFICULTY_OPTIONS: Difficulty[] = ['easy', 'medium', 'hard'];
-export type TaskCount = (typeof TASK_COUNT_OPTIONS)[number];
+export const TASK_COUNT_OPTIONS = [3, 5, 10, 20] as const;
+export const TRAINING_SETUP = { defaultCount: TASK_COUNT_OPTIONS[0], quickStartCount: 1 } as const;
+export const TASK_DIFFICULTY_OPTIONS: Difficulty[] = [1, 2, 3, 4, 5];
+export type TaskCount = (typeof TASK_COUNT_OPTIONS)[number] | 'all';
 
 export const TASK_DIFFICULTY_SLIDER = {
   min: 0,
   max: 100,
-  step: 5,
+  step: 1,
   defaultValue: 50,
 } as const;
+
+export const TASK_DIFFICULTY_ANCHORS: { level: number; weights: Record<Difficulty, number> }[] = [
+  { level: 0, weights: { 1: 1, 2: 0, 3: 0, 4: 0, 5: 0 } },
+  { level: 50, weights: { 1: 0.05, 2: 0.45, 3: 0.45, 4: 0.04, 5: 0.01 } },
+  { level: 100, weights: { 1: 0, 2: 0, 3: 0, 4: 0.7, 5: 0.3 } },
+];
 
 export interface TrainingSettings {
   count: TaskCount;
@@ -45,7 +52,7 @@ export interface TrainingSettings {
 
 export const DEFAULT_TRAINING_SETTINGS: TrainingSettings = {
   count: 10,
-  difficulties: ['easy', 'medium', 'hard'],
+  difficulties: TASK_DIFFICULTY_OPTIONS,
   difficultyLevel: TASK_DIFFICULTY_SLIDER.defaultValue,
 };
 
@@ -76,9 +83,6 @@ export interface TaskSource {
 export const TASK_CONTENT = {
   formulaHeightEm: 1,
   formulaAlignment: 'middle',
-  sourceHosts: ['fipi.ru', 'doc.fipi.ru', 'statgrad.org'],
-  sourceLabel: 'Источник',
-  sourceSeparator: ' · ',
   formulaAlt: 'Формула',
   solutionLabel: 'Решение',
   selfReview: 'Открыть ответ и решение без оценки',
@@ -111,7 +115,8 @@ export interface TrainingTask {
   examPart: ExamPart;
   examNumber: number;
   topicIds: string[];
-  difficulty: Difficulty;
+  difficulty: Difficulty | null;
+  isGrob: boolean;
   content: TaskBlock[];
   acceptedAnswers: string[];
   solution: TaskBlock[];
@@ -203,39 +208,70 @@ export const TASK_COPY = {
   examNumberPrefix: '№',
   idPrefix: '#',
   favorites: {
-    all: 'Все избранные',
+    all: 'Решать все избранные',
+    limited: (count: number) => `Решить первые ${count} задач`,
+    open: 'Решить задачу',
     empty: 'Сохраняй сложные задачи, чтобы вернуться к ним позже',
     removeTitle: 'Убрать решённые задачи из избранного?',
     remove: 'Убрать',
     keep: 'Оставить',
   },
   soon: 'Скоро',
+  catalog: {
+    builder: 'Собрать тренировку',
+    opening: 'Открываем задачу',
+    available: (count: number) => `${count} в банке`,
+    solved: (count: number, total: number) => `Решено ${count} из ${total}`,
+  },
   setup: {
-    title: 'Настрой тренировку',
+    title: 'Твоя тренировка',
+    subtitle: 'Твой набор задач на сегодня',
+    numbers: 'Номера ЕГЭ',
+    addNumber: 'Добавить номер',
+    chooseNumbers: 'Выбери хотя бы один номер',
+    remove: (number: number) => `Убрать №${number}`,
+    selectedTopics: (count: number) => `Тем выбрано: ${count}`,
+    selectedTasks: (count: number) => `Задач в тренировке: ${count}`,
+    tooMany: (max: number) => `В одной тренировке можно до ${max} задач`,
+    available: (count: number) => `Доступно задач: ${count}`,
+    useAvailable: (count: number) => `Выбрать ${count}`,
+    countUnavailable: (count: number) =>
+      `На этой сложности доступно задач: ${count}. Выбери меньше или смести ползунок`,
+    insufficient:
+      'Для выбранной сложности задач не хватает. Уменьши количество или смести ползунок',
+    starting: 'Готовим задачи',
+    emptyNumber: 'На этой сложности задач пока нет',
     topics: 'Что решаем',
     exam: (number: number, title: string) => `№${number} - ${title}`,
     empty: 'Нет задач с такой сложностью - попробуй другой уровень',
     count: 'Количество задач',
     difficulty: 'Сложность',
+    selectionExplainer: 'Как подбираем задачи',
+    unratedFallback: 'Задачи без оценки добавим, только если оценённых не хватит',
+    selectionRules:
+      'На краях выбираем только простые или только сложные задачи, поэтому их может быть меньше. Между краями плавно смешиваем уровни. Задачи без оценки добавляем, только если оценённых не хватает',
     difficultyScale: {
       easy: 'Простые',
-      balanced: 'Баланс',
+      balanced: 'Средние',
       hard: 'Сложные',
     },
     difficultyLevels: {
-      easy: 'Только простые',
-      easyMedium: 'Простые и средние',
-      balanced: 'Сбалансировано',
-      mediumHard: 'Средние и сложные',
-      hard: 'Только сложные',
+      easy: 'Только простые задачи',
+      easyMedium: 'Больше простых задач',
+      balanced: 'Баланс для уверенной практики',
+      mediumHard: 'Больше сложных задач',
+      hard: 'Сложные задачи и гробы',
     },
     all: 'Все',
     start: 'Начать',
   },
   difficulty: {
-    easy: 'Простые',
-    medium: 'Средние',
-    hard: 'Сложные',
+    1: 'Уровень 1',
+    2: 'Уровень 2',
+    3: 'Уровень 3',
+    4: 'Уровень 4',
+    5: 'Уровень 5 - гроб',
+    unknown: 'Сложность не указана',
   },
   training: {
     task: 'Задание',
@@ -278,7 +314,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['triangle'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -295,7 +332,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['quadrilateral'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -311,7 +349,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['triangle'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -341,7 +380,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['circle'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -364,7 +404,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['quadrilateral', 'circle'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -396,7 +437,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['triangle', 'circle'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -418,7 +460,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['triangle'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -434,7 +477,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['circle'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [{ type: 'text', value: 'Диаметр окружности равен 14. Найди её радиус' }],
     acceptedAnswers: ['7'],
     solution: [{ type: 'latex', value: 'r = \\frac{14}{2} = 7' }],
@@ -445,7 +489,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['quadrilateral'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [{ type: 'text', value: 'Сторона квадрата равна 6. Найди его периметр' }],
     acceptedAnswers: ['24'],
     solution: [{ type: 'latex', value: 'P = 4 \\cdot 6 = 24' }],
@@ -456,7 +501,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['triangle'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [{ type: 'text', value: 'Два угла треугольника равны 45° и 65°. Найди третий угол' }],
     acceptedAnswers: ['70'],
     solution: [{ type: 'latex', value: '180^\\circ - 45^\\circ - 65^\\circ = 70^\\circ' }],
@@ -467,7 +513,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['circle'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [{ type: 'text', value: 'Радиус окружности равен 5. Найди её диаметр' }],
     acceptedAnswers: ['10'],
     solution: [{ type: 'latex', value: 'd = 2r = 10' }],
@@ -478,7 +525,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['quadrilateral'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [{ type: 'text', value: 'Периметр квадрата равен 36. Найди его сторону' }],
     acceptedAnswers: ['9'],
     solution: [{ type: 'latex', value: 'a = \\frac{36}{4} = 9' }],
@@ -489,7 +537,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['triangle'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [
       { type: 'text', value: 'Катеты прямоугольного треугольника равны 9 и 12. Найди гипотенузу' },
     ],
@@ -502,7 +551,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['quadrilateral'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [{ type: 'text', value: 'Диагонали ромба равны 8 и 10. Найди его площадь' }],
     acceptedAnswers: ['40'],
     solution: [{ type: 'latex', value: 'S = \\frac{8 \\cdot 10}{2} = 40' }],
@@ -513,7 +563,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['circle'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [{ type: 'text', value: 'Длина окружности равна 18π. Найди её радиус' }],
     acceptedAnswers: ['9'],
     solution: [{ type: 'latex', value: '2\\pi r = 18\\pi, \\quad r = 9' }],
@@ -524,7 +575,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['triangle'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [
       { type: 'text', value: 'Средняя линия треугольника равна 7. Найди параллельную ей сторону' },
     ],
@@ -537,7 +589,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['quadrilateral'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [
       { type: 'text', value: 'Основания трапеции равны 5 и 11, высота равна 3. Найди площадь' },
     ],
@@ -550,7 +603,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['circle'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [{ type: 'text', value: 'Площадь круга равна 49π. Найди радиус окружности' }],
     acceptedAnswers: ['7'],
     solution: [{ type: 'latex', value: '\\pi r^2 = 49\\pi, \\quad r = 7' }],
@@ -561,7 +615,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['triangle'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [{ type: 'text', value: 'Стороны треугольника равны 13, 14 и 15. Найди его площадь' }],
     acceptedAnswers: ['84'],
     solution: [
@@ -574,7 +629,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['quadrilateral'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -596,7 +652,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['circle'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -612,7 +669,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['triangle', 'circle'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -629,7 +687,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['quadrilateral', 'circle'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       { type: 'text', value: 'Квадрат вписан в окружность радиуса 5√2. Найди сторону квадрата' },
     ],
@@ -642,7 +701,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 1,
     topicIds: ['circle'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -659,7 +719,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-coordinates'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [
       { type: 'text', value: 'Даны точки A(1; 2) и B(5; 2). Найди первую координату вектора AB' },
     ],
@@ -672,7 +733,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-length'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [{ type: 'text', value: 'Найди длину вектора с координатами (3; 4)' }],
     acceptedAnswers: ['5'],
     solution: [{ type: 'latex', value: '|\\vec a|=\\sqrt{3^2+4^2}=5' }],
@@ -683,7 +745,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-operations'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -699,7 +762,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-coordinates'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [
       { type: 'text', value: 'Даны точки A(-2; 3) и B(1; 7). Найди вторую координату вектора AB' },
     ],
@@ -712,7 +776,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-length'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [{ type: 'text', value: 'Найди длину вектора с координатами (0; -7)' }],
     acceptedAnswers: ['7'],
     solution: [{ type: 'latex', value: '|\\vec a|=\\sqrt{0^2+(-7)^2}=7' }],
@@ -723,7 +788,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-operations'],
-    difficulty: 'easy',
+    difficulty: 1,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -739,7 +805,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-coordinates'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -755,7 +822,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-length'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [{ type: 'text', value: 'Найди длину вектора AB, если A(-1; 2), B(5; 10)' }],
     acceptedAnswers: ['10'],
     solution: [
@@ -768,7 +836,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-operations'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -784,7 +853,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-coordinates'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -800,7 +870,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-length'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [
       { type: 'text', value: 'Длина вектора (x; 8) равна 10, причём x положителен. Найди x' },
     ],
@@ -813,7 +884,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-operations'],
-    difficulty: 'medium',
+    difficulty: 3,
+    isGrob: false,
     content: [{ type: 'text', value: 'Найди скалярное произведение векторов (2; 3) и (4; -1)' }],
     acceptedAnswers: ['5'],
     solution: [{ type: 'latex', value: '(2;3)\\cdot(4;-1)=2\\cdot4+3\\cdot(-1)=5' }],
@@ -824,7 +896,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-coordinates'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -840,7 +913,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-length'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -856,7 +930,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-operations'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [{ type: 'text', value: 'При каком x векторы (x; 2) и (3; -6) перпендикулярны' }],
     acceptedAnswers: ['4'],
     solution: [{ type: 'latex', value: '3x+2\\cdot(-6)=0,\\quad x=4' }],
@@ -867,7 +942,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-coordinates'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -883,7 +959,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-length'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       {
         type: 'text',
@@ -899,7 +976,8 @@ export const TRAINING_TASKS: TrainingTask[] = [
     examPart: 1,
     examNumber: 2,
     topicIds: ['vector-operations'],
-    difficulty: 'hard',
+    difficulty: 4,
+    isGrob: false,
     content: [
       { type: 'text', value: 'Векторы (2; x) и (x; 8) коллинеарны, x положителен. Найди x' },
     ],

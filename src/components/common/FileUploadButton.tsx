@@ -5,24 +5,33 @@ import { Button } from '@/components/ui/button';
 
 interface FileUploadButtonProps {
   onAdd: (files: File[]) => void;
+  onRequestAccess?: () => void;
   label: string;
   accept: string;
   multiple?: boolean;
   disabled?: boolean;
+  disabledReason?: string;
   className?: string;
 }
 export function FileUploadButton({
   onAdd,
+  onRequestAccess,
   label,
   accept,
   multiple = false,
   disabled = false,
+  disabledReason,
   className,
 }: FileUploadButtonProps) {
   const input = useRef<HTMLInputElement>(null);
   return (
     <>
-      <Button disabled={disabled} className={className} onClick={() => input.current?.click()}>
+      <Button
+        disabled={disabled}
+        disabledReason={disabledReason}
+        className={className}
+        onClick={() => (onRequestAccess ? onRequestAccess() : input.current?.click())}
+      >
         {label}
       </Button>
       <input

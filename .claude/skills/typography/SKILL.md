@@ -14,6 +14,7 @@ One scale for the whole app. A size that is not in the table does not appear on 
 | Hero heading (h1) | `font-semibold leading-tight`, 28-36px scaled to viewport height | onboarding, registration and celebrations via `ScreenHeading variant="screen"` (default) |
 | App heading (h1) | `font-semibold leading-tight`, 24-28px scaled to viewport width | tab catalogs, home greeting, profile name and quiz setup via `ScreenHeading variant="app"` |
 | Navigation heading (h1) | `text-2xl font-semibold leading-tight` | compact header beside a back button via `ScreenHeading variant="navigation"` |
+| Offer heading (h1) | `font-semibold leading-tight`, 26-32px on phone, 36px desktop; 22px on very short screens | approved paywall via `ScreenHeading variant="offer"` |
 | Task heading (h1) | `font-semibold leading-snug`, fluid 18-22px | quiz instructions via `ScreenHeading variant="task"` |
 | Task condition | `text-base leading-relaxed text-foreground` | problem data under a task heading |
 | Subtitle under h1 | muted 16-18px for hero; muted 16px for app/navigation | only inside `ScreenHeading` |
@@ -22,6 +23,7 @@ One scale for the whole app. A size that is not in the table does not appear on 
 | Secondary | `text-sm text-muted-foreground` | card descriptions, inline hints |
 | Caption | `text-xs text-muted-foreground` | dates, fine print, «Очистить» |
 | Display number | `text-6xl font-bold tabular-nums` | streak counter and similar celebration numbers |
+| Compact display number | `text-4xl font-semibold leading-none tabular-nums` | glanceable daily-goal metric on mobile; desktop ring uses Display number |
 | Brand wordmark | `text-6xl` hero / `text-4xl` navigation / `text-2xl` compact / inherited inline, `font-semibold`; «ботai», металлическое отражение ai | the botai logo, only via `Wordmark` |
 
 | Landing hero (h1) | `font-semibold leading-[1.04]`, fluid 44-72px by viewport width | storefront via `ScreenHeading variant="landingHero"` |

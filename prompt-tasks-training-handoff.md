@@ -1,6 +1,6 @@
 ## Контекст, уже выполненная работа и неизменяемые решения
 
-Работа ведётся в `/Users/vasiliyslobozhanov/botai-front`, ветка `develop`. Базовая реализация каталога и тренировок задач уже создана и закоммичена коммитом `680cabe add task training experience`. Не переписывай её с нуля без доказанной структурной причины. Сначала изучи текущее поведение в live preview, затем код, `AGENTS.md`, `SCOPE.md`, `IMPLEMENTATION-SPEC-TASKS.md` и подходящие project skills.
+Работа ведётся в `/Users/vasiliyslobozhanov/projects/botai/botai-front`, ветка `develop`. Базовая реализация каталога и тренировок задач уже создана и закоммичена коммитом `680cabe add task training experience`. Не переписывай её с нуля без доказанной структурной причины. Сначала изучи текущее поведение в live preview, затем код, `AGENTS.md`, `SCOPE.md`, `IMPLEMENTATION-SPEC-TASKS.md` и подходящие project skills.
 
 Для любой работы над визуальным дизайном, редизайном, motion или полировкой обязательно используй личный skill:
 

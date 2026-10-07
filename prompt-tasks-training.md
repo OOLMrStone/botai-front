@@ -2,7 +2,7 @@
 
 ## Context
 
-Работай в репозитории `/Users/vasiliyslobozhanov/botai-front` на ветке `develop`.
+Работай в репозитории `/Users/vasiliyslobozhanov/projects/botai/botai-front` на ветке `develop`.
 
 Это mobile-web приложение BotAI в стиле Duolingo для подготовки к профильной математике ЕГЭ. Стек: Next.js 16 App Router, React 19, TypeScript strict, Tailwind 4, shadcn/base-nova, Zustand.
 

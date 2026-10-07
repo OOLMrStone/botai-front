@@ -29,9 +29,10 @@ import {
   TikTokIcon,
   YoutubeIcon,
 } from '@/components/onboarding/brand-icons';
-import { AGE_LIMITS, PASSWORD_MIN_LENGTH } from '@/lib/validation';
+import { PASSWORD_MIN_LENGTH } from '@/config/auth';
 import { IS_MOCK_API } from '@/config/env';
 import { BRAND } from '@/config/brand';
+import type { LegalDocumentId } from '@/config/legal';
 
 export type OnboardingSlug =
   | 'welcome'
@@ -50,9 +51,9 @@ export type OnboardingSlug =
   | 'commitment'
   | 'ready';
 
-export type RegisterSlug = 'age' | 'name' | 'email' | 'password';
+export type RegisterSlug = 'account';
 
-export const ONBOARDING_STEPS: OnboardingSlug[] = [
+const ONBOARDING_SEQUENCE: OnboardingSlug[] = [
   'welcome',
   'intro',
   'source',
@@ -70,7 +71,11 @@ export const ONBOARDING_STEPS: OnboardingSlug[] = [
   'ready',
 ];
 
-export const REGISTER_STEPS: RegisterSlug[] = ['age', 'name', 'email', 'password'];
+export const ONBOARDING_STEPS: OnboardingSlug[] = ONBOARDING_SEQUENCE.filter(
+  (slug) => slug !== 'notifications' && slug !== 'building',
+);
+
+export const REGISTER_STEPS: RegisterSlug[] = ['account'];
 
 // Следующий шаг в последовательности (или null в конце сегмента).
 function nextStep<T>(steps: readonly T[], current: T): T | null {
@@ -78,7 +83,14 @@ function nextStep<T>(steps: readonly T[], current: T): T | null {
   return i >= 0 && i < steps.length - 1 ? steps[i + 1] : null;
 }
 
-export const nextOnboardingSlug = (slug: OnboardingSlug) => nextStep(ONBOARDING_STEPS, slug);
+export const nextOnboardingSlug = (slug: OnboardingSlug) => {
+  const index = ONBOARDING_SEQUENCE.indexOf(slug);
+  if (index < 0) return null;
+
+  return (
+    ONBOARDING_SEQUENCE.slice(index + 1).find((step) => ONBOARDING_STEPS.includes(step)) ?? null
+  );
+};
 export const nextRegisterSlug = (slug: RegisterSlug) => nextStep(REGISTER_STEPS, slug);
 
 // Пути шагов выводим из слага - не хардкодим строками.
@@ -88,6 +100,7 @@ export const registerPath = (slug: RegisterSlug) => `/register/${slug}`;
 // Роуты вне нумерованных сегментов: развилки, отдельные экраны и раздел (app).
 export const ROUTES = {
   storefront: '/',
+  legal: '/legal',
   studentEntry: '/learn',
   login: '/login',
   lesson: '/lesson',
@@ -105,7 +118,14 @@ export const ROUTES = {
   settings: '/settings',
 } as const;
 
+export const legalPath = (document: LegalDocumentId) => `${ROUTES.legal}/${document}`;
+
 export const ONBOARDING_DESTINATION = IS_MOCK_API ? ROUTES.lesson : ROUTES.saveProgress;
+
+export const nextOnboardingPath = (slug: OnboardingSlug) => {
+  const next = nextOnboardingSlug(slug);
+  return next ? onboardingPath(next) : ONBOARDING_DESTINATION;
+};
 
 // --- Варианты вопросов -------------------------------------------------------
 
@@ -215,7 +235,6 @@ export const COPY = {
   },
   introQuestions: {
     title: 'Ответь всего на \n *три* вопроса',
-    subtitle: 'Так я соберу курс именно под тебя',
     action: 'Поехали',
   },
   goal: {
@@ -226,14 +245,6 @@ export const COPY = {
   goalResult: {
     title: `Отлично!\nПо статистике с ${BRAND.name} 84% достигают цели`,
     action: 'Дальше',
-  },
-  goalChart: {
-    title: 'Путь к цели',
-    accessibleLabel: `С ${BRAND.name} до цели быстрее`,
-    withBrand: `С ${BRAND.name}`,
-    alone: 'Сам по себе',
-    now: 'Сейчас',
-    exam: 'ЕГЭ',
   },
   building: {
     title: 'Строим курс…',
@@ -284,9 +295,9 @@ export const COPY = {
   commitment: {
     title: 'Давай закрепим это официально',
     subtitle: 'Обещаю заниматься каждый день, чтобы сдать профиль на высокий балл',
-    sealHint: 'Приложи палец, чтобы закрепить',
-    sealIdle: 'Приложи палец',
-    sealHolding: 'Держи палец',
+    sealHint: 'Удерживай, чтобы закрепить',
+    sealIdle: 'Удерживай',
+    sealHolding: 'Не отпускай',
     sealedPrefix: 'Обещание дано',
     action: 'Продолжить',
   },
@@ -309,7 +320,6 @@ export const COPY = {
     title: 'С возвращением',
     subtitle: 'Войди, чтобы продолжить подготовку',
     action: 'Войти',
-    forgot: 'Забыл пароль?',
     noAccount: 'Ещё нет аккаунта? Начать',
     badCredentials: 'Неверная почта или пароль',
     error: 'Не получилось войти. Попробуй ещё раз',
@@ -328,9 +338,9 @@ export const COPY = {
     tagline: 'Готов ботать сегодня?',
     streakUnit: 'дней в ударе',
     hoursUnit: 'ч',
-    studyTimeLabel: 'На этой неделе',
+    studyTimeLabel: 'За неделю',
     dailyGoalTitle: 'Цель дня',
-    dailyGoalUnit: 'мин',
+    dailyGoalTotal: (minutes: number) => `из ${minutes} мин`,
     dailyGoalDone: 'Цель дня выполнена - красавчик!',
     continueTitle: 'Продолжить урок',
     continueSubtitle: 'Первый урок уже ждёт',
@@ -390,15 +400,11 @@ export const COPY = {
   validation: {
     email: 'Неправильный адрес почты',
     password: `Пароль должен содержать не менее ${PASSWORD_MIN_LENGTH} символов`,
-    age: `Возраст от ${AGE_LIMITS.min} до ${AGE_LIMITS.max} лет`,
     name: 'Заполни это поле',
   },
   register: {
-    age: { title: 'Сколько тебе лет?', action: 'Продолжить' },
-    name: { title: 'Как тебя зовут?', action: 'Продолжить' },
-    email: { title: 'Твоя почта', action: 'Продолжить' },
-    password: {
-      title: 'Придумай пароль',
+    account: {
+      title: 'Создай профиль',
       action: 'Создать профиль',
       emailTaken: 'Эта почта уже занята. Попробуй войти',
       error: 'Не получилось создать профиль. Попробуй ещё раз',

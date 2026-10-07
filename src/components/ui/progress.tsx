@@ -2,6 +2,7 @@
 
 import { Progress as ProgressPrimitive } from '@base-ui/react/progress';
 
+import { MOTION_STYLES } from '@/config/motion';
 import { cn } from '@/lib/utils';
 
 function Progress({ className, children, value, ...props }: ProgressPrimitive.Root.Props) {
@@ -21,7 +22,10 @@ function Progress({ className, children, value, ...props }: ProgressPrimitive.Ro
       <ProgressTrack>
         <div
           data-slot="progress-indicator"
-          className="bg-primary h-full w-full origin-left transition-transform duration-[var(--progress-motion-duration)] ease-out motion-reduce:transition-none"
+          className={cn(
+            'bg-primary h-full w-full origin-left transition-transform duration-[var(--progress-motion-duration)] ease-out motion-reduce:transition-none',
+            MOTION_STYLES.progressEnter,
+          )}
           style={{ transform: `scaleX(${scale})` }}
         />
       </ProgressTrack>

@@ -5,22 +5,6 @@ import type { AttemptItem, Solution } from '@/lib/api/learning-types';
 export function taskMediaSrc(value: string) {
   return TASK_MEDIA_PATTERN.test(value) ? value : null;
 }
-export function taskSourceUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return url.protocol === 'https:' &&
-      TASK_CONTENT.sourceHosts.includes(url.hostname) &&
-      !url.username &&
-      !url.password &&
-      !url.search &&
-      !url.hash &&
-      (!url.port || url.port === '443')
-      ? url.href
-      : null;
-  } catch {
-    return null;
-  }
-}
 export function formulaStyle(run: Extract<TaskRun, { type: 'formula' }>) {
   const height = run.heightEm ?? TASK_CONTENT.formulaHeightEm;
   const ratio = run.width / run.height;

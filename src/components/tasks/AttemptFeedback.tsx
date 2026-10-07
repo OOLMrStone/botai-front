@@ -1,66 +1,89 @@
+import { ChevronDown } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
+import { ATTEMPT_FEEDBACK_COPY } from '@/config/attempt-feedback';
+import { LEARNING_COPY } from '@/config/integration';
 import { layout } from '@/config/layout';
-import { LEARNING_COPY as C } from '@/config/integration';
 import type { AttemptItem } from '@/lib/api/learning-types';
+import { attemptFeedback, type AttemptFeedbackView } from '@/lib/attempt-feedback';
+import { cn } from '@/lib/utils';
+
 export function AttemptFeedback({
   item,
   busy,
+  canReviewPhoto,
   onCancel,
   onRetry,
 }: {
   item: AttemptItem;
   busy: boolean;
+  canReviewPhoto: boolean;
   onCancel: () => void;
   onRetry: () => void;
 }) {
-  const submission = item.submission;
-  const result = item.result ?? submission?.result;
-  if (!submission && !result) return null;
+  const feedback = attemptFeedback(item, canReviewPhoto);
+  if (!feedback) return null;
+
   return (
-    <div className={layout.integration.feedback}>
-      {submission ? (
-        <p className={layout.typography.description}>{C.status[submission.status]}</p>
+    <section className={layout.integration.feedback}>
+      {feedback.hasDetails ? (
+        <details key={item.id} className={layout.integration.feedbackDetails}>
+          <summary className={layout.integration.feedbackSummary}>
+            <FeedbackStatus feedback={feedback} />
+            <span className={layout.integration.feedbackDisclosure}>
+              {LEARNING_COPY.feedback}
+              <ChevronDown className={layout.integration.feedbackChevron} />
+            </span>
+          </summary>
+          <div className={layout.integration.feedbackBody}>
+            {feedback.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+            {feedback.errors.map((error) => (
+              <div key={error.id} className={layout.integration.feedbackError}>
+                {error.description ? (
+                  <p className={layout.integration.feedbackErrorTitle}>{error.description}</p>
+                ) : null}
+                {error.where ? <p>{ATTEMPT_FEEDBACK_COPY.where(error.where)}</p> : null}
+                {error.correction ? (
+                  <p>{ATTEMPT_FEEDBACK_COPY.correction(error.correction)}</p>
+                ) : null}
+                {error.advice ? <p>{error.advice}</p> : null}
+              </div>
+            ))}
+          </div>
+        </details>
+      ) : (
+        <FeedbackStatus feedback={feedback} />
+      )}
+      {feedback.isDemo ? (
+        <p className={layout.typography.caption}>{LEARNING_COPY.demoResult}</p>
       ) : null}
-      {result ? (
-        <>
-          <p className={layout.typography.sectionTitle}>
-            {result.isGraded && result.score !== null
-              ? C.score(result.score, result.maxScore)
-              : C.noScore}
-          </p>
-          {result.isDemo ? <p className={layout.typography.caption}>{C.demoResult}</p> : null}
-          {result.rejectionReason ? (
-            <p className={layout.typography.description}>{result.rejectionReason}</p>
+      {feedback.canCancel || feedback.canRetry ? (
+        <div className={layout.integration.feedbackActions}>
+          {feedback.canCancel ? (
+            <Button variant="outline" size="compact" disabled={busy} onClick={onCancel}>
+              {feedback.cancelLabel}
+            </Button>
           ) : null}
-          {result.feedback ? (
-            <>
-              <p className={layout.typography.description}>{result.feedback.analysis.summary}</p>
-              <p className={layout.typography.description}>{result.feedback.grading.explanation}</p>
-              {result.feedback.analysis.errors.map((error) => (
-                <p key={error.id} className={layout.typography.description}>
-                  {error.description} {error.advice}
-                </p>
-              ))}
-              <details>
-                <summary className={layout.typography.description}>{C.feedback}</summary>
-                <pre className={layout.integration.raw}>
-                  {JSON.stringify(result.feedback, null, 2)}
-                </pre>
-              </details>
-            </>
+          {feedback.canRetry ? (
+            <Button variant="outline" size="compact" disabled={busy} onClick={onRetry}>
+              {feedback.retryLabel}
+            </Button>
           ) : null}
-        </>
+        </div>
       ) : null}
-      {submission && ['queued', 'running', 'draft'].includes(submission.status) ? (
-        <Button variant="outline" disabled={busy} onClick={onCancel}>
-          {C.cancel}
-        </Button>
-      ) : null}
-      {submission?.retryable ? (
-        <Button variant="outline" disabled={busy} onClick={onRetry}>
-          {C.retryCheck}
-        </Button>
-      ) : null}
-    </div>
+    </section>
+  );
+}
+
+function FeedbackStatus({ feedback }: { feedback: AttemptFeedbackView }) {
+  const Icon = feedback.icon;
+
+  return (
+    <span className={cn(layout.integration.feedbackStatus, feedback.tone)} role="status">
+      <Icon className={layout.integration.feedbackIcon} aria-hidden="true" />
+      <span>{feedback.label}</span>
+    </span>
   );
 }

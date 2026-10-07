@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { createClientId } from '@/lib/client-id';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAsyncData } from '@/hooks/use-async-data';
 import { examsResource, invalidateAttempts } from '@/lib/learning-resources';
@@ -14,6 +15,15 @@ export function useServerExams() {
   const [filter, setFilter] = useState<MockExamFilter>('all');
   const [openingExamId, setOpeningExamId] = useState<string>();
   const [error, setError] = useState<string | null>(null);
+  const opening = useRef(false);
+  const active = useRef(true);
+  const creationKeys = useRef(new Map<string, string>());
+  useEffect(() => {
+    active.current = true;
+    return () => {
+      active.current = false;
+    };
+  }, []);
   const exams: MockExam[] = (state.data ?? []).map((exam) => ({
     id: exam.id,
     title: exam.title,
@@ -27,7 +37,7 @@ export function useServerExams() {
   }));
   const results: Record<string, MockExamResult> = Object.fromEntries(
     (state.data ?? [])
-      .filter((exam) => exam.latestAttempt?.status === 'completed')
+      .filter((exam) => exam.latestAttempt?.status === 'completed' && !exam.activeAttemptId)
       .map((exam) => [
         exam.id,
         {
@@ -45,19 +55,26 @@ export function useServerExams() {
       ]),
   );
   const openExam = async (id: string, fresh = false) => {
-    if (openingExamId) return;
+    if (opening.current) return;
     const exam = state.data?.find((exam) => exam.id === id);
     if (!exam) return;
+    opening.current = true;
     setOpeningExamId(id);
     setError(null);
     try {
       const attemptId = !fresh && (exam.activeAttemptId ?? exam.latestAttempt?.id);
+      if (!attemptId && !creationKeys.current.has(id)) {
+        creationKeys.current.set(id, createClientId());
+      }
       const attempt = attemptId
         ? { id: attemptId }
-        : await createExamAttempt(id, crypto.randomUUID());
+        : await createExamAttempt(id, creationKeys.current.get(id)!);
       invalidateAttempts();
+      if (!active.current) return;
       router.push(LEARNING_ROUTES.attempt(attempt.id));
     } catch (cause) {
+      opening.current = false;
+      if (!active.current) return;
       setError(cause instanceof Error ? cause.message : C.loadError);
       setOpeningExamId(undefined);
     }

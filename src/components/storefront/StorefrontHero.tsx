@@ -16,12 +16,28 @@ export function StorefrontHero({
   showTrial: boolean;
 }) {
   return (
-    <section className={cn(layout.storefront.container, layout.storefront.hero)}>
-      <div className={layout.storefront.heroContent}>
+    <section
+      className={cn(
+        layout.storefront.container,
+        layout.storefront.hero,
+        STOREFRONT.features.heroMascot && layout.storefront.heroWithMascot,
+      )}
+    >
+      <div
+        className={cn(
+          layout.storefront.heroContent,
+          !STOREFRONT.features.heroMascot && layout.storefront.heroContentSolo,
+        )}
+      >
         <p className={layout.storefront.eyebrow}>{COPY.hero.eyebrow}</p>
         <ScreenHeading variant="landingHero" title={COPY.hero.title} />
         <p className={layout.storefront.heroDescription}>{COPY.hero.description}</p>
-        <div className={layout.storefront.heroActions}>
+        <div
+          className={cn(
+            layout.storefront.heroActions,
+            !STOREFRONT.features.heroMascot && layout.storefront.heroActionsSolo,
+          )}
+        >
           <StorefrontAction href={entryHref} tone="dark">
             {entryLabel}
           </StorefrontAction>
@@ -33,15 +49,17 @@ export function StorefrontHero({
           ) : null}
         </div>
       </div>
-      <div className={layout.storefront.heroArt} aria-label={COPY.hero.artLabel}>
-        <p className={layout.storefront.artTitle}>{COPY.hero.artTitle}</p>
-        <Image
-          {...STOREFRONT.mascot}
-          alt={COPY.hero.mascotAlt}
-          preload
-          className={layout.storefront.heroImage}
-        />
-      </div>
+      {STOREFRONT.features.heroMascot ? (
+        <div className={layout.storefront.heroArt} aria-label={COPY.hero.artLabel}>
+          <p className={layout.storefront.artTitle}>{COPY.hero.artTitle}</p>
+          <Image
+            {...STOREFRONT.mascot}
+            alt={COPY.hero.mascotAlt}
+            preload
+            className={layout.storefront.heroImage}
+          />
+        </div>
+      ) : null}
     </section>
   );
 }

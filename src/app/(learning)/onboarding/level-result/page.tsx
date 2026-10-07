@@ -1,5 +1,7 @@
 'use client';
 
+import { EmbeddedBo } from '@/components/lemur/EmbeddedBo';
+import { LEMUR_ANIMATIONS } from '@/config/lemur-media';
 import { ResultScreen } from '@/components/onboarding/ResultScreen';
 import { COPY, levelBand } from '@/config/onboarding-steps';
 import { useOnboardingFlow } from '@/hooks/use-flow-navigation';
@@ -19,6 +21,7 @@ export default function LevelResultPage() {
 
   return (
     <ResultScreen
+      mascot={<EmbeddedBo animation={LEMUR_ANIMATIONS.sit} />}
       title={copy.title}
       subtitle={copy.subtitle}
       actionLabel={copy.action}

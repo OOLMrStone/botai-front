@@ -37,7 +37,7 @@ export function useLemurReactionQueue(
       const phase = time % period;
       const crossedSeam =
         Math.floor(time / period) > Math.floor(previousTime / period) ||
-        time < previousTime - lateTolerance;
+        (time < previousTime - lateTolerance && phase <= lateTolerance);
       const skippedCycle =
         ((observedAt - previousObservedAt) / 1000) * video.playbackRate >= period;
 

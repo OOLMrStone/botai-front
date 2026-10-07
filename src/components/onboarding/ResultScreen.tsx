@@ -1,5 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { MascotPlaceholder } from '@/components/onboarding/MascotPlaceholder';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
@@ -13,6 +15,7 @@ interface ResultScreenProps {
   actionLabel: string;
   onAction: () => void;
   showMascot?: boolean;
+  mascot?: ReactNode;
 }
 
 // Экран-реакция: заголовок + подпись + кнопка. Опционально с маскотом.
@@ -24,6 +27,7 @@ export function ResultScreen({
   actionLabel,
   onAction,
   showMascot = true,
+  mascot = <MascotPlaceholder />,
 }: ResultScreenProps) {
   return (
     <ScreenShell
@@ -34,7 +38,7 @@ export function ResultScreen({
         </Button>
       }
     >
-      {showMascot ? <MascotPlaceholder /> : null}
+      {showMascot ? mascot : null}
 
       <ScreenHeading title={title} subtitle={subtitle} />
     </ScreenShell>

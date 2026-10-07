@@ -41,7 +41,14 @@ export function TaskBlockRenderer({ blocks }: { blocks: TaskBlock[] }) {
             </p>
           );
         if (block.type === 'latex')
-          return <MathFormula key={index} value={block.value} className={layout.training.latex} />;
+          return (
+            <MathFormula
+              key={index}
+              displayMode
+              value={block.value}
+              className={layout.training.latex}
+            />
+          );
         if (block.type === 'paragraph')
           return (
             <p key={index} className={layout.training.blockText}>

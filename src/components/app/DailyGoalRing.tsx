@@ -1,4 +1,4 @@
-import { Zap } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import { AppCard } from '@/components/app/AppCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,17 +10,22 @@ interface DailyGoalRingProps {
   progressMinutes: number;
   goalMinutes: number;
   className?: string;
+  mascot?: ReactNode;
 }
 
-export function DailyGoalRing({ progressMinutes, goalMinutes, className }: DailyGoalRingProps) {
+export function DailyGoalRing({
+  progressMinutes,
+  goalMinutes,
+  className,
+  mascot,
+}: DailyGoalRingProps) {
   const circumference = 2 * Math.PI * dailyGoalRing.radius;
   const fraction = goalMinutes > 0 ? Math.min(Math.max(progressMinutes / goalMinutes, 0), 1) : 0;
   const done = goalMinutes > 0 && progressMinutes >= goalMinutes;
 
   return (
-    <AppCard className={className}>
+    <DailyGoalPanel className={className} mascot={mascot}>
       <p className={layout.app.home.goalTitle}>
-        <Zap className={layout.app.home.statusIcon} aria-hidden="true" />
         {done ? COPY.home.dailyGoalDone : COPY.home.dailyGoalTitle}
       </p>
       <div className={layout.app.home.ring}>
@@ -47,23 +52,37 @@ export function DailyGoalRing({ progressMinutes, goalMinutes, className }: Daily
           />
         </svg>
         <div className={layout.app.home.ringLabel}>
-          <p className={layout.typography.value}>
-            {progressMinutes} / {goalMinutes}
-          </p>
-          <p className={layout.typography.caption}>{COPY.home.dailyGoalUnit}</p>
+          <p className={layout.app.home.ringValue}>{progressMinutes}</p>
+          <p className={layout.app.home.ringGoal}>{COPY.home.dailyGoalTotal(goalMinutes)}</p>
         </div>
       </div>
+    </DailyGoalPanel>
+  );
+}
+
+interface DailyGoalPanelProps {
+  className?: string;
+  mascot?: ReactNode;
+  children?: ReactNode;
+}
+
+function DailyGoalPanel({ className, mascot, children }: DailyGoalPanelProps) {
+  return (
+    <AppCard className={className}>
+      <div className={layout.app.home.goalContent}>{children}</div>
+      {mascot ? <div className={layout.app.home.goalMascot}>{mascot}</div> : null}
     </AppCard>
   );
 }
 
-export function DailyGoalRingSkeleton({ className }: { className?: string }) {
+export function DailyGoalRingSkeleton({ className, mascot }: DailyGoalPanelProps) {
   return (
-    <AppCard className={className}>
+    <DailyGoalPanel className={className} mascot={mascot}>
       <Skeleton className={layout.app.skeleton.caption} />
       <div className={layout.app.home.ring}>
-        <Skeleton className={layout.app.skeleton.ring} />
+        <Skeleton className={layout.app.home.ringSkeleton} />
+        <Skeleton className={layout.app.home.goalMetricSkeleton} />
       </div>
-    </AppCard>
+    </DailyGoalPanel>
   );
 }

@@ -3,6 +3,7 @@
 import { ChevronLeft } from 'lucide-react';
 
 import { ProfileEditFields } from '@/components/app/ProfileEditFields';
+import { ProfileAccountSettings } from '@/components/app/ProfileAccountSettings';
 import { ErrorNote } from '@/components/common/ErrorNote';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,7 @@ export default function SettingsPage() {
 
   if (!user || !settings.profile.data) {
     return (
-      <div className="flex h-svh flex-col items-center justify-center px-6">
+      <div className={layout.settings.loading}>
         {settings.profile.failed ? (
           <ErrorNote message={COPY.errors.stats} onRetry={settings.profile.retry} />
         ) : (
@@ -51,6 +52,11 @@ export default function SettingsPage() {
       </header>
 
       <div className={cn(layout.scroll, layout.settings.content, layout.shell.padX)}>
+        <ProfileAccountSettings
+          profile={settings.profile}
+          email={user.email}
+          verified={user.emailVerified !== false}
+        />
         <ProfileEditFields
           name={settings.name}
           onNameChange={settings.setNameDraft}

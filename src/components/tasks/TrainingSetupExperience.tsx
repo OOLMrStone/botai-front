@@ -1,119 +1,114 @@
 'use client';
-import { ArrowRight } from 'lucide-react';
-import { FormSection } from '@/components/common/FormSection';
-import { ErrorNote } from '@/components/common/ErrorNote';
+
+import { ArrowRight, ChevronDown } from 'lucide-react';
+
 import { ActivitySetupScreen } from '@/components/common/ActivitySetupScreen';
+import { ErrorNote } from '@/components/common/ErrorNote';
+import { FormSection } from '@/components/common/FormSection';
 import { ScreenHeading } from '@/components/onboarding/ScreenHeading';
-import { SelectableCard } from '@/components/onboarding/SelectableCard';
 import { TrainingDifficultySlider } from '@/components/tasks/TrainingDifficultySlider';
+import { TrainingSetupNumber } from '@/components/tasks/TrainingSetupNumber';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { RadioGroup } from '@/components/ui/radio-group';
+import { LEARNING_COPY } from '@/config/integration';
 import { layout } from '@/config/layout';
 import { TASK_COPY } from '@/config/tasks';
-import { LEARNING_COPY as C, INTEGRATION } from '@/config/integration';
-import type { Task } from '@/lib/api/learning-types';
 import { useTrainingSetupPage } from '@/hooks/use-training-setup-page';
+import type { Task } from '@/lib/api/learning-types';
 import { cn } from '@/lib/utils';
+
 export function TrainingSetupExperience({ tasks }: { tasks: Task[] }) {
-  const setup = useTrainingSetupPage(tasks);
+  const { pickerToggleRef, ...setup } = useTrainingSetupPage(tasks);
+
   return (
     <ActivitySetupScreen
       closeLabel={TASK_COPY.close}
       onClose={setup.close}
       footer={
-        <div className={layout.activitySetup.footer}>
+        <div className={layout.trainingSetup.footer}>
           {setup.error ? <ErrorNote message={setup.error} /> : null}
-          {setup.shortage ? (
-            <p role="status" className={layout.activitySetup.notice}>
-              {C.shortage}
-            </p>
-          ) : null}
-          <p className={layout.typography.description}>{C.selected(setup.total)}</p>
+          <p className={layout.trainingSetup.footerSummary} aria-live="polite">
+            {setup.total
+              ? TASK_COPY.setup.selectedTasks(setup.total)
+              : TASK_COPY.setup.chooseNumbers}
+          </p>
           <Button
             className={layout.cta}
             disabled={!setup.canStart}
+            disabledReason={setup.startDisabledReason}
             onClick={() => void setup.start()}
           >
-            {setup.busy ? C.saving : TASK_COPY.setup.start}
-            <ArrowRight className={layout.quiz.icon} />
+            {setup.busy ? TASK_COPY.setup.starting : TASK_COPY.setup.start}
+            <ArrowRight className={layout.tasks.icon} />
           </Button>
         </div>
       }
     >
-      <div className={cn(layout.scroll, layout.activitySetup.content)}>
-        <ScreenHeading variant="app" title={C.selection} subtitle={C.selectNumber} />
+      <div className={cn(layout.scroll, layout.trainingSetup.content)}>
+        <ScreenHeading
+          variant="app"
+          title={TASK_COPY.setup.title}
+          subtitle={TASK_COPY.setup.subtitle}
+        />
         {setup.catalog.failed ? (
-          <ErrorNote message={C.loadError} onRetry={setup.catalog.retry} />
+          <ErrorNote message={LEARNING_COPY.loadError} onRetry={setup.catalog.retry} />
         ) : null}
+        <details
+          open={setup.numbersOpen}
+          onToggle={(event) => setup.setNumbersOpen(event.currentTarget.open)}
+          className={layout.trainingSetup.numberPicker}
+        >
+          <summary ref={pickerToggleRef} className={layout.trainingSetup.topicToggle}>
+            {setup.selections.length ? TASK_COPY.setup.addNumber : TASK_COPY.setup.numbers}
+            <ChevronDown className={layout.trainingSetup.topicChevron} />
+          </summary>
+          <div className={layout.trainingSetup.numberGrid}>
+            {setup.numbers.map((number) => (
+              <Button
+                key={number.examNumber}
+                variant={number.selection ? 'default' : 'outline'}
+                className={layout.trainingSetup.numberButton}
+                aria-label={TASK_COPY.setup.exam(number.examNumber, number.title)}
+                title={number.title}
+                aria-pressed={Boolean(number.selection)}
+                disabled={setup.busy || (!number.available && !number.selection)}
+                disabledReason={setup.busy ? undefined : TASK_COPY.setup.emptyNumber}
+                onClick={() => setup.toggle(number.examNumber)}
+              >
+                {number.examNumber}
+              </Button>
+            ))}
+          </div>
+        </details>
+        <div className={layout.trainingSetup.selections}>
+          {setup.numbers.map((number) =>
+            number.selection ? (
+              <TrainingSetupNumber
+                key={number.examNumber}
+                number={number}
+                selection={number.selection}
+                disabled={setup.busy}
+                onRemove={() => setup.toggle(number.examNumber)}
+                onCountChange={(count) => setup.update(number.examNumber, { count })}
+                onTopicChange={(topicId) => setup.toggleTopic(number.examNumber, topicId)}
+              />
+            ) : null,
+          )}
+        </div>
         <FormSection title={TASK_COPY.setup.difficulty}>
           <TrainingDifficultySlider
             value={setup.difficultyLevel}
-            valueLabel={
-              setup.difficulty === 'easy'
-                ? TASK_COPY.setup.difficultyLevels.easy
-                : setup.difficulty === 'hard'
-                  ? TASK_COPY.setup.difficultyLevels.hard
-                  : C.anyDifficulty
-            }
+            valueLabel={TASK_COPY.setup.difficultyLevels[setup.difficultyLabelKey]}
+            disabled={setup.busy}
             onChange={setup.setDifficultyLevel}
           />
         </FormSection>
-        {(setup.catalog.data?.numbers ?? []).map((number) => {
-          const selection = setup.selections.find((item) => item.examNumber === number.examNumber);
-          return (
-            <FormSection
-              key={number.examNumber}
-              title={TASK_COPY.setup.exam(number.examNumber, number.title)}
-            >
-              <Button
-                variant={selection ? 'default' : 'outline'}
-                className={layout.cta}
-                aria-pressed={Boolean(selection)}
-                onClick={() => setup.toggle(number.examNumber)}
-              >
-                {C.available(number.availableCount)}
-              </Button>
-              {selection ? (
-                <div className={layout.settings.fields}>
-                  <label className={layout.settings.fieldGroup}>
-                    <span className={layout.typography.description}>{C.count}</span>
-                    <Input
-                      type="number"
-                      min={1}
-                      max={INTEGRATION.maxPerNumber}
-                      value={selection.count}
-                      aria-label={C.count}
-                      onChange={(event) =>
-                        setup.update(number.examNumber, { count: Number(event.target.value) })
-                      }
-                    />
-                  </label>
-                  <RadioGroup
-                    aria-label={TASK_COPY.setup.topics}
-                    value={selection.topicIds?.[0] ?? setup.allTopics}
-                    onValueChange={(value) =>
-                      setup.update(number.examNumber, {
-                        topicIds: value === setup.allTopics ? [] : [String(value)],
-                      })
-                    }
-                    className={layout.activitySetup.topics}
-                  >
-                    <SelectableCard value={setup.allTopics} label={C.allTopics} />
-                    {number.topics.map((topic) => (
-                      <SelectableCard
-                        key={topic.id}
-                        value={topic.id}
-                        label={topic.title}
-                        description={C.available(topic.availableCount)}
-                      />
-                    ))}
-                  </RadioGroup>
-                </div>
-              ) : null}
-            </FormSection>
-          );
-        })}
+        <details className={layout.trainingSetup.topics}>
+          <summary className={layout.trainingSetup.topicToggle}>
+            {TASK_COPY.setup.selectionExplainer}
+            <ChevronDown className={layout.trainingSetup.topicChevron} />
+          </summary>
+          <p className={layout.trainingSetup.hint}>{TASK_COPY.setup.selectionRules}</p>
+        </details>
       </div>
     </ActivitySetupScreen>
   );

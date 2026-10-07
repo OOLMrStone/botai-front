@@ -1,0 +1,1210 @@
+[
+  {
+    "viewport": {
+      "width": 320,
+      "height": 640
+    },
+    "screen": "exam19",
+    "checks": [
+      {
+        "measured": {
+          "bottomSpread": 0,
+          "topSpread": 0
+        },
+        "name": "G2 aligned controls",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "bottom": 628,
+            "left": 16,
+            "right": 64
+          },
+          {
+            "bottom": 628,
+            "left": 72,
+            "right": 248
+          },
+          {
+            "bottom": 628,
+            "left": 256,
+            "right": 304
+          }
+        ],
+        "name": "G4 footer inside viewport",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Прикрепить решение",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: К проверке",
+        "pass": true
+      },
+      {
+        "measured": [48, 48, 48],
+        "name": "G6 standard control height",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          },
+          {
+            "available": 46,
+            "content": 47,
+            "text": "Прикрепить решение"
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          }
+        ],
+        "name": "G4 labels fit controls",
+        "pass": true
+      },
+      {
+        "measured": {
+          "client": 320,
+          "scroll": 320
+        },
+        "name": "G4 no horizontal overflow",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "width": 375,
+      "height": 812
+    },
+    "screen": "exam19",
+    "checks": [
+      {
+        "measured": {
+          "bottomSpread": 0,
+          "topSpread": 0
+        },
+        "name": "G2 aligned controls",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "bottom": 800,
+            "left": 16,
+            "right": 64
+          },
+          {
+            "bottom": 800,
+            "left": 72,
+            "right": 303
+          },
+          {
+            "bottom": 800,
+            "left": 311,
+            "right": 359
+          }
+        ],
+        "name": "G4 footer inside viewport",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Прикрепить решение",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: К проверке",
+        "pass": true
+      },
+      {
+        "measured": [48, 48, 48],
+        "name": "G6 standard control height",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": "Прикрепить решение"
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          }
+        ],
+        "name": "G4 labels fit controls",
+        "pass": true
+      },
+      {
+        "measured": {
+          "client": 375,
+          "scroll": 375
+        },
+        "name": "G4 no horizontal overflow",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "width": 430,
+      "height": 900
+    },
+    "screen": "exam19",
+    "checks": [
+      {
+        "measured": {
+          "bottomSpread": 0,
+          "topSpread": 0
+        },
+        "name": "G2 aligned controls",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "bottom": 888,
+            "left": 16,
+            "right": 64
+          },
+          {
+            "bottom": 888,
+            "left": 72,
+            "right": 358
+          },
+          {
+            "bottom": 888,
+            "left": 366,
+            "right": 414
+          }
+        ],
+        "name": "G4 footer inside viewport",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Прикрепить решение",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: К проверке",
+        "pass": true
+      },
+      {
+        "measured": [48, 48, 48],
+        "name": "G6 standard control height",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": "Прикрепить решение"
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          }
+        ],
+        "name": "G4 labels fit controls",
+        "pass": true
+      },
+      {
+        "measured": {
+          "client": 430,
+          "scroll": 430
+        },
+        "name": "G4 no horizontal overflow",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "width": 812,
+      "height": 375
+    },
+    "screen": "exam19",
+    "checks": [
+      {
+        "measured": {
+          "bottomSpread": 0,
+          "topSpread": 0
+        },
+        "name": "G2 aligned controls",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "bottom": 363,
+            "left": 198,
+            "right": 246
+          },
+          {
+            "bottom": 363,
+            "left": 254,
+            "right": 558
+          },
+          {
+            "bottom": 363,
+            "left": 566,
+            "right": 614
+          }
+        ],
+        "name": "G4 footer inside viewport",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Прикрепить решение",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: К проверке",
+        "pass": true
+      },
+      {
+        "measured": [48, 48, 48],
+        "name": "G6 standard control height",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": "Прикрепить решение"
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          }
+        ],
+        "name": "G4 labels fit controls",
+        "pass": true
+      },
+      {
+        "measured": {
+          "client": 812,
+          "scroll": 812
+        },
+        "name": "G4 no horizontal overflow",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "screen": "exam19",
+    "checks": [
+      {
+        "measured": {
+          "bottomSpread": 0,
+          "topSpread": 0
+        },
+        "name": "G2 aligned controls",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "bottom": 888,
+            "left": 432,
+            "right": 480
+          },
+          {
+            "bottom": 888,
+            "left": 488,
+            "right": 792
+          },
+          {
+            "bottom": 888,
+            "left": 800,
+            "right": 848
+          }
+        ],
+        "name": "G4 footer inside viewport",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Прикрепить решение",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: К проверке",
+        "pass": true
+      },
+      {
+        "measured": [48, 48, 48],
+        "name": "G6 standard control height",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": "Прикрепить решение"
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          }
+        ],
+        "name": "G4 labels fit controls",
+        "pass": true
+      },
+      {
+        "measured": {
+          "client": 1280,
+          "scroll": 1280
+        },
+        "name": "G4 no horizontal overflow",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 640
+    },
+    "screen": "exam19-stable",
+    "checks": [
+      {
+        "measured": {
+          "bottomSpread": 0,
+          "topSpread": 0
+        },
+        "name": "G2 aligned controls",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "bottom": 628,
+            "left": 16,
+            "right": 64
+          },
+          {
+            "bottom": 628,
+            "left": 72,
+            "right": 248
+          },
+          {
+            "bottom": 628,
+            "left": 256,
+            "right": 304
+          }
+        ],
+        "name": "G4 footer inside viewport",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Прикрепить решение",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: К проверке",
+        "pass": true
+      },
+      {
+        "measured": [48, 48, 48],
+        "name": "G6 standard control height",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          },
+          {
+            "available": 46,
+            "content": 47,
+            "text": "Прикрепить решение"
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          }
+        ],
+        "name": "G4 labels fit controls",
+        "pass": true
+      },
+      {
+        "measured": {
+          "client": 320,
+          "scroll": 320
+        },
+        "name": "G4 no horizontal overflow",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 640
+    },
+    "screen": "notifications",
+    "checks": [
+      {
+        "measured": {
+          "left": 72,
+          "right": 72
+        },
+        "name": "G1 centered progress",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Напоминать мне",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Не сейчас",
+        "pass": true
+      },
+      {
+        "measured": {
+          "client": 320,
+          "scroll": 320
+        },
+        "name": "G4 no horizontal overflow",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 640
+    },
+    "screen": "exam19-text125",
+    "checks": [
+      {
+        "measured": {
+          "bottomSpread": 0,
+          "topSpread": 0
+        },
+        "name": "G2 aligned controls",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "bottom": 625,
+            "left": 20,
+            "right": 80
+          },
+          {
+            "bottom": 625,
+            "left": 90,
+            "right": 230
+          },
+          {
+            "bottom": 625,
+            "left": 240,
+            "right": 300
+          }
+        ],
+        "name": "G4 footer inside viewport",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            29.999999999999996, 29.999999999999996, 29.999999999999996, 29.999999999999996
+          ],
+          "required": 30
+        },
+        "name": "G3 capsule: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            29.999999999999996, 29.999999999999996, 29.999999999999996, 29.999999999999996
+          ],
+          "required": 30
+        },
+        "name": "G3 capsule: Прикрепить",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            29.999999999999996, 29.999999999999996, 29.999999999999996, 29.999999999999996
+          ],
+          "required": 30
+        },
+        "name": "G3 capsule: К проверке",
+        "pass": true
+      },
+      {
+        "measured": [60, 60, 60],
+        "name": "G6 standard control height",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "available": 58,
+            "content": 58,
+            "text": ""
+          },
+          {
+            "available": 58,
+            "content": 58,
+            "text": "Прикрепить"
+          },
+          {
+            "available": 58,
+            "content": 58,
+            "text": ""
+          }
+        ],
+        "name": "G4 labels fit controls",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 55,
+          "height": 55
+        },
+        "name": "G6 role size: Сохранить и выйти",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 55,
+          "height": 55
+        },
+        "name": "G6 role size: Добавить в избранное",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 55,
+          "height": 55
+        },
+        "name": "G6 role size: Карандаш",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 55,
+          "height": 55
+        },
+        "name": "G6 role size: Стереть линию целиком",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 55,
+          "height": 55
+        },
+        "name": "G6 role size: Ластик - стереть часть линии",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 60,
+          "height": 60
+        },
+        "name": "G6 role size: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 60,
+          "height": 60
+        },
+        "name": "G6 role size: Прикрепить",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 60,
+          "height": 60
+        },
+        "name": "G6 role size: К проверке",
+        "pass": true
+      },
+      {
+        "measured": {
+          "client": 320,
+          "scroll": 320
+        },
+        "name": "G4 no horizontal overflow",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "width": 375,
+      "height": 812
+    },
+    "screen": "exam19-final",
+    "checks": [
+      {
+        "measured": {
+          "bottomSpread": 0,
+          "topSpread": 0
+        },
+        "name": "G2 aligned controls",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "bottom": 800,
+            "left": 16,
+            "right": 64
+          },
+          {
+            "bottom": 800,
+            "left": 72,
+            "right": 303
+          },
+          {
+            "bottom": 800,
+            "left": 311,
+            "right": 359
+          }
+        ],
+        "name": "G4 footer inside viewport",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Прикрепить",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: К проверке",
+        "pass": true
+      },
+      {
+        "measured": [48, 48, 48],
+        "name": "G6 standard control height",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": "Прикрепить"
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          }
+        ],
+        "name": "G4 labels fit controls",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 44,
+          "height": 44
+        },
+        "name": "G6 role size: Сохранить и выйти",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 44,
+          "height": 44
+        },
+        "name": "G6 role size: Добавить в избранное",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 44,
+          "height": 44
+        },
+        "name": "G6 role size: Карандаш",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 44,
+          "height": 44
+        },
+        "name": "G6 role size: Стереть линию целиком",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 44,
+          "height": 44
+        },
+        "name": "G6 role size: Ластик - стереть часть линии",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 48,
+          "height": 48
+        },
+        "name": "G6 role size: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 48,
+          "height": 48
+        },
+        "name": "G6 role size: Прикрепить",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 48,
+          "height": 48
+        },
+        "name": "G6 role size: К проверке",
+        "pass": true
+      },
+      {
+        "measured": {
+          "client": 375,
+          "scroll": 375
+        },
+        "name": "G4 no horizontal overflow",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "screen": "quiz-setup-320-final",
+    "results": [
+      {
+        "measured": {
+          "effective": [22, 22, 22, 22],
+          "required": 22
+        },
+        "name": "G3 capsule: Выйти из квиза",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Начать квиз",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 44,
+          "height": 44
+        },
+        "name": "G6 role size: Выйти из квиза",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 48,
+          "height": 48
+        },
+        "name": "G6 role size: Начать квиз",
+        "pass": true
+      },
+      {
+        "measured": "24px",
+        "name": "G5 card radius",
+        "pass": true
+      },
+      {
+        "measured": "24px",
+        "name": "G5 card radius",
+        "pass": true
+      },
+      {
+        "measured": {
+          "client": 320,
+          "scroll": 320
+        },
+        "name": "G4 no horizontal overflow",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "screen": "exam19-375-final",
+    "results": [
+      {
+        "measured": {
+          "bottomSpread": 0,
+          "topSpread": 0
+        },
+        "name": "G2 aligned controls",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "bottom": 800,
+            "left": 16,
+            "right": 64
+          },
+          {
+            "bottom": 800,
+            "left": 72,
+            "right": 303
+          },
+          {
+            "bottom": 800,
+            "left": 311,
+            "right": 359
+          }
+        ],
+        "name": "G4 footer inside viewport",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: Прикрепить",
+        "pass": true
+      },
+      {
+        "measured": {
+          "effective": [
+            24.000000000000004, 24.000000000000004, 24.000000000000004, 24.000000000000004
+          ],
+          "required": 24
+        },
+        "name": "G3 capsule: К проверке",
+        "pass": true
+      },
+      {
+        "measured": [48, 48, 48],
+        "name": "G6 standard control height",
+        "pass": true
+      },
+      {
+        "measured": [
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": "Прикрепить"
+          },
+          {
+            "available": 46,
+            "content": 46,
+            "text": ""
+          }
+        ],
+        "name": "G4 labels fit controls",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 44,
+          "height": 44
+        },
+        "name": "G6 role size: Сохранить и выйти",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 44,
+          "height": 44
+        },
+        "name": "G6 role size: Добавить в избранное",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 44,
+          "height": 44
+        },
+        "name": "G6 role size: Карандаш",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 44,
+          "height": 44
+        },
+        "name": "G6 role size: Стереть линию целиком",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 44,
+          "height": 44
+        },
+        "name": "G6 role size: Ластик - стереть часть линии",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 48,
+          "height": 48
+        },
+        "name": "G6 role size: Предыдущее задание",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 48,
+          "height": 48
+        },
+        "name": "G6 role size: Прикрепить",
+        "pass": true
+      },
+      {
+        "measured": {
+          "expected": 48,
+          "height": 48
+        },
+        "name": "G6 role size: К проверке",
+        "pass": true
+      },
+      {
+        "measured": {
+          "client": 375,
+          "scroll": 375
+        },
+        "name": "G4 no horizontal overflow",
+        "pass": true
+      }
+    ]
+  }
+]

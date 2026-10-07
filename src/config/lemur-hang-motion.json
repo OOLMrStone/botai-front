@@ -1,6 +1,7 @@
 {
   "fps": 60,
   "duration": 4.8,
+  "loopOverlap": 0.6,
   "swingDegrees": 8,
   "anchor": [380, 0],
   "viewSize": 620,
@@ -60,12 +61,9 @@
   "bodyPeriod": 2.4,
   "curl": [
     [0, 0],
-    [0.55, 0.85],
-    [1.05, 1],
-    [1.8, -0.5],
+    [1.2, 1],
     [2.4, 0]
   ],
-  "headLag": 0.12,
   "reactionPhaseStep": 0.2,
   "reactionEnd": 1.6,
   "reactionPhaseVideo": "heart-phase-{index}.mp4",

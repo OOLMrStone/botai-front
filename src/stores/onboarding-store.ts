@@ -1,16 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { EMPTY_REGISTRATION } from '@/config/auth';
+import type { RegisterPayload } from '@/lib/api/auth';
+import { restoreRegistration } from '@/lib/registration';
 import { DEFAULT_DAILY_GOAL_MINUTES } from '@/config/onboarding-steps';
 import { normalizeDailyGoalMinutes } from '@/lib/daily-goal';
 
-export interface RegistrationData {
-  age: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}
+export type RegistrationData = RegisterPayload;
 
 interface OnboardingState {
   goal: string | null;
@@ -31,14 +28,6 @@ interface OnboardingState {
   reset: () => void;
 }
 
-const emptyRegistration: RegistrationData = {
-  age: '',
-  firstName: '',
-  lastName: '',
-  email: '',
-  password: '',
-};
-
 export const useOnboardingStore = create<OnboardingState>()(
   persist(
     (set) => ({
@@ -47,7 +36,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       dailyGoalMinutes: DEFAULT_DAILY_GOAL_MINUTES,
       notificationsEnabled: false,
       hearAboutUs: null,
-      registration: emptyRegistration,
+      registration: EMPTY_REGISTRATION,
       needsProfileSave: false,
 
       requireProfileSave: () => set({ needsProfileSave: true }),
@@ -65,13 +54,13 @@ export const useOnboardingStore = create<OnboardingState>()(
           dailyGoalMinutes: DEFAULT_DAILY_GOAL_MINUTES,
           notificationsEnabled: false,
           hearAboutUs: null,
-          registration: emptyRegistration,
+          registration: EMPTY_REGISTRATION,
           needsProfileSave: false,
         }),
     }),
     {
       name: 'botai-onboarding',
-      version: 2,
+      version: 3,
       partialize: (state) => ({
         ...state,
         registration: { ...state.registration, password: '' },
@@ -84,11 +73,7 @@ export const useOnboardingStore = create<OnboardingState>()(
             saved.dailyGoalMinutes === null || saved.dailyGoalMinutes === undefined
               ? DEFAULT_DAILY_GOAL_MINUTES
               : normalizeDailyGoalMinutes(saved.dailyGoalMinutes),
-          registration: {
-            ...emptyRegistration,
-            ...saved.registration,
-            password: '',
-          },
+          registration: restoreRegistration(saved.registration),
         } as OnboardingState;
       },
       merge: (persisted, current) => {
@@ -96,11 +81,7 @@ export const useOnboardingStore = create<OnboardingState>()(
         return {
           ...current,
           ...saved,
-          registration: {
-            ...current.registration,
-            ...saved.registration,
-            password: '',
-          },
+          registration: restoreRegistration(saved.registration),
         };
       },
     },

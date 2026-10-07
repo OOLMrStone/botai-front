@@ -27,11 +27,9 @@ export function MockExamCard({
       : MOCK_EXAM_COPY.notStarted;
   const action = opening
     ? MOCK_EXAM_COPY.opening
-    : result
+    : result || inProgress
       ? MOCK_EXAM_COPY.details
-      : inProgress
-        ? MOCK_EXAM_COPY.continue
-        : MOCK_EXAM_COPY.solve;
+      : MOCK_EXAM_COPY.solve;
 
   return (
     <button
@@ -49,7 +47,9 @@ export function MockExamCard({
         <div className="min-w-0">
           <h2 className={MOCK_EXAM_LAYOUT.cardTitle}>{exam.title}</h2>
           <p className={MOCK_EXAM_LAYOUT.cardResult}>
-            {result ? MOCK_EXAM_COPY.score(result.score) : MOCK_EXAM_COPY.scorePending}
+            {result
+              ? MOCK_EXAM_COPY.score(result.score)
+              : MOCK_EXAM_COPY.taskCount(exam.tasks.length)}
           </p>
           <p className={MOCK_EXAM_LAYOUT.cardHint} aria-live="polite">
             {action}

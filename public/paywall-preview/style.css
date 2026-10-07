@@ -410,6 +410,15 @@ h1:focus {
   margin-top: 20px;
   line-height: 1.6;
 }
+.legal-text a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.legal-text a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
 .secondary {
   display: block;
   width: 100%;

@@ -9,29 +9,26 @@ import { layout } from '@/config/layout';
 import { COPY, registerPath, ROUTES } from '@/config/onboarding-steps';
 import { cn } from '@/lib/utils';
 
-// Гейт после урока: «Сохрани прогресс» — OAuth, регистрация по почте или вход.
+// Сохранение подготовки: регистрация по почте или вход в существующий аккаунт.
 export default function SaveProgressPage() {
   return (
     <ScreenShell
       center
       footer={
-        <div className="space-y-4">
-          <OAuthButtons redirectTo={ROUTES.done} />
-
-          <div className="text-muted-foreground flex items-center gap-3 text-sm">
-            <span className="bg-border h-px flex-1" />
-            или
-            <span className="bg-border h-px flex-1" />
-          </div>
+        <div className={layout.auth.footer}>
+          <OAuthButtons redirectTo={ROUTES.done} separator="after" />
 
           <Link
-            href={registerPath('age')}
+            href={registerPath('account')}
             className={cn(buttonVariants({ size: 'default' }), layout.cta)}
           >
             {COPY.register.saveProgress.emailCta}
           </Link>
 
-          <Link href={ROUTES.login} className={cn(buttonVariants({ variant: 'ghost' }), 'w-full')}>
+          <Link
+            href={ROUTES.login}
+            className={cn(buttonVariants({ variant: 'ghost' }), layout.cta)}
+          >
             {COPY.register.saveProgress.loginCta}
           </Link>
         </div>

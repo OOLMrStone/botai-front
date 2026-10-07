@@ -16,6 +16,7 @@ interface DialogSheetProps {
   children: React.ReactNode;
   className?: string;
   swipeToClose?: boolean;
+  initialFocus?: React.ComponentProps<typeof Dialog.Popup>['initialFocus'];
   onOpenChange: (open: boolean) => void;
 }
 
@@ -26,6 +27,7 @@ export function DialogSheet({
   children,
   className,
   swipeToClose = false,
+  initialFocus,
   onOpenChange,
 }: DialogSheetProps) {
   const close = () => onOpenChange(false);
@@ -40,6 +42,7 @@ export function DialogSheet({
         <Dialog.Backdrop ref={backdropRef} className={layout.sheet.overlay} />
         <Dialog.Popup
           ref={popupRef}
+          initialFocus={initialFocus}
           className={cn(layout.sheet.root, layout.sheet.width, className)}
         >
           {swipeToClose ? (

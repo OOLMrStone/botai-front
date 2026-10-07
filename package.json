@@ -29,7 +29,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "test:design": "node --test scripts/test-design-system.mjs scripts/test-work-3-behavior.mjs scripts/test-typography.mjs scripts/test-brand.mjs scripts/test-attempt-persistence.mjs scripts/test-onboarding-completion.mjs scripts/test-content-import.mjs"
+    "test:design": "node --test scripts/test-design-system.mjs scripts/test-work-3-behavior.mjs scripts/test-typography.mjs scripts/test-brand.mjs scripts/test-attempt-persistence.mjs scripts/test-onboarding-completion.mjs scripts/test-content-import.mjs scripts/test-dev-tools.mjs scripts/test-study-timer.mjs scripts/test-embedded-bo.mjs scripts/test-embedded-bo-player.mjs scripts/test-lemur-alpha-frame.mjs scripts/test-lemur-reaction-queue.mjs scripts/test-lemur-seamless-loop.mjs scripts/test-paywall.mjs scripts/test-home-attempts.mjs scripts/test-disabled-actions.mjs scripts/test-client-id.mjs scripts/test-flow-progress.mjs",
+    "build:api-dev": "NEXT_PUBLIC_APP_ENV=dev NEXT_PUBLIC_API_MOCK=0 next build",
+    "start:api-dev": "NEXT_PUBLIC_APP_ENV=dev NEXT_PUBLIC_API_MOCK=0 next start"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

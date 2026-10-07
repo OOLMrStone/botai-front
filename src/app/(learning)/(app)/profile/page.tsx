@@ -1,9 +1,13 @@
 'use client';
 
-import { ChevronRight, Clock, Flame, Settings, Target, UserRound, Zap } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Clock, Flame, Target, Zap } from 'lucide-react';
 
-import { AppCard } from '@/components/app/AppCard';
+import { ProfileAvatar } from '@/components/app/ProfileAvatar';
+import { ProfileLinks } from '@/components/app/ProfileLinks';
+import { PROFILE_COPY } from '@/config/profile';
+import { formatProfileDate } from '@/lib/profile-date';
+import { formatStreakDays } from '@/lib/study-time';
+import { ProfilePlanCard } from '@/components/paywall/ProfilePlanCard';
 import { StatTile } from '@/components/app/StatTile';
 import { StreakCalendar } from '@/components/app/StreakCalendar';
 import { ErrorNote } from '@/components/common/ErrorNote';
@@ -13,20 +17,10 @@ import { ScreenShell } from '@/components/onboarding/ScreenShell';
 import { Skeleton } from '@/components/ui/skeleton';
 import { profileSkeletonTiles } from '@/config/app-layout';
 import { layout } from '@/config/layout';
-import { COPY, GOAL_OPTIONS, LEVEL_OPTIONS, ROUTES } from '@/config/onboarding-steps';
+import { COPY, GOAL_OPTIONS } from '@/config/onboarding-steps';
 import { useProfile } from '@/hooks/use-profile';
-import {
-  LEARNING_COPY as C,
-  DATE_FORMAT,
-  LEARNING_ROUTES,
-  INTEGRATION,
-} from '@/config/integration';
-import { FileUploadButton } from '@/components/common/FileUploadButton';
-import { Button } from '@/components/ui/button';
+import { LEARNING_COPY as C, LEARNING_ROUTES } from '@/config/integration';
 import Link from 'next/link';
-import Image from 'next/image';
-import { usePlan } from '@/hooks/use-plan';
-import { cn } from '@/lib/utils';
 import { useUserStats } from '@/hooks/use-user-stats';
 import { useAuthStore } from '@/stores/auth-store';
 import { useProfileStore } from '@/stores/profile-store';
@@ -34,10 +28,8 @@ import { useProfileStore } from '@/stores/profile-store';
 // Вкладка «Профиль»: витрина - личность, строка «Настройки» → экран правки,
 // сетка «Обзор» и неделя в ударе. Живую сессию гарантирует AppGuard.
 export default function ProfilePage() {
-  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const { stats, failed, retry } = useUserStats();
-  const plan = usePlan();
   const profile = useProfile();
   const nameOverride = useProfileStore((s) => s.name);
 
@@ -51,91 +43,21 @@ export default function ProfilePage() {
       <div className={layout.app.profile.content}>
         <div className={layout.app.profile.group}>
           <div className={layout.app.profile.identity}>
-            <div className={layout.app.profile.avatar}>
-              <>
-                {profile.data?.avatarUrl ? (
-                  <Image
-                    src={profile.data.avatarUrl}
-                    alt={C.avatar}
-                    width={128}
-                    height={128}
-                    className={layout.integration.avatarImage}
-                  />
-                ) : (
-                  <UserRound className={layout.app.profile.avatarIcon} />
-                )}
-              </>
-            </div>
+            <ProfileAvatar url={profile.data?.avatarUrl} />
             <ScreenHeading variant="app" title={displayName} />
-            <p className={cn(layout.typography.description, layout.app.profile.email)}>
-              {user.email}
-            </p>
+            {profile.data ? (
+              <p className={layout.app.profile.joined}>
+                {PROFILE_COPY.joined(formatProfileDate(profile.data.registeredAt))}
+              </p>
+            ) : null}
           </div>
-
-          {profile.data ? (
-            <>
-              <p className={layout.typography.caption}>
-                {C.registered} {DATE_FORMAT.format(new Date(profile.data.registeredAt))}
-              </p>
-              <p className={layout.typography.description}>
-                {C.level}:{' '}
-                {LEVEL_OPTIONS.find((option) => option.id === profile.data?.levelId)?.label ?? '-'}
-              </p>
-            </>
-          ) : null}
-          <FileUploadButton
-            label={C.changeAvatar}
-            accept={INTEGRATION.imageAccept}
-            disabled={profile.busy}
-            onAdd={(files) => {
-              if (files[0]) void profile.avatar(files[0]);
-            }}
-          />
-          {user.emailVerified === false ? (
-            <Button
-              variant="outline"
-              disabled={profile.verificationBusy || profile.verificationSent}
-              onClick={() => void profile.verify()}
-            >
-              {profile.verificationSent ? C.verifySent : C.verify}
-            </Button>
-          ) : null}
-          {profile.data?.avatarUrl ? (
-            <Button variant="outline" disabled={profile.busy} onClick={() => void profile.avatar()}>
-              {C.removeAvatar}
-            </Button>
-          ) : null}
-          {profile.error ? <ErrorNote message={profile.error} /> : null}
+          <ProfileLinks />
           {user.role === 'ADMIN' ? (
             <Link href={LEARNING_ROUTES.admin} className={layout.typography.description}>
               {C.admin}
             </Link>
           ) : null}
-          <Link href={LEARNING_ROUTES.history} className={layout.typography.description}>
-            {C.history}
-          </Link>
-          <button
-            type="button"
-            onClick={() => router.push(ROUTES.settings)}
-            className={cn(
-              layout.app.card.surface,
-              layout.app.profile.card,
-              layout.app.profile.settings,
-              layout.focusRing,
-            )}
-          >
-            <Settings className={layout.app.profile.settingsIcon} />
-            <span className={cn(layout.app.profile.settingsLabel, layout.typography.controlTitle)}>
-              {COPY.profile.settingsRow}
-            </span>
-            <ChevronRight className={layout.app.profile.settingsIcon} />
-          </button>
-
-          <AppCard className={cn(layout.app.card.compact, layout.app.profile.card)}>
-            <p className={layout.typography.description}>{COPY.plan.cardTitle}</p>
-            <p className={layout.typography.sectionTitle}>{plan.label}</p>
-            <p className={layout.typography.description}>{plan.description}</p>
-          </AppCard>
+          <ProfilePlanCard />
         </div>
         <div className={layout.app.profile.group}>
           {stats ? (
@@ -146,17 +68,17 @@ export default function ProfilePage() {
                   <StatTile
                     icon={Flame}
                     label={COPY.profile.overviewStreak}
-                    value={`${stats.streakDays} ${COPY.profile.streakUnit}`}
+                    value={formatStreakDays(stats.streakDays)}
                   />
                   <StatTile
                     icon={Clock}
                     label={COPY.home.studyTimeLabel}
-                    value={`${stats.studyHours} ${COPY.home.hoursUnit}`}
+                    value={stats.studyTimeLabel}
                   />
                   <StatTile
                     icon={Target}
                     label={COPY.profile.overviewGoal}
-                    value={goal?.description ?? '-'}
+                    value={goal?.description ?? PROFILE_COPY.goalUnset}
                   />
                   <StatTile
                     icon={Zap}
@@ -166,7 +88,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className={layout.app.profile.section}>
+              <div className={layout.app.profile.calendarSection}>
                 <SectionHeading>{COPY.profile.streakWeekTitle}</SectionHeading>
                 <StreakCalendar week={stats.week} today={stats.date} />
               </div>

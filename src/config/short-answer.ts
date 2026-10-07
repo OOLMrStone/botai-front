@@ -13,6 +13,6 @@ export const SHORT_ANSWER = {
 export const SHORT_ANSWER_COPY = {
   invalid: 'Введи целое число или десятичную дробь, например -2,5',
   incomplete: 'Допиши число после знака или запятой',
-  invalidHint: 'Число: -2,5',
+  invalidHint: 'Введи здесь число',
   incompleteHint: 'Допиши число',
 } as const;

@@ -2,6 +2,8 @@
 export const MOTION_STYLES = {
   flowEnter:
     'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 motion-safe:duration-300 motion-safe:ease-out',
+  progressEnter:
+    'motion-safe:animate-[flow-progress-enter_var(--progress-motion-duration)_ease-out]',
   loadingSpin: 'motion-safe:animate-spin',
   loadingPulse: 'motion-safe:animate-pulse',
 } as const;

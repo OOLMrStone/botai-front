@@ -17,6 +17,12 @@
   }
 }
 
+@custom-variant phone-short {
+  @media (orientation: portrait) and (max-height: 40rem) and (max-width: 40rem) {
+    @slot;
+  }
+}
+
 @custom-variant keyboard-open (&:where([data-training-keyboard] *));
 
 @theme inline {
@@ -44,6 +50,9 @@
   --color-destructive: var(--destructive);
   --color-success: var(--success);
   --color-attention: var(--attention);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -85,41 +94,50 @@
   --task-tab-motion-duration: 220ms;
   --task-control-motion-duration: 200ms;
   --task-ink: #002868;
-  --ink: oklch(0.145 0 0);
-  --background: oklch(1 0 0);
+  --palette-paper: #faf9f6;
+  --palette-surface: #f0efeb;
+  --palette-ink: #242422;
+  --palette-muted: #65655f;
+  --palette-yellow: #e8b931;
+  --palette-pale: #f4f1e7;
+  --brand: var(--palette-yellow);
+  --brand-strong: #95720b;
+  --brand-soft: var(--palette-pale);
+  --ink: var(--palette-ink);
+  --background: var(--palette-paper);
   --foreground: var(--ink);
-  --card: oklch(1 0 0);
+  --card: var(--palette-surface);
   --card-foreground: var(--ink);
-  --popover: oklch(1 0 0);
+  --popover: var(--palette-paper);
   --popover-foreground: var(--ink);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --primary: var(--palette-ink);
+  --primary-foreground: var(--palette-paper);
+  --secondary: var(--palette-surface);
+  --secondary-foreground: var(--ink);
+  --muted: #e8e7e2;
+  --muted-foreground: var(--palette-muted);
+  --accent: var(--palette-surface);
+  --accent-foreground: var(--ink);
   --destructive: oklch(0.577 0.245 27.325);
   --success: oklch(0.6 0.14 150);
   --attention: oklch(0.72 0.19 55);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: #d8d7d0;
+  --input: var(--border);
+  --ring: var(--palette-muted);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: var(--ink);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: var(--background);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 .dark {
@@ -128,21 +146,23 @@
   --brand-ai-graphite: #697580;
   --brand-ai-flash: #ffffff;
   --task-ink: #7aa2e3;
-  --ink: oklch(0.985 0 0);
-  --background: oklch(0.145 0 0);
+  --brand-strong: var(--brand);
+  --brand-soft: #393326;
+  --ink: var(--palette-paper);
+  --background: #201f1c;
   --foreground: var(--ink);
-  --card: oklch(0.205 0 0);
+  --card: #2b2a26;
   --card-foreground: var(--ink);
-  --popover: oklch(0.205 0 0);
+  --popover: var(--card);
   --popover-foreground: var(--ink);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --primary: var(--palette-paper);
+  --primary-foreground: var(--background);
+  --secondary: #34332e;
+  --secondary-foreground: var(--ink);
+  --muted: var(--secondary);
+  --muted-foreground: #b7b5ac;
+  --accent: var(--secondary);
+  --accent-foreground: var(--ink);
   --destructive: oklch(0.704 0.191 22.216);
   --success: oklch(0.7 0.15 150);
   --attention: oklch(0.78 0.17 65);
@@ -154,14 +174,14 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: var(--ink);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar: var(--background);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 @layer base {
@@ -206,53 +226,10 @@
   user-select: text;
 }
 
-/* Проявление графика слева-направо: линии статичны, а поверх едет «шторка»
-   цвета карточки. Шторка и флажок - элементы поверх svg, а не внутри него:
-   в WebKit содержимое svg не получает слоя композитора (движок LBSE ещё не
-   включён по умолчанию), и transform на нём перерисовывает весь график. */
-@keyframes goal-reveal {
+@keyframes flow-progress-enter {
   from {
-    transform: translateX(0);
+    transform: scaleX(0);
   }
-  to {
-    transform: translateX(100%);
-  }
-}
-
-/* Флажок «цель достигнута»: пружинистый поп с оверслутом, в духе Mario. */
-@keyframes flag-pop {
-  0% {
-    opacity: 0;
-    transform: translateY(4px) scale(0.2);
-  }
-  55% {
-    opacity: 1;
-    transform: translateY(-3px) scale(1.2);
-  }
-  72% {
-    opacity: 1;
-    transform: translateY(1px) scale(0.9);
-  }
-  86% {
-    opacity: 1;
-    transform: translateY(0) scale(1.06);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* База - «открыто» (translateX 100%): при reduced-motion/без анимации график виден. */
-.goal-wipe {
-  transform: translateX(100%);
-  animation: goal-reveal 1s ease-in-out;
-}
-/* Точка опоры попа - основание флажка (288 26) в долях viewBox 306x150. */
-.goal-flag {
-  opacity: 1;
-  transform-origin: 94.1% 17.3%;
-  animation: flag-pop 0.6s ease-out 1s backwards;
 }
 
 /* Геометрия текста неизменна: меняется только видимость второго отражения. */
@@ -410,8 +387,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .goal-wipe,
-  .goal-flag,
   .sheet-enter,
   .sheet-overlay-enter,
   .tasks-lens-enter {

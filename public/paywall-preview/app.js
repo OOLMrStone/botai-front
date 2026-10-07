@@ -1,10 +1,7 @@
 if (new URLSearchParams(location.search).get('theme') === 'dark')
   document.documentElement.dataset.theme = 'dark';
-const PLANS = [
-  { name: 'Базовый минимум', quota: 30, month: 299, season: 1499, daily: '6,17' },
-  { name: 'Золотая середина', quota: 70, month: 699, season: 2999, daily: '12,34' },
-  { name: 'Роскошный максимум', quota: 110, month: 899, season: 3999, daily: '16,46' },
-];
+const PLANS = window.BOTAI_PAYWALL_PRICING.plans;
+const BILLING_COPY = window.BOTAI_PAYWALL_PRICING.copy;
 const state = { period: 'season', plan: 1, expanded: false, chosen: false, screen: 'paywall' };
 const money = (value) => new Intl.NumberFormat('ru-RU').format(value) + ' ₽';
 const iconClose =
@@ -17,13 +14,9 @@ function topbar() {
 function cardContent(index) {
   const p = PLANS[index];
   const season = state.period === 'season';
-  const equivalent = new Intl.NumberFormat('ru-RU', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  }).format(p.season / 8);
   const selected = state.plan === index;
   const badge = selected ? (state.chosen ? 'Твой тариф' : 'Рекомендуемый') : '';
-  return `<span class="plan-badge" ${badge ? '' : 'hidden'}>${badge}</span><span class="radio" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 12 4 4 8-8"/></svg></span><div class="plan-title">${p.name}</div><div class="pricing"><div class="price-row"><span class="price">${season ? equivalent : p.month}<span class="currency">₽</span></span><span class="price-period">/ мес</span></div><div class="quota"><span class="included" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m3 8 3 3 7-7"/></svg></span><span class="quota-label">${p.quota} проверок<br>развёрнутых заданий<br>в месяц</span></div></div>${season ? `<div class="card-footer"><p class="charge"><strong>${money(p.season)}</strong><span>за сезон целиком</span></p><span class="daily">${p.daily} ₽<span>в день</span></span></div>` : ''}`;
+  return `<span class="plan-badge" ${badge ? '' : 'hidden'}>${badge}</span><span class="radio" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 12 4 4 8-8"/></svg></span><div class="plan-title">${p.name}</div><div class="pricing"><div class="price-row"><span class="price">${p[state.period]}<span class="currency">₽</span></span><span class="price-period">${season ? BILLING_COPY.seasonUnit : BILLING_COPY.monthUnit}</span></div><div class="quota"><span class="included" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m3 8 3 3 7-7"/></svg></span><span class="quota-label">${season ? p.seasonQuota : p.quota} ${BILLING_COPY.quota[state.period]}</span></div></div><div class="card-footer"><p class="charge">${season ? BILLING_COPY.seasonNote : BILLING_COPY.monthNote}</p></div>`;
 }
 function card(index) {
   return `<div class="plan-wrap"><div class="plan-anchor"><button class="plan ${state.plan === index ? 'selected' : ''}" data-plan="${index}" aria-pressed="${state.plan === index}">${cardContent(index)}</button></div></div>`;
@@ -35,7 +28,7 @@ function paywall() {
           .map((i) => card(i))
           .join('')
       : card(state.plan)
-  }</div>${state.expanded ? '' : `<button class="other" data-action="expand" aria-expanded="false" aria-controls="plans-list">Другие тарифы${chevron}</button>`}<div class="actions"><div class="cta-lemur-space"><div class="cta-anchor"><div class="lemur" data-lemur aria-hidden="true"><img data-poster src="lemur-alpha-poster.png" alt=""><video src="lemur-alpha.mp4?v=4" muted autoplay playsinline webkit-playsinline loop preload="auto" hidden></video><canvas width="1536" height="1024" hidden></canvas></div><button class="primary" data-action="checkout">Продолжить</button></div></div><div class="legal-text"><span>Оферта</span><span aria-hidden="true">·</span><span>Политика конфиденциальности</span></div></div>`;
+  }</div>${state.expanded ? '' : `<button class="other" data-action="expand" aria-expanded="false" aria-controls="plans-list">Другие тарифы${chevron}</button>`}<div class="actions"><div class="cta-lemur-space"><div class="cta-anchor"><div class="lemur" data-lemur aria-hidden="true"><img data-poster src="lemur-alpha-poster.png" alt=""><video src="lemur-alpha.mp4?v=4" muted autoplay playsinline webkit-playsinline loop preload="auto" hidden></video><canvas width="1536" height="1024" hidden></canvas></div><button class="primary" data-action="checkout" disabled>Продолжить</button></div></div><div class="legal-text">${window.BOTAI_PAYWALL_LEGAL_LINKS.map((link) => `<a href="${link.href}">${link.label}</a>`).join('<span aria-hidden="true">·</span>')}</div></div>`;
 }
 function updatePaywall(animatePrices = false) {
   const period = document.querySelector('.period');
@@ -109,7 +102,7 @@ function expandPlans(button) {
 }
 function checkout() {
   const p = PLANS[state.plan];
-  return `<section class="flow-content"><h1 tabindex="-1">Всё верно?</h1><p class="subtitle">${p.quota} проверок каждый месяц<br>Разбор решений и объяснение ошибок</p><div class="receipt"><div><span>Тариф</span><span>${p.name}</span></div><div><span>Период</span><span>${state.period === 'season' ? 'Сезон · 8 месяцев' : 'Месяц'}</span></div><div class="total"><span>К оплате</span><span>${money(p[state.period])}</span></div></div><button class="primary" data-action="confirm">Подтвердить в макете</button><button class="secondary" data-action="paywall">Вернуться к тарифу</button><p class="demo-note">Тестовый экран · Оплаты нет</p></section>`;
+  return `<section class="flow-content"><h1 tabindex="-1">Всё верно?</h1><p class="subtitle">${state.period === 'season' ? p.seasonQuota : p.quota} ${BILLING_COPY.quota[state.period]}<br>Разбор решений и объяснение ошибок</p><div class="receipt"><div><span>Тариф</span><span>${p.name}</span></div><div><span>Период</span><span>${state.period === 'season' ? BILLING_COPY.seasonDeadline : BILLING_COPY.monthUnit}</span></div><div class="total"><span>К оплате</span><span>${money(p[state.period])}</span></div></div><button class="primary" data-action="confirm">Подтвердить в макете</button><button class="secondary" data-action="paywall">Вернуться к тарифу</button><p class="demo-note">Тестовый экран · Оплаты нет</p></section>`;
 }
 function practice() {
   return `<section class="flow-content"><p class="subtitle">Неравенства · задание 15</p><h1 tabindex="-1">Продолжим решать</h1><div class="task-panel"><p>Черновик на месте</p><div class="task-math">log₂(x − 1) ≥ 3</div><p class="subtitle">Практика и готовые решения бесплатны</p></div><button class="primary" data-action="paywall">Проверить с Бо</button></section>`;

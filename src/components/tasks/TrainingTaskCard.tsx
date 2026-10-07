@@ -1,8 +1,8 @@
 import { Bookmark } from 'lucide-react';
 
 import { TaskBlockRenderer } from '@/components/tasks/TaskBlockRenderer';
-import { TaskSources } from '@/components/tasks/TaskSources';
 import { Button } from '@/components/ui/button';
+import { DISABLED_ACTION_COPY } from '@/config/disabled-action';
 import { layout } from '@/config/layout';
 import {
   TASK_COPY,
@@ -10,7 +10,6 @@ import {
   type TaskStatus,
   type TrainingTask,
   type TaskBlock,
-  type TaskSource,
 } from '@/config/tasks';
 import { useDrawingWorkspace } from '@/hooks/use-drawing-workspace';
 import { useGestureSurfaceGuard } from '@/hooks/use-gesture-surface-guard';
@@ -22,7 +21,7 @@ import { preventGestureContextMenu } from '@/lib/gesture-surface';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 
 interface TrainingTaskCardProps {
-  task: Pick<TrainingTask, 'id' | 'content' | 'difficulty'> & { sources?: TaskSource[] };
+  task: Pick<TrainingTask, 'id' | 'content' | 'difficulty' | 'isGrob'>;
   drawingKey?: string;
   isFavourite?: boolean;
   solution?: TaskBlock[];
@@ -89,8 +88,12 @@ export function TrainingTaskCard({
         <div className={layout.training.titleGroup}>
           <h2 className={layout.training.cardTitle}>
             {TASK_COPY.training.task} {position}
-            {task.difficulty === 'hard' ? (
-              <span aria-hidden="true" className={layout.training.difficultyIcon} />
+            {task.isGrob ? (
+              <span
+                role="img"
+                aria-label={TASK_COPY.difficulty[5]}
+                className={layout.training.difficultyIcon}
+              />
             ) : null}
           </h2>
           {solvedDate ? (
@@ -123,6 +126,7 @@ export function TrainingTaskCard({
               aria-label={label}
               aria-pressed={tool === id}
               disabled={locked}
+              disabledReason={!revealBusy ? DISABLED_ACTION_COPY.drawingLocked : undefined}
               onClick={() => drawing.toggleTool(id)}
             >
               {Icon ? (
@@ -134,7 +138,6 @@ export function TrainingTaskCard({
           ))}
         </div>
       </div>
-      <TaskSources sources={task.sources} />
       <div
         ref={workspaceViewportRef}
         role="region"

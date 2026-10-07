@@ -1,4 +1,5 @@
 'use client';
+import { createClientId } from '@/lib/client-id';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { INTEGRATION, LEARNING_COPY as C } from '@/config/integration';
 import { ApiError, requestErrorMessage } from '@/lib/api/client';
@@ -17,11 +18,13 @@ import {
 import type { Attempt, AttemptPatch, Submission } from '@/lib/api/learning-types';
 import { imageRejection } from '@/lib/image-validation';
 import { attemptDraft, ownsAttemptDraft } from '@/lib/attempt-drafts';
-import { itemLocked } from '@/lib/attempt';
+import { itemLocked, itemReadyToCheck } from '@/lib/attempt';
 import { invalidateAttempts } from '@/lib/learning-resources';
 import { useTasksStore } from '@/stores/tasks-store';
+import { useHasFeature } from '@/hooks/use-plan';
 
 export function useAttempt(id: string) {
+  const canReviewPhoto = useHasFeature('aiReview');
   const session = useMemo(() => attemptDraft(id), [id]);
   const [attempt, setAttempt] = useState<Attempt | null>(session.snapshot);
   const [answers, setAnswers] = useState<Record<string, string>>(session.answers);
@@ -59,7 +62,7 @@ export function useAttempt(id: string) {
     [id, session],
   );
   const requestKey = (scope: string) => {
-    if (!keys.current.has(scope)) keys.current.set(scope, crypto.randomUUID());
+    if (!keys.current.has(scope)) keys.current.set(scope, createClientId());
     return keys.current.get(scope)!;
   };
   const refresh = useCallback(async () => {
@@ -269,24 +272,39 @@ export function useAttempt(id: string) {
   const check = () =>
     run(async () => {
       let state = await persist();
+      const readyItems = state.items.filter((item) => itemReadyToCheck(item, canReviewPhoto));
+      if (!readyItems.length) return state;
       const issues: string[] = [];
-      for (const item of state.items) {
-        if (item.submission?.status !== 'draft' || !item.submission.images.length) continue;
+      const itemIds: string[] = [];
+      for (const item of readyItems) {
+        if (item.task.responseType === 'short') {
+          itemIds.push(item.id);
+          continue;
+        }
+        if (!item.submission) continue;
         const submission = await fetchSubmission(item.submission.id);
         try {
           await finalizeSubmission(submission.id, submission.revision);
+          itemIds.push(item.id);
         } catch (cause) {
           issues.push(requestErrorMessage(cause, C.saveError));
         }
       }
       state = await refresh();
-      const next = await checkAttempt(id, state.revision, requestKey(`check:${state.revision}`));
-      invalidateAttempts();
       if (issues.length) setError(issues.join(' · '));
+      if (!itemIds.length) return state;
+      const next = await checkAttempt(
+        id,
+        state.revision,
+        requestKey(`check:${state.revision}:${itemIds.join(',')}`),
+        itemIds,
+      );
+      invalidateAttempts();
       return accept(next);
     });
   return {
     attempt,
+    canReviewPhoto,
     answers,
     busy,
     editingBusy,
