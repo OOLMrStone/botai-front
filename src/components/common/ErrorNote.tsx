@@ -14,11 +14,13 @@ export function ErrorNote({
   onRetry,
   retryLabel = COPY.errors.retry,
   title,
+  retrySize = 'default',
 }: {
   message: string;
   onRetry?: () => void;
   retryLabel?: string;
   title?: string;
+  retrySize?: 'default' | 'multiline';
 }) {
   return (
     <div role="alert" className={title ? layout.errorNote.screen : layout.errorNote.root}>
@@ -33,6 +35,7 @@ export function ErrorNote({
       )}
       {onRetry ? (
         <Button
+          size={retrySize}
           variant="outline"
           onClick={onRetry}
           className={title ? undefined : layout.errorNote.retry}

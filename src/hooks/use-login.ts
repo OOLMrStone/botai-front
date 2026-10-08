@@ -8,6 +8,7 @@ import { ApiError } from '@/lib/api/client';
 import { isValidEmail } from '@/lib/validation';
 import { useAuthStore } from '@/stores/auth-store';
 import { useOnboardingStore } from '@/stores/onboarding-store';
+import { takeAuthReturn } from '@/lib/auth-return';
 
 export function useLogin() {
   const router = useRouter();
@@ -27,7 +28,10 @@ export function useLogin() {
     try {
       const user = await loginUser({ email: email.trim(), password });
       useAuthStore.getState().setUser(user);
-      router.push(useOnboardingStore.getState().needsProfileSave ? ROUTES.done : ROUTES.home);
+      router.push(
+        takeAuthReturn() ??
+          (useOnboardingStore.getState().needsProfileSave ? ROUTES.done : ROUTES.home),
+      );
     } catch (cause) {
       setError(
         cause instanceof ApiError && cause.status === 401

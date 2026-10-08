@@ -19,6 +19,7 @@ import { profileSkeletonTiles } from '@/config/app-layout';
 import { layout } from '@/config/layout';
 import { COPY, GOAL_OPTIONS } from '@/config/onboarding-steps';
 import { useProfile } from '@/hooks/use-profile';
+import { useBillingCapability } from '@/hooks/use-billing-capability';
 import { LEARNING_COPY as C, LEARNING_ROUTES } from '@/config/integration';
 import Link from 'next/link';
 import { useUserStats } from '@/hooks/use-user-stats';
@@ -31,6 +32,7 @@ export default function ProfilePage() {
   const user = useAuthStore((s) => s.user);
   const { stats, failed, retry } = useUserStats();
   const profile = useProfile();
+  const billingEnabled = useBillingCapability();
   const nameOverride = useProfileStore((s) => s.name);
 
   if (!user) return null;
@@ -51,13 +53,13 @@ export default function ProfilePage() {
               </p>
             ) : null}
           </div>
-          <ProfileLinks />
+          <ProfileLinks billingEnabled={billingEnabled} />
           {user.role === 'ADMIN' ? (
             <Link href={LEARNING_ROUTES.admin} className={layout.typography.description}>
               {C.admin}
             </Link>
           ) : null}
-          <ProfilePlanCard />
+          {!billingEnabled ? <ProfilePlanCard /> : null}
         </div>
         <div className={layout.app.profile.group}>
           {stats ? (

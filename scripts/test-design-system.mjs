@@ -384,6 +384,7 @@ function loadModule(name, cache = new Map()) {
 
 const controlContract = {
   default: { height: 48, radius: 'control' },
+  multiline: { minHeight: 48, radius: 'control', wrap: true },
   compact: { height: 44, radius: 'control' },
   icon: { height: 48, width: 48, radius: 'control' },
   'icon-compact': { height: 44, width: 44, radius: 'control' },
@@ -409,12 +410,15 @@ function inspectControlRoles(sizes) {
     for (const [axis, field] of [
       ['h', 'height'],
       ['w', 'width'],
+      ['min-h', 'minHeight'],
     ]) {
       if (contract[field] && !dimension(axis).includes(contract[field]))
         failures.push(`${name}: ${field} должен быть ${contract[field]} CSS px`);
     }
     if (contract.radius && !classes.includes(`rounded-${contract.radius}`))
       failures.push(`${name}: неверное семейство формы ${contract.radius}`);
+    if (contract.wrap && (!classes.includes('h-auto') || !classes.includes('whitespace-normal')))
+      failures.push(`${name}: подпись должна переноситься и определять высоту кнопки`);
   }
   return failures;
 }
@@ -422,6 +426,7 @@ function inspectControlRoles(sizes) {
 test('guard: новый размер Button и уменьшение области нажатия требуют нового контракта', () => {
   const valid = {
     default: 'h-12 rounded-control',
+    multiline: 'h-auto min-h-12 whitespace-normal rounded-control',
     compact: 'h-11 rounded-control',
     icon: 'size-12 rounded-control',
     'icon-compact': 'size-11 rounded-control',
@@ -431,6 +436,13 @@ test('guard: новый размер Button и уменьшение област
   assert.deepEqual(inspectControlRoles(valid), []);
   assert.ok(inspectControlRoles({ ...valid, tiny: 'h-6 rounded-control' }).length);
   assert.ok(inspectControlRoles({ ...valid, icon: 'size-8 rounded-control' }).length);
+  assert.ok(
+    inspectControlRoles({ ...valid, multiline: 'h-12 whitespace-nowrap rounded-control' }).length,
+  );
+  assert.ok(
+    inspectControlRoles({ ...valid, multiline: 'h-auto min-h-6 whitespace-normal rounded-control' })
+      .length,
+  );
 });
 
 test('проект: публичные размеры Button соответствуют геометрическим ролям', () => {

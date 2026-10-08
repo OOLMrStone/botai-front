@@ -14,18 +14,25 @@ export function AttemptFeedback({
   canReviewPhoto,
   onCancel,
   onRetry,
+  scrollWithContent = false,
 }: {
   item: AttemptItem;
   busy: boolean;
   canReviewPhoto: boolean;
   onCancel: () => void;
   onRetry: () => void;
+  scrollWithContent?: boolean;
 }) {
   const feedback = attemptFeedback(item, canReviewPhoto);
   if (!feedback) return null;
 
   return (
-    <section className={layout.integration.feedback}>
+    <section
+      className={cn(
+        layout.integration.feedback,
+        scrollWithContent && layout.integration.feedbackFlow,
+      )}
+    >
       {feedback.hasDetails ? (
         <details key={item.id} className={layout.integration.feedbackDetails}>
           <summary className={layout.integration.feedbackSummary}>

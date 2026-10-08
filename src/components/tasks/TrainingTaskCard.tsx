@@ -29,6 +29,7 @@ interface TrainingTaskCardProps {
   revealBusy?: boolean;
   revealLabel?: string;
   locked?: boolean;
+  allowScrollChain?: boolean;
   favoriteTaskId?: string;
   position: number;
   status: TaskStatus;
@@ -46,6 +47,7 @@ export function TrainingTaskCard({
   revealBusy = false,
   revealLabel = TASK_COPY.training.solution,
   locked = false,
+  allowScrollChain = false,
   favoriteTaskId,
   position,
   status,
@@ -145,6 +147,7 @@ export function TrainingTaskCard({
         aria-label={TASK_COPY.training.workspace}
         className={cn(
           layout.training.drawingViewport,
+          allowScrollChain && layout.training.drawingScrollChain,
           layout.focusRing,
           drawingToolActive && layout.gestureSurface,
         )}

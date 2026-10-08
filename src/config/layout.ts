@@ -1,5 +1,6 @@
 import { paywallLayout } from '@/config/paywall-layout';
 import { appLayout } from '@/config/app-layout';
+import { billingLayout } from '@/config/billing-layout';
 
 export const UI_RADIUS_ROLES = ['control', 'tile', 'card', 'panel'] as const;
 
@@ -20,6 +21,7 @@ const displayNumber = 'text-6xl font-bold tabular-nums';
 const compactHeadingSubtitle = 'text-base text-muted-foreground';
 
 export const layout = {
+  billing: billingLayout,
   disabledAction: {
     hiddenDescription: 'sr-only',
     positioner: 'z-[70] outline-none',
@@ -41,6 +43,7 @@ export const layout = {
     stack: 'flex min-w-0 flex-col gap-4',
     feedback:
       'flex max-h-[min(28svh,16rem)] min-w-0 shrink-0 flex-col gap-2 overflow-y-auto overscroll-contain border-t border-border px-4 py-2',
+    feedbackFlow: 'max-h-none overflow-visible',
     feedbackDetails: 'group min-w-0',
     feedbackSummary:
       'flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-tile outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden',
@@ -256,6 +259,8 @@ export const layout = {
     input: 'h-12 rounded-control',
     sizes: {
       default: 'h-12 gap-2 rounded-control px-4 text-base',
+      multiline:
+        'h-auto min-h-12 min-w-0 max-w-full gap-2 rounded-control px-2 py-2 text-base whitespace-normal [overflow-wrap:anywhere] sm:px-4',
       compact: 'h-11 gap-2 rounded-control px-3 text-base',
       icon: 'size-12 rounded-control p-0',
       'icon-compact': 'size-11 rounded-control p-0',
@@ -723,6 +728,8 @@ export const layout = {
     header:
       'shrink-0 px-4 pt-[max(0.625rem,env(safe-area-inset-top))] pb-1 landscape-short:pt-[max(0.25rem,env(safe-area-inset-top))] landscape-short:pb-0 keyboard-open:hidden',
     scrubber: 'h-16 landscape-short:h-11 min-w-0 flex-1',
+    content: 'flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain',
+    contentCardArea: 'min-h-[min(20rem,60svh)] shrink-0 keyboard-open:min-h-0',
     cardArea:
       'min-h-0 flex-1 overflow-hidden px-4 py-3 landscape-short:py-1 keyboard-open:pt-1 keyboard-open:pb-0',
     card: 'h-full min-h-0 rounded-panel p-5',
@@ -758,6 +765,7 @@ export const layout = {
     pointEraserIcon:
       "inline-block size-4.5 translate-y-px bg-current sm:size-5 [mask:url('/icons/eraser-trail.svg')_center/contain_no-repeat]",
     drawingViewport: 'min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain',
+    drawingScrollChain: 'overscroll-y-auto',
     drawingDocument: 'relative min-h-full w-full',
     drawingContent: 'relative flex flex-col px-5',
     drawingCanvas: 'absolute inset-0 z-10 h-full w-full touch-none text-[var(--task-ink)]',

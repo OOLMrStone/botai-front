@@ -116,6 +116,8 @@ export const ROUTES = {
   lemurWalk: '/lemur-walk',
   profile: '/profile',
   settings: '/settings',
+  billingSandbox: '/billing/sandbox',
+  billingReturn: '/billing/return',
 } as const;
 
 export const legalPath = (document: LegalDocumentId) => `${ROUTES.legal}/${document}`;

@@ -97,84 +97,88 @@ export function TrainingShell({ attemptId }: { attemptId: string }) {
         />
       ) : null}
       {training.revealError ? <ErrorNote message={training.revealError} /> : null}
-      <main className={layout.training.cardArea}>
-        {training.review ? (
-          <TrainingReview
-            items={training.reviewItems}
-            completed={training.completed}
-            description={training.reviewDescription}
-            readyCount={training.readyCount}
-            gradedCount={attempt.summary.graded}
-            onSelect={(index) => void training.select(index)}
-          />
-        ) : item ? (
-          <TrainingTaskCard
-            key={item.id}
-            task={item.task}
-            drawingKey={item.id}
-            isFavourite={item.task.isFavourite}
-            position={training.currentIndex + 1}
-            status={training.statuses[item.id]}
-            locked={locked || training.revealBusy}
-            solutionRevealed={training.revealed.includes(item.id)}
-            canReveal={Boolean(
-              item.result?.isGraded ||
-              item.submission?.result?.isGraded ||
-              (item.task.part === 2 && item.task.gradingCapability === 'unsupported'),
-            )}
-            revealBusy={training.busy}
-            revealLabel={
-              item.task.part === 2 && item.task.gradingCapability === 'unsupported'
-                ? TASK_CONTENT.selfReview
-                : undefined
-            }
-            solution={solution ? solutionBlocks(solution) : []}
-            onToggleSolution={() => void training.toggleSolution(item.id)}
-          />
+      <main className={layout.training.content}>
+        <div className={cn(layout.training.cardArea, layout.training.contentCardArea)}>
+          {training.review ? (
+            <TrainingReview
+              items={training.reviewItems}
+              completed={training.completed}
+              description={training.reviewDescription}
+              readyCount={training.readyCount}
+              gradedCount={attempt.summary.graded}
+              onSelect={(index) => void training.select(index)}
+            />
+          ) : item ? (
+            <TrainingTaskCard
+              allowScrollChain
+              key={item.id}
+              task={item.task}
+              drawingKey={item.id}
+              isFavourite={item.task.isFavourite}
+              position={training.currentIndex + 1}
+              status={training.statuses[item.id]}
+              locked={locked || training.revealBusy}
+              solutionRevealed={training.revealed.includes(item.id)}
+              canReveal={Boolean(
+                item.result?.isGraded ||
+                item.submission?.result?.isGraded ||
+                (item.task.part === 2 && item.task.gradingCapability === 'unsupported'),
+              )}
+              revealBusy={training.busy}
+              revealLabel={
+                item.task.part === 2 && item.task.gradingCapability === 'unsupported'
+                  ? TASK_CONTENT.selfReview
+                  : undefined
+              }
+              solution={solution ? solutionBlocks(solution) : []}
+              onToggleSolution={() => void training.toggleSolution(item.id)}
+            />
+          ) : null}
+        </div>
+        {item && !training.review ? (
+          <>
+            {item.task.isDemo ? <p className={layout.integration.notice}>{C.demo}</p> : null}
+            {training.photoNotice ? (
+              <p className={layout.integration.notice}>{training.photoNotice}</p>
+            ) : null}
+            {item.submission?.images.length ? (
+              <div className={layout.integration.photos}>
+                {item.submission.images.map((image) => (
+                  <div key={image.id} className={layout.integration.photo}>
+                    <a href={image.previewUrl} target="_blank" rel="noreferrer">
+                      <Image
+                        width={80}
+                        height={80}
+                        src={image.previewUrl}
+                        alt={image.fileName}
+                        className={layout.integration.preview}
+                      />
+                    </a>
+                    <Button
+                      variant="ghost"
+                      size="icon-compact"
+                      aria-label={C.removePhoto}
+                      disabled={locked || training.busy || item.submission?.status !== 'draft'}
+                      disabledReason={training.photoDisabledReason}
+                      onClick={() => void training.removeImage(item.submission!.id, image.id)}
+                    >
+                      <X className={layout.training.actionIcon} />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            <AttemptFeedback
+              scrollWithContent
+              item={item}
+              busy={training.busy}
+              canReviewPhoto={training.canReviewPhoto}
+              onCancel={() => item.submission && void training.cancel(item.submission.id)}
+              onRetry={() => void training.retrySubmission(item.id)}
+            />
+          </>
         ) : null}
       </main>
-      {item && !training.review ? (
-        <>
-          {item.task.isDemo ? <p className={layout.integration.notice}>{C.demo}</p> : null}
-          {training.photoNotice ? (
-            <p className={layout.integration.notice}>{training.photoNotice}</p>
-          ) : null}
-          {item.submission?.images.length ? (
-            <div className={layout.integration.photos}>
-              {item.submission.images.map((image) => (
-                <div key={image.id} className={layout.integration.photo}>
-                  <a href={image.previewUrl} target="_blank" rel="noreferrer">
-                    <Image
-                      width={80}
-                      height={80}
-                      src={image.previewUrl}
-                      alt={image.fileName}
-                      className={layout.integration.preview}
-                    />
-                  </a>
-                  <Button
-                    variant="ghost"
-                    size="icon-compact"
-                    aria-label={C.removePhoto}
-                    disabled={locked || training.busy || item.submission?.status !== 'draft'}
-                    disabledReason={training.photoDisabledReason}
-                    onClick={() => void training.removeImage(item.submission!.id, image.id)}
-                  >
-                    <X className={layout.training.actionIcon} />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          ) : null}
-          <AttemptFeedback
-            item={item}
-            busy={training.busy}
-            canReviewPhoto={training.canReviewPhoto}
-            onCancel={() => item.submission && void training.cancel(item.submission.id)}
-            onRetry={() => void training.retrySubmission(item.id)}
-          />
-        </>
-      ) : null}
       <footer className={cn(layout.training.controls, layout.training.controlsRow)}>
         {training.review || item?.task.responseType === 'short' ? (
           <TrainingControls
