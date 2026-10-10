@@ -307,7 +307,7 @@ export const layout = {
     workspace: 'max-w-none',
     unchanged: 'max-w-md',
     app: 'flex h-svh flex-col desktop:grid desktop:grid-cols-[clamp(11rem,18vw,14rem)_minmax(0,1fr)] landscape-short:grid landscape-short:grid-cols-[4.5rem_minmax(0,1fr)]',
-    main: 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-t border-border desktop:border-b landscape-short:border-b desktop:col-start-2 desktop:row-start-1 desktop:pl-4 desktop:pr-4 landscape-short:col-start-2 landscape-short:row-start-1 landscape-short:p-0',
+    main: 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-t border-border desktop:border-b landscape-short:border-b desktop:col-start-2 desktop:row-start-1 [--app-content-inset:0rem] desktop:[--app-content-inset:1rem] desktop:px-[var(--app-content-inset)] landscape-short:col-start-2 landscape-short:row-start-1 landscape-short:[--app-content-inset:0rem] landscape-short:p-0',
     flowExit:
       'hidden desktop:fixed desktop:top-6 desktop:left-6 desktop:z-40 desktop:inline-flex desktop:min-h-11 desktop:items-center desktop:gap-2 desktop:rounded-tile desktop:px-3 desktop:text-sm desktop:text-muted-foreground desktop:hover:bg-muted landscape-short:hidden',
     icon: 'size-4 shrink-0',
@@ -444,7 +444,7 @@ export const layout = {
 
   // Каркас экрана (ScreenShell): поля, вертикальный ритм, отбивка футера.
   shell: {
-    padX: 'px-6',
+    padX: '[--shell-inset:1.5rem] px-[var(--shell-inset)]',
     padBottomWithNav: 'pb-0',
     padTop: 'pt-[clamp(0.5rem,2svh,1rem)]',
     padTopWithNav: 'pt-[max(clamp(0.5rem,2svh,1rem),env(safe-area-inset-top))]',
@@ -546,7 +546,8 @@ export const layout = {
   tasks: {
     content: 'w-full',
     catalog: 'flex min-h-0 flex-1 flex-col',
-    catalogHeader: 'flex shrink-0 flex-col gap-3 border-b border-border pb-3',
+    catalogHeader:
+      'relative flex shrink-0 flex-col gap-3 pb-3 after:pointer-events-none after:absolute after:inset-x-[calc(-1*(var(--shell-inset)+var(--app-content-inset,0rem)))] after:bottom-0 after:border-b after:border-border',
     catalogScroll: 'space-y-5 pt-3 [overflow-anchor:none]',
     catalogStack: 'space-y-5',
     catalogActions: 'flex flex-wrap items-center justify-between gap-3',
