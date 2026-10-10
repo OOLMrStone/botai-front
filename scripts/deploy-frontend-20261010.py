@@ -16,18 +16,19 @@ from urllib.parse import urlsplit
 
 NAME = 'botai-public-frontend-1'
 PROJECT = 'botai-public'
-OLD_TAG = 'botai-front:release-20261008-ui-v9'
-NEW_TAG = 'botai-front:release-20261010-task-profile'
-HEAD = '0f5ffd887988704e4061d3f4e57e04885a2deba8'
-SOURCE_DIGEST = 'a0d0fb41e53ed1a78e49a7b0499f7ec9b5be2c866dd6ae7379656576f52f5ba3'
+OLD_TAG = 'botai-front:release-20261010-task-profile'
+NEW_TAG = 'botai-front:release-20261010-task-divider'
+HEAD = '44cada6827b3a1338c559aa0f520f68baa78c1da'
+SOURCE_DIGEST = '2ba561555a3e5269fb6d4d830fc4a30052148e7461d870b73912df2a57629769'
+SOURCE_FILE_COUNT = 640
 ROOT = Path('/srv/botai-public')
-RELEASE = ROOT / 'releases/20261010-task-profile'
+RELEASE = ROOT / 'releases/20261010-task-divider'
 SOURCE = RELEASE / 'front'
 RUNTIME = ROOT / 'runtime'
 STATIC = Path('/opt/botai-front/static-public-20261008-ui-v9')
 STAGED_STATIC = RELEASE / 'static'
 STATE = RELEASE / 'deploy-state.json'
-OVERRIDE = RUNTIME / 'frontend-20261010-task-profile.override.json'
+OVERRIDE = RUNTIME / 'frontend-20261010-task-divider.override.json'
 BUILDER = 'botai-stage-build'
 BUILDKIT = 'buildx_buildkit_botai-stage-build0'
 MEMORY = 1610612736
@@ -78,7 +79,7 @@ def digest(files):
 
 def source_check():
     files = inventory(SOURCE)
-    require(len(files) == 639 and digest(files) == SOURCE_DIGEST, 'Source is not the verified 639-file HEAD snapshot')
+    require(len(files) == SOURCE_FILE_COUNT and digest(files) == SOURCE_DIGEST, 'Source is not the verified '+str(SOURCE_FILE_COUNT)+'-file snapshot')
 
 
 def write_json(path, value):
@@ -166,7 +167,7 @@ def config_digest(config):
 
 
 def config_gate(meta, old_config, image):
-    require(old_config['services']['frontend']['image'] == OLD_TAG, 'Base Compose frontend no longer pins v9')
+    require(old_config['services']['frontend']['image'] == OLD_TAG, 'Base Compose frontend no longer pins the previous release')
     write_json(OVERRIDE, {'services':{'frontend':{'image':image,'pull_policy':'never'}}})
     expected = json.loads(json.dumps(old_config))
     expected['services']['frontend'].update(image=image,pull_policy='never')
@@ -238,13 +239,13 @@ def prepare_command(archive):
                     shutil.copyfileobj(content,output)
                 target.chmod(0o755 if member.mode & 0o111 else 0o644)
         files = inventory(temp)
-        require(len(files) == 639 and digest(files) == SOURCE_DIGEST, 'Extracted GitHub source differs from verified HEAD allowlist')
+        require(len(files) == SOURCE_FILE_COUNT and digest(files) == SOURCE_DIGEST, 'Extracted GitHub source differs from verified HEAD allowlist')
         require(not SOURCE.exists(), 'Candidate destination appeared during preparation')
         os.rename(temp,SOURCE)
     except BaseException:
         shutil.rmtree(temp,ignore_errors=True)
         raise
-    print('Prepared verified 639-file source '+HEAD+'; digest '+SOURCE_DIGEST)
+    print('Prepared verified '+str(SOURCE_FILE_COUNT)+'-file source '+HEAD+'; digest '+SOURCE_DIGEST)
 
 
 def inspect_command():
@@ -266,7 +267,7 @@ def state_read():
 
 def extract_static(image_id):
     require(not STAGED_STATIC.exists(), 'Staged static already exists')
-    container_id = run(['docker','create','--name','botai-front-extract-20261010-task-profile','--network','none','--read-only',image_id]).stdout.strip()
+    container_id = run(['docker','create','--name','botai-front-extract-20261010-task-divider','--network','none','--read-only',image_id]).stdout.strip()
     try:
         obj = docker_object('container', container_id)
         require(obj['Image'] == image_id and not obj['State']['Running'] and not obj['HostConfig']['PortBindings'], 'Unsafe static extraction container')
@@ -283,14 +284,14 @@ def build_command():
     source_check()
     require(not STATE.exists() and not OVERRIDE.exists(), 'Release state or override already exists; inspect instead of overwriting')
     meta = live()
-    require(meta['image_tag'] == OLD_TAG and meta['healthy'] == 'healthy', 'Expected healthy v9 frontend before build')
+    require(meta['image_tag'] == OLD_TAG and meta['healthy'] == 'healthy', 'Expected healthy previous frontend before build')
     require(docker_object('image',OLD_TAG)['Id'] == meta['image_id'], 'Old tag does not match live image')
     require(not builder_check()['running'], 'Dedicated builder is already running; do not interrupt another build')
     require(shutil.disk_usage(RELEASE).free >= 8*1024**3, 'Less than 8 GiB free disk')
     require(run(['docker','image','inspect',NEW_TAG],allowed_failure=True).returncode != 0, 'Candidate image tag already exists')
     before = others()
     config = resolved(meta)
-    require(config['services']['frontend']['image'] == OLD_TAG, 'Base Compose frontend differs from live v9')
+    require(config['services']['frontend']['image'] == OLD_TAG, 'Base Compose frontend differs from previous live release')
     state = {'head':HEAD,'source_digest':SOURCE_DIGEST,'before':meta,'other_containers':before,'config_digest':config_digest(config),'caddy_sha256':caddy_check()}
     write_json(STATE,state)
     try:
@@ -416,7 +417,7 @@ def rollback_command():
     switch(state,OLD_TAG,state['before']['image_id'])
     state.update(published=False,rolled_back=True)
     write_json(STATE,state)
-    print('Original v9 frontend restored; additive assets retained; other containers unchanged')
+    print('Previous frontend restored; additive assets retained; other containers unchanged')
 
 
 def main():
@@ -425,6 +426,8 @@ def main():
     parser.add_argument('--archive',type=Path,default=Path('/tmp/front.tar.gz'))
     arguments = parser.parse_args()
     command = arguments.command
+    require(len(HEAD) == 40 and all(c in '0123456789abcdef' for c in HEAD), 'Release source HEAD is not finalized')
+    require(len(SOURCE_DIGEST) == 64 and all(c in '0123456789abcdef' for c in SOURCE_DIGEST) and SOURCE_FILE_COUNT > 0, 'Release source digest/count are not finalized')
     require(os.geteuid() == 0, 'Run as server root')
     if command == 'inspect':
         inspect_command()
