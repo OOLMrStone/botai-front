@@ -93,8 +93,8 @@ export const appLayout = {
     avatarIcon: 'size-9',
     email: 'max-w-full text-sm text-muted-foreground [overflow-wrap:anywhere]',
     joined: 'text-sm text-foreground/75',
-    links: 'order-4 overflow-hidden rounded-card border border-border divide-y divide-border',
-    plan: 'desktop:order-first landscape-short:order-first',
+    links: 'order-5 overflow-hidden rounded-card border border-border divide-y divide-border',
+    plan: 'order-4 desktop:order-first landscape-short:order-first',
     admin: 'order-6',
     settings:
       'flex min-h-18 items-center gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-[transform,opacity] active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100',

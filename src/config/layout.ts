@@ -545,9 +545,9 @@ export const layout = {
   },
   tasks: {
     content: 'w-full',
-    catalog: 'flex min-h-0 flex-1 flex-col gap-3',
+    catalog: 'flex min-h-0 flex-1 flex-col',
     catalogHeader: 'flex shrink-0 flex-col gap-3 border-b border-border pb-3',
-    catalogScroll: 'space-y-5 [overflow-anchor:none]',
+    catalogScroll: 'space-y-5 pt-3 [overflow-anchor:none]',
     catalogStack: 'space-y-5',
     catalogActions: 'flex flex-wrap items-center justify-between gap-3',
     catalogSecondary:
