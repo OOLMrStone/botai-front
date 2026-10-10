@@ -16,25 +16,24 @@ import {
   clampTrainingCount,
   trainingNumberOptions,
 } from '@/lib/training-setup';
-import { useTasksStore } from '@/stores/tasks-store';
 
-export function useTrainingSetupPage(tasks: Task[]) {
+export function useTrainingSetupPage(tasks: Task[], fixedExamNumber: number | null = null) {
   const router = useRouter();
   const catalog = useAsyncData(catalogResource);
   const launch = useTrainingLaunch();
-  const initialNumber = useTasksStore((state) => state.setupExamNumber);
+  const canChooseNumbers = fixedExamNumber === null;
   const pickerToggleRef = useRef<HTMLElement>(null);
-  const [numbersOpen, setNumbersOpen] = useState(!initialNumber);
+  const [numbersOpen, setNumbersOpen] = useState(canChooseNumbers);
   const [selections, setSelections] = useState<TrainingSelection[]>(
-    initialNumber
+    fixedExamNumber !== null
       ? [
           {
-            examNumber: initialNumber,
+            examNumber: fixedExamNumber,
             count: clampTrainingCount(
               TRAINING_SETUP.defaultCount,
               availableTrainingTasks(
                 tasks,
-                { examNumber: initialNumber },
+                { examNumber: fixedExamNumber },
                 TASK_DIFFICULTY_SLIDER.defaultValue,
               ),
             ),
@@ -48,6 +47,8 @@ export function useTrainingSetupPage(tasks: Task[]) {
   const available = (selection: TrainingSelection, level = difficultyLevel) =>
     availableTrainingTasks(tasks, selection, level);
   const toggle = (examNumber: number) => {
+    if (!canChooseNumbers) return;
+
     const removingLast = selections.length === 1 && selections[0].examNumber === examNumber;
     if (!selections.length || removingLast) {
       pickerToggleRef.current?.focus();
@@ -63,7 +64,7 @@ export function useTrainingSetupPage(tasks: Task[]) {
         : [...current, { examNumber, count }],
     );
   };
-  const update = (examNumber: number, patch: Partial<TrainingSelection>) =>
+  const update = (examNumber: number, patch: Partial<Omit<TrainingSelection, 'examNumber'>>) =>
     setSelections((current) =>
       current.map((selection) =>
         selection.examNumber === examNumber ? { ...selection, ...patch } : selection,
@@ -98,7 +99,7 @@ export function useTrainingSetupPage(tasks: Task[]) {
     selections.every(
       (selection) =>
         Number.isInteger(selection.count) &&
-        selection.count >= TRAINING_SETUP.quickStartCount &&
+        selection.count >= TRAINING_SETUP.minCount &&
         selection.count <= INTEGRATION.maxPerNumber,
     );
   const startDisabledReason =
@@ -123,6 +124,7 @@ export function useTrainingSetupPage(tasks: Task[]) {
 
   return {
     catalog,
+    canChooseNumbers,
     numbers: trainingNumberOptions(catalog.data?.numbers ?? [], tasks, selections, difficultyLevel),
     selections,
     numbersOpen,

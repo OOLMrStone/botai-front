@@ -78,20 +78,24 @@ export const appLayout = {
       'min-w-0 max-w-full basis-full desktop:flex-1 desktop:basis-auto landscape-short:flex-1 landscape-short:basis-auto',
   },
   profile: {
-    shell: '',
     content:
-      'mx-auto flex w-full max-w-4xl shrink-0 flex-col gap-8 pb-8 desktop:grid desktop:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] desktop:items-start desktop:gap-10 landscape-short:grid landscape-short:grid-cols-2 landscape-short:gap-6',
-    group:
-      'contents desktop:flex desktop:min-w-0 desktop:flex-col desktop:gap-6 landscape-short:flex landscape-short:min-w-0 landscape-short:flex-col landscape-short:gap-6',
+      'mx-auto flex w-full max-w-4xl shrink-0 flex-col gap-8 pb-8 desktop:grid desktop:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] desktop:items-start desktop:gap-x-8 desktop:gap-y-6 landscape-short:grid landscape-short:grid-cols-2 landscape-short:gap-6',
+    overview:
+      'contents desktop:order-2 desktop:flex desktop:min-w-0 desktop:flex-col desktop:gap-6 landscape-short:order-2 landscape-short:flex landscape-short:min-w-0 landscape-short:flex-col landscape-short:gap-6',
+    account:
+      'contents desktop:order-3 desktop:flex desktop:min-w-0 desktop:flex-col desktop:gap-4 landscape-short:order-3 landscape-short:flex landscape-short:min-w-0 landscape-short:flex-col landscape-short:gap-4',
     card: 'p-4',
-    identity: 'order-1 flex flex-col items-center gap-3 py-2 text-center',
+    identity:
+      'order-1 flex min-w-0 flex-col items-center gap-3 py-2 text-center desktop:col-span-2 desktop:flex-row desktop:gap-5 desktop:border-b desktop:border-border desktop:pb-6 desktop:text-left landscape-short:col-span-2 landscape-short:flex-row landscape-short:gap-4 landscape-short:border-b landscape-short:border-border landscape-short:pb-4 landscape-short:text-left',
+    identityText: 'flex min-w-0 w-full flex-col gap-3 desktop:flex-1 landscape-short:flex-1',
     avatar:
       'flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted text-muted-foreground',
     avatarIcon: 'size-9',
     email: 'max-w-full text-sm text-muted-foreground [overflow-wrap:anywhere]',
     joined: 'text-sm text-foreground/75',
     links: 'order-4 overflow-hidden rounded-card border border-border divide-y divide-border',
-    plan: 'order-5 flex-row items-center justify-between',
+    plan: 'desktop:order-first landscape-short:order-first',
+    admin: 'order-6',
     settings:
       'flex min-h-18 items-center gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-[transform,opacity] active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100',
     linkText: 'flex min-w-0 flex-1 flex-col gap-1',

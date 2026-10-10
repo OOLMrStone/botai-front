@@ -3,6 +3,17 @@ import { TASK_COUNT_OPTIONS, TRAINING_SETUP } from '@/config/tasks';
 import type { CatalogNumber, Task, TrainingSelection } from '@/lib/api/learning-types';
 import { isDifficultyEligible } from '@/lib/task-difficulty';
 
+export function trainingSetupExamNumber(
+  value: string | null,
+  tasks: readonly Pick<Task, 'examNumber'>[],
+) {
+  const examNumber = Number(value);
+
+  return Number.isInteger(examNumber) && tasks.some((task) => task.examNumber === examNumber)
+    ? examNumber
+    : null;
+}
+
 export function availableTrainingTasks(
   tasks: Task[],
   selection: Pick<TrainingSelection, 'examNumber' | 'topicIds'>,
@@ -17,10 +28,7 @@ export function availableTrainingTasks(
 }
 
 export function clampTrainingCount(count: number, available: number) {
-  return Math.max(
-    TRAINING_SETUP.quickStartCount,
-    Math.min(count, available, INTEGRATION.maxPerNumber),
-  );
+  return Math.max(TRAINING_SETUP.minCount, Math.min(count, available, INTEGRATION.maxPerNumber));
 }
 
 export function trainingCountOptions(available: number, count: number) {

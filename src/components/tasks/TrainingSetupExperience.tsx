@@ -16,8 +16,14 @@ import { useTrainingSetupPage } from '@/hooks/use-training-setup-page';
 import type { Task } from '@/lib/api/learning-types';
 import { cn } from '@/lib/utils';
 
-export function TrainingSetupExperience({ tasks }: { tasks: Task[] }) {
-  const { pickerToggleRef, ...setup } = useTrainingSetupPage(tasks);
+export function TrainingSetupExperience({
+  tasks,
+  fixedExamNumber,
+}: {
+  tasks: Task[];
+  fixedExamNumber: number | null;
+}) {
+  const { pickerToggleRef, ...setup } = useTrainingSetupPage(tasks, fixedExamNumber);
 
   return (
     <ActivitySetupScreen
@@ -47,38 +53,40 @@ export function TrainingSetupExperience({ tasks }: { tasks: Task[] }) {
         <ScreenHeading
           variant="app"
           title={TASK_COPY.setup.title}
-          subtitle={TASK_COPY.setup.subtitle}
+          subtitle={setup.canChooseNumbers ? TASK_COPY.setup.subtitle : undefined}
         />
         {setup.catalog.failed ? (
           <ErrorNote message={LEARNING_COPY.loadError} onRetry={setup.catalog.retry} />
         ) : null}
-        <details
-          open={setup.numbersOpen}
-          onToggle={(event) => setup.setNumbersOpen(event.currentTarget.open)}
-          className={layout.trainingSetup.numberPicker}
-        >
-          <summary ref={pickerToggleRef} className={layout.trainingSetup.topicToggle}>
-            {setup.selections.length ? TASK_COPY.setup.addNumber : TASK_COPY.setup.numbers}
-            <ChevronDown className={layout.trainingSetup.topicChevron} />
-          </summary>
-          <div className={layout.trainingSetup.numberGrid}>
-            {setup.numbers.map((number) => (
-              <Button
-                key={number.examNumber}
-                variant={number.selection ? 'default' : 'outline'}
-                className={layout.trainingSetup.numberButton}
-                aria-label={TASK_COPY.setup.exam(number.examNumber, number.title)}
-                title={number.title}
-                aria-pressed={Boolean(number.selection)}
-                disabled={setup.busy || (!number.available && !number.selection)}
-                disabledReason={setup.busy ? undefined : TASK_COPY.setup.emptyNumber}
-                onClick={() => setup.toggle(number.examNumber)}
-              >
-                {number.examNumber}
-              </Button>
-            ))}
-          </div>
-        </details>
+        {setup.canChooseNumbers ? (
+          <details
+            open={setup.numbersOpen}
+            onToggle={(event) => setup.setNumbersOpen(event.currentTarget.open)}
+            className={layout.trainingSetup.numberPicker}
+          >
+            <summary ref={pickerToggleRef} className={layout.trainingSetup.topicToggle}>
+              {setup.selections.length ? TASK_COPY.setup.addNumber : TASK_COPY.setup.numbers}
+              <ChevronDown className={layout.trainingSetup.topicChevron} />
+            </summary>
+            <div className={layout.trainingSetup.numberGrid}>
+              {setup.numbers.map((number) => (
+                <Button
+                  key={number.examNumber}
+                  variant={number.selection ? 'default' : 'outline'}
+                  className={layout.trainingSetup.numberButton}
+                  aria-label={TASK_COPY.setup.exam(number.examNumber, number.title)}
+                  title={number.title}
+                  aria-pressed={Boolean(number.selection)}
+                  disabled={setup.busy || (!number.available && !number.selection)}
+                  disabledReason={setup.busy ? undefined : TASK_COPY.setup.emptyNumber}
+                  onClick={() => setup.toggle(number.examNumber)}
+                >
+                  {number.examNumber}
+                </Button>
+              ))}
+            </div>
+          </details>
+        ) : null}
         <div className={layout.trainingSetup.selections}>
           {setup.numbers.map((number) =>
             number.selection ? (
@@ -87,7 +95,9 @@ export function TrainingSetupExperience({ tasks }: { tasks: Task[] }) {
                 number={number}
                 selection={number.selection}
                 disabled={setup.busy}
-                onRemove={() => setup.toggle(number.examNumber)}
+                onRemove={
+                  setup.canChooseNumbers ? () => setup.toggle(number.examNumber) : undefined
+                }
                 onCountChange={(count) => setup.update(number.examNumber, { count })}
                 onTopicChange={(topicId) => setup.toggleTopic(number.examNumber, topicId)}
               />

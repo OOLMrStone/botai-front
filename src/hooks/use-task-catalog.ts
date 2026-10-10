@@ -1,10 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-import { ROUTES } from '@/config/onboarding-steps';
-import { TASK_DIFFICULTY_SLIDER, TRAINING_SETUP } from '@/config/tasks';
+import { trainingSetupPath } from '@/config/tasks';
 import { useAsyncData } from '@/hooks/use-async-data';
 import { useTrainingLaunch } from '@/hooks/use-training-launch';
 import type { Task } from '@/lib/api/learning-types';
@@ -19,6 +18,8 @@ export function useTaskCatalog(tasks: Task[]) {
   const catalog = useAsyncData(catalogResource);
   const favorites = useAsyncData(favoritesResource);
   const launch = useTrainingLaunch();
+  const openingSetup = useRef(false);
+  const [navigating, setNavigating] = useState(false);
   const [openingNumber, setOpeningNumber] = useState<number | null>(null);
   const numbers = (catalog.data?.numbers ?? [])
     .filter((item) => (view === 'part-1' ? item.part === 1 : item.part === 2))
@@ -27,24 +28,13 @@ export function useTaskCatalog(tasks: Task[]) {
       tasks: tasks.filter((task) => task.examNumber === number.examNumber),
     }));
 
-  const openSetup = () => {
-    useTasksStore.setState({
-      setupExamNumber: null,
-      setupSource: 'catalog',
-      setupTaskIds: [],
-    });
-    router.push(ROUTES.trainingSetup);
-  };
-  const openNumber = async (examNumber: number) => {
-    if (!catalog.data || launch.busy) return;
+  const openSetup = (examNumber?: number) => {
+    if (openingSetup.current || launch.busy) return;
 
-    setOpeningNumber(examNumber);
-    await launch.start({
-      formatId: catalog.data.format.id,
-      selections: [{ examNumber, count: TRAINING_SETUP.quickStartCount }],
-      difficultyPreference: TASK_DIFFICULTY_SLIDER.defaultValue,
-      source: 'catalog',
-    });
+    openingSetup.current = true;
+    setNavigating(true);
+    setOpeningNumber(examNumber ?? null);
+    router.push(trainingSetupPath(examNumber));
   };
   const openFavorites = async (selectedTasks: Task[]) => {
     if (!selectedTasks.length || !catalog.data) return;
@@ -62,13 +52,13 @@ export function useTaskCatalog(tasks: Task[]) {
     setView,
     numbers,
     favoriteTasks: favorites.data,
-    openSetup,
-    openNumber,
+    openSetup: () => openSetup(),
+    openNumber: (examNumber: number) => openSetup(examNumber),
     openFavorites,
     catalog,
     favorites,
     openingNumber,
-    busy: launch.busy,
+    busy: launch.busy || navigating,
     error: launch.error,
   };
 }

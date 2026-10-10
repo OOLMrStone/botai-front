@@ -1,6 +1,7 @@
 import { Eraser, Pencil } from 'lucide-react';
 
 import { BRAND } from '@/config/brand';
+import { ROUTES } from '@/config/onboarding-steps';
 
 type ExamPart = 1 | 2;
 
@@ -27,7 +28,15 @@ export const TASK_SOLVED_DATE_FORMAT = new Intl.DateTimeFormat('ru-RU', {
   month: 'short',
 });
 export const TASK_COUNT_OPTIONS = [3, 5, 10, 20] as const;
-export const TRAINING_SETUP = { defaultCount: TASK_COUNT_OPTIONS[0], quickStartCount: 1 } as const;
+export const TRAINING_SETUP = {
+  defaultCount: TASK_COUNT_OPTIONS[0],
+  minCount: 1,
+  examNumberParam: 'examNumber',
+} as const;
+export const trainingSetupPath = (examNumber?: number) =>
+  examNumber === undefined
+    ? ROUTES.trainingSetup
+    : `${ROUTES.trainingSetup}?${TRAINING_SETUP.examNumberParam}=${examNumber}`;
 export const TASK_DIFFICULTY_OPTIONS: Difficulty[] = [1, 2, 3, 4, 5];
 export type TaskCount = (typeof TASK_COUNT_OPTIONS)[number] | 'all';
 
@@ -219,7 +228,7 @@ export const TASK_COPY = {
   soon: 'Скоро',
   catalog: {
     builder: 'Собрать тренировку',
-    opening: 'Открываем задачу',
+    opening: 'Открываем настройки',
     available: (count: number) => `${count} в банке`,
     solved: (count: number, total: number) => `Решено ${count} из ${total}`,
   },

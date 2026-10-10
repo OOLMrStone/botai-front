@@ -539,7 +539,7 @@ test('старый неверный ответ показывает ошибку
   assert.deepEqual(changes, []);
 });
 
-function setupHarness({ failFirstRequest = false } = {}) {
+function setupHarness({ failFirstRequest = false, fixedExamNumber = null } = {}) {
   const paths = [];
   const requests = [];
   const states = [];
@@ -608,22 +608,17 @@ function setupHarness({ failFirstRequest = false } = {}) {
   });
   const render = (hook) => {
     cursor = 0;
-    return hook(tasks);
+    return hook(tasks, fixedExamNumber);
   };
   return { store, paths, loadSetup, tasks, requests, render };
 }
 
-test('карточка сразу открывает одну серверную задачу выбранного номера', async () => {
+test('карточка открывает настройку выбранного номера без создания попытки', () => {
   const { store, paths, requests, loadSetup, render } = setupHarness();
   const catalog = render(loadSetup('@/hooks/use-task-catalog').useTaskCatalog);
-  await catalog.openNumber(1);
-  assert.deepEqual(paths, ['/training?attempt=saved-server-attempt']);
-  assert.deepEqual(requests[0].request, {
-    formatId: 'server-format',
-    selections: [{ examNumber: 1, count: 1 }],
-    difficultyPreference: 50,
-    source: 'catalog',
-  });
+  catalog.openNumber(1);
+  assert.deepEqual(paths, ['/training/setup?examNumber=1']);
+  assert.deepEqual(requests, []);
   assert.equal(store.getState().session, null);
   assert.equal(store.getState().setupExamNumber, null);
   assert.deepEqual(store.getState().setupTaskIds, []);
@@ -671,8 +666,7 @@ test('старая сессия с другим источником не нас
 });
 
 test('старт отправляет тему, сложность и количество серверу', async () => {
-  const { store, paths, loadSetup, requests, render } = setupHarness();
-  store.setState({ setupExamNumber: 1 });
+  const { store, paths, loadSetup, requests, render } = setupHarness({ fixedExamNumber: 1 });
   const hook = loadSetup('@/hooks/use-training-setup-page').useTrainingSetupPage;
   let setup = render(hook);
   setup.update(1, { topicIds: ['circle'], count: 2 });
@@ -687,6 +681,59 @@ test('старт отправляет тему, сложность и колич
     source: 'catalog',
   });
   assert.deepEqual(paths, ['/training?attempt=saved-server-attempt']);
+});
+
+test('настройка одного номера сохраняет его при попытке удаления и добавления другого', async () => {
+  const { loadSetup, requests, render } = setupHarness({ fixedExamNumber: 1 });
+  const hook = loadSetup('@/hooks/use-training-setup-page').useTrainingSetupPage;
+  let setup = render(hook);
+  assert.equal(setup.canChooseNumbers, false);
+  assert.equal(setup.numbersOpen, false);
+  assert.deepEqual(setup.selections, [{ examNumber: 1, count: 3 }]);
+  setup.toggle(1);
+  setup.toggle(2);
+  setup = render(hook);
+  assert.deepEqual(setup.selections, [{ examNumber: 1, count: 3 }]);
+  setup.update(1, { count: 5 });
+  setup = render(hook);
+  await setup.start();
+  assert.deepEqual(requests[0].request.selections, [{ examNumber: 1, count: 5 }]);
+});
+
+test('настройка восстанавливает номер из адреса, а общий адрес остаётся свободным сборщиком', () => {
+  const { trainingSetupPath } = load('@/config/tasks');
+  const tasks = [{ examNumber: 16 }];
+  let search = new URLSearchParams(new URL(trainingSetupPath(16), 'https://botai.test').search);
+  const { useTrainingSetupRoute } = loader({
+    'next/navigation': { useSearchParams: () => search },
+  })('@/hooks/use-training-setup-route');
+  assert.equal(useTrainingSetupRoute(null), null);
+  assert.equal(useTrainingSetupRoute(tasks), 16);
+  search = new URLSearchParams();
+  assert.equal(useTrainingSetupRoute(tasks), null);
+  const { trainingSetupExamNumber } = load('@/lib/training-setup');
+  for (const invalid of ['', '0', '-1', '1.5', 'abc', '999']) {
+    assert.equal(trainingSetupExamNumber(invalid, tasks), null);
+  }
+});
+
+test('неизвестный номер в адресе открывает сборщик, где можно выбрать доступные задачи', async () => {
+  const { trainingSetupPath } = load('@/config/tasks');
+  const search = new URLSearchParams(new URL(trainingSetupPath(999), 'https://botai.test').search);
+  const { useTrainingSetupRoute } = loader({
+    'next/navigation': { useSearchParams: () => search },
+  })('@/hooks/use-training-setup-route');
+  const fixedExamNumber = useTrainingSetupRoute([{ examNumber: 1 }]);
+  const { loadSetup, requests, render } = setupHarness({ fixedExamNumber });
+  const hook = loadSetup('@/hooks/use-training-setup-page').useTrainingSetupPage;
+  let setup = render(hook);
+  assert.equal(setup.canChooseNumbers, true);
+  assert.equal(setup.numbersOpen, true);
+  assert.deepEqual(setup.selections, []);
+  setup.toggle(1);
+  setup = render(hook);
+  await setup.start();
+  assert.deepEqual(requests[0].request.selections, [{ examNumber: 1, count: 3 }]);
 });
 
 test('пустой выбор и нехватка задач не создают ложный успех, несколько номеров независимы', async () => {
@@ -1136,8 +1183,7 @@ test('неоценённые задачи идут только после оц�
 });
 
 test('ползунок обновляет доступность и сохраняет количество; дефицит блокирует старт', () => {
-  const { store, loadSetup, render } = setupHarness();
-  store.setState({ setupExamNumber: 1 });
+  const { loadSetup, render } = setupHarness({ fixedExamNumber: 1 });
   const hook = loadSetup('@/hooks/use-training-setup-page').useTrainingSetupPage;
   let setup = render(hook);
   setup.update(1, { count: 6 });
@@ -1155,31 +1201,41 @@ test('ползунок обновляет доступность и сохран
 });
 
 test('сборщик открывается отдельно, без создания попытки', () => {
-  const { store, paths, requests, loadSetup, render } = setupHarness();
-  store.setState({ setupExamNumber: 2 });
+  const { paths, requests, loadSetup, render } = setupHarness();
   const catalog = render(loadSetup('@/hooks/use-task-catalog').useTaskCatalog);
   catalog.openSetup();
   assert.deepEqual(paths, ['/training/setup']);
   assert.equal(requests.length, 0);
-  assert.equal(store.getState().setupExamNumber, null);
 });
 
-test('быстрый повторный клик создаёт только одну попытку', async () => {
-  const { requests, loadSetup, render } = setupHarness();
+test('быстрый повторный клик по номеру открывает настройку один раз', () => {
+  const { paths, requests, loadSetup, render } = setupHarness();
   const catalog = render(loadSetup('@/hooks/use-task-catalog').useTaskCatalog);
-  await Promise.all([catalog.openNumber(1), catalog.openNumber(1)]);
+  catalog.openNumber(1);
+  catalog.openNumber(1);
+  assert.deepEqual(paths, ['/training/setup?examNumber=1']);
+  assert.equal(requests.length, 0);
+});
+
+test('запуск тренировки блокирует повторное создание попытки', async () => {
+  const { requests, loadSetup, render } = setupHarness({ fixedExamNumber: 1 });
+  const setup = render(loadSetup('@/hooks/use-training-setup-page').useTrainingSetupPage);
+  await Promise.all([setup.start(), setup.start()]);
   assert.equal(requests.length, 1);
 });
 
 test('повтор после потери соединения сохраняет idempotency key запроса', async () => {
-  const { requests, loadSetup, render } = setupHarness({ failFirstRequest: true });
-  const hook = loadSetup('@/hooks/use-task-catalog').useTaskCatalog;
-  let catalog = render(hook);
-  await catalog.openNumber(1);
-  catalog = render(hook);
-  assert.equal(catalog.busy, false);
-  assert.equal(catalog.error, 'Connection lost');
-  await catalog.openNumber(1);
+  const { requests, loadSetup, render } = setupHarness({
+    failFirstRequest: true,
+    fixedExamNumber: 1,
+  });
+  const hook = loadSetup('@/hooks/use-training-setup-page').useTrainingSetupPage;
+  let setup = render(hook);
+  await setup.start();
+  setup = render(hook);
+  assert.equal(setup.busy, false);
+  assert.equal(setup.error, 'Connection lost');
+  await setup.start();
   assert.equal(requests.length, 2);
   assert.equal(requests[0].key, requests[1].key);
 });

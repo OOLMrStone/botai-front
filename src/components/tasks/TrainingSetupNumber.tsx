@@ -12,7 +12,7 @@ interface TrainingSetupNumberProps {
   number: TrainingNumberOption;
   selection: TrainingSelection;
   disabled: boolean;
-  onRemove: () => void;
+  onRemove?: () => void;
   onCountChange: (count: number) => void;
   onTopicChange: (topicId?: string) => void;
 }
@@ -31,15 +31,17 @@ export function TrainingSetupNumber({
         <p className={layout.trainingSetup.selectionTitle}>
           {TASK_COPY.setup.exam(number.examNumber, number.title)}
         </p>
-        <Button
-          variant="ghost"
-          size="icon-compact"
-          aria-label={TASK_COPY.setup.remove(number.examNumber)}
-          disabled={disabled}
-          onClick={onRemove}
-        >
-          <X className={layout.tasks.icon} />
-        </Button>
+        {onRemove ? (
+          <Button
+            variant="ghost"
+            size="icon-compact"
+            aria-label={TASK_COPY.setup.remove(number.examNumber)}
+            disabled={disabled}
+            onClick={onRemove}
+          >
+            <X className={layout.tasks.icon} />
+          </Button>
+        ) : null}
       </div>
       <div className={layout.trainingSetup.countGroup}>
         <div className={layout.trainingSetup.countHeading}>

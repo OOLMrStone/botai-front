@@ -265,7 +265,7 @@ export const layout = {
       icon: 'size-12 rounded-control p-0',
       'icon-compact': 'size-11 rounded-control p-0',
       card: 'h-auto rounded-card text-base',
-      segment: 'h-12 rounded-[calc(var(--radius-tile)-0.25rem)] text-base',
+      segment: 'h-12 rounded-control text-base',
     },
   },
   auth: {
@@ -545,23 +545,25 @@ export const layout = {
   },
   tasks: {
     content: 'w-full',
-    catalogScroll: '[overflow-anchor:none]',
+    catalog: 'flex min-h-0 flex-1 flex-col gap-3',
+    catalogHeader: 'flex shrink-0 flex-col gap-3 border-b border-border pb-3',
+    catalogScroll: 'space-y-5 [overflow-anchor:none]',
     catalogStack: 'space-y-5',
     catalogActions: 'flex flex-wrap items-center justify-between gap-3',
     catalogSecondary:
       'inline-flex min-h-11 items-center gap-2 rounded-control px-3 text-sm font-medium text-muted-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring',
     historyLabel: 'hidden sm:inline',
     catalogBuilder: 'gap-2',
-    tabs: 'sticky top-0 z-40 grid h-14 grid-cols-3 rounded-tile bg-muted p-1',
+    tabs: 'relative isolate grid h-14 shrink-0 grid-cols-3 rounded-control bg-muted p-1',
     tabsIndicator:
-      'pointer-events-none absolute inset-y-1 left-1 z-10 w-[calc((100%_-_0.5rem)/3)] rounded-[calc(var(--radius-tile)-0.25rem)] bg-foreground transition-transform duration-[var(--task-tab-motion-duration)] ease-out motion-reduce:transition-none',
+      'pointer-events-none absolute inset-y-1 left-1 z-10 w-[calc((100%_-_0.5rem)/3)] rounded-control bg-foreground transition-transform duration-[var(--task-tab-motion-duration)] ease-out motion-reduce:transition-none',
     tabsActiveLabels:
-      'pointer-events-none absolute inset-y-1 left-1 z-30 w-[calc((100%_-_0.5rem)/3)] overflow-hidden rounded-[calc(var(--radius-tile)-0.25rem)] transition-transform duration-[var(--task-tab-motion-duration)] ease-out motion-reduce:transition-none',
+      'pointer-events-none absolute inset-y-1 left-1 z-30 w-[calc((100%_-_0.5rem)/3)] overflow-hidden rounded-control transition-transform duration-[var(--task-tab-motion-duration)] ease-out motion-reduce:transition-none',
     tabsActiveLabelsTrack:
       'grid h-full w-[300%] grid-cols-3 transition-transform duration-[var(--task-tab-motion-duration)] ease-out motion-reduce:transition-none',
     tabActiveLabel: 'flex items-center justify-center text-base font-medium text-background',
     tabButton:
-      'relative z-20 h-12 rounded-[calc(var(--radius-tile)-0.25rem)] bg-transparent px-1 text-base font-medium hover:bg-transparent',
+      'relative z-20 bg-transparent px-1 font-medium hover:bg-transparent dark:hover:bg-transparent',
     tabLabel: 'text-muted-foreground',
     grid: 'grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 [overflow-anchor:none] desktop:grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] desktop:gap-4',
     card: 'relative isolate whitespace-normal font-normal min-h-20 min-[480px]:min-h-36 min-w-0 rounded-card border border-transparent text-left transition-[transform,opacity] active:translate-y-px motion-reduce:transition-none disabled:pointer-events-none',
